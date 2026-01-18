@@ -54,4 +54,57 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         throw new RuntimeException("Not implemented");
     }
+
+	@Override
+	public boolean equals(Object obj) {
+		// Obj must exist and be ChessPiece
+		if (obj == null) { return false; }
+		if (obj.getClass() != ChessPiece.class) { return false; }
+
+		ChessPiece otherPiece = (ChessPiece) obj;
+
+		// If piece is the same type and color as the other, they are equal
+		if (this.type == otherPiece.getPieceType()) {
+			if (this.teamColor == otherPiece.getTeamColor()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	@Override 
+	public int hashCode() {
+		int out = 0;
+		switch(this.type) {
+			case PAWN:
+				out++;
+			case BISHOP:
+				out++;
+			case KNIGHT:
+				out++;
+			case ROOK:
+				out++;
+			case QUEEN:
+				out++;
+			case KING:
+				out++;
+				break;
+			default:
+				out = 100;
+		}
+		out *= 31;
+
+		switch(this.teamColor) {
+			case BLACK:
+				out++;
+			case WHITE:
+				out++;
+				break;
+			default:
+				out += 100;
+		}
+
+		return out;
+	}
 }
