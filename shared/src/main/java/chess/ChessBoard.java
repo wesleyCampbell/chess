@@ -24,7 +24,7 @@ public class ChessBoard {
 	}
 
     public ChessBoard(int rowNum, int colNum) {
-        // A 2D array representing the actuall board
+        // A 2D array representing the actual board
 		this.rowNum = rowNum;
 		this.colNum = colNum;
 		this.board = ChessBoard.generateNewBoard(rowNum, colNum); 
@@ -37,8 +37,8 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-		int row = position.getRow();
-		int col = position.getColumn();
+		int row = position.getRow() - 1;
+		int col = position.getColumn() - 1;
 
 		this.board[row][col] = piece;
     }
@@ -51,8 +51,8 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-		int row = position.getRow();
-		int col = position.getColumn();
+		int row = position.getRow() - 1;
+		int col = position.getColumn() - 1;
 
 		return this.board[row][col];
     }
