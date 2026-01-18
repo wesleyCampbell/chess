@@ -107,4 +107,47 @@ public class ChessPiece {
 
 		return out;
 	}
+
+	@Override 
+	public String toString() {
+		StringBuilder outStr = new StringBuilder();
+
+		switch(this.teamColor) {
+			case BLACK:
+				outStr.append("Black ");
+				break;
+			case WHITE:
+				outStr.append("White ");
+				break;
+			default:
+				outStr.append("??? ");
+				break;
+		}
+		
+		switch(this.type) {
+			case PAWN:
+				outStr.append("Pawn");
+				break;
+			case BISHOP:
+				outStr.append("Bishop");
+				break;
+			case KNIGHT:
+				outStr.append("Knight");
+				break;
+			case ROOK:
+				outStr.append("Rook");
+				break;
+			case QUEEN:
+				outStr.append("Queen");
+				break;
+			case KING:
+				outStr.append("King");
+				break;
+			default:
+				outStr.append("???");
+				break;
+		}
+
+		return outStr.toString();
+	}
 }

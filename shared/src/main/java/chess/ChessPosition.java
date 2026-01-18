@@ -50,4 +50,17 @@ public class ChessPosition {
 	public int hashCode() {
 		return this.col + 31 * this.row;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder outStr = new StringBuilder();
+
+		outStr.append("(");
+		outStr.append(this.row);
+		outStr.append(", ");
+		outStr.append(this.col);
+		outStr.append(")");
+
+		return outStr.toString();
+	}
 }
