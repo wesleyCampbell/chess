@@ -1,27 +1,20 @@
 package chess;
 
 import java.util.Collection;
+import java.util.Map;
+import java.lang.StringBuilder;
+
+import chess.ChessGame.TeamColor;
 
 /**
  * Represents a single chess piece
- * <p>
- * Note: You can add to this class, but you may not alter
- * signature of the existing methods.
  */
 public class ChessPiece {
-
-	PieceType type;
-	ChessGame.TeamColor teamColor;
-
-    public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
-		this.type = type;
-		this.teamColor = pieceColor;
-    }
-
-    /**
-     * The various different chess piece options
-     */
-    public enum PieceType {
+	//
+	// ============================== STATIC ATTRIBUTES ==========================
+	//
+	
+    public static enum PieceType {
         KING,
         QUEEN,
         BISHOP,
@@ -30,14 +23,85 @@ public class ChessPiece {
         PAWN
     }
 
-    /**
-     * @return Which team this chess piece belongs to
-     */
+	private static final Map<ChessPiece.PieceType, Character> PieceSymbols = 
+		Map.of(
+				PieceType.KING, 'K',
+				PieceType.QUEEN, 'Q',
+				PieceType.BISHOP, 'B',
+				PieceType.KNIGHT, 'N',
+				PieceType.ROOK, 'R',
+				PieceType.PAWN, 'P'
+			  );
+
+	//
+	// ========================= STATIC METHODS ==============================
+	//
+	
+	/**
+	 * Dereferences a character into its cooresponding piece type
+	 *
+	 * @param symbol: The symbol code. Valid options are 'K', 'Q', 'B', 'N', 'R', 'P'.
+	 * @return The piece type or null, if it doesn't exist
+	 */
+	public static PieceType resolveChessPiece(char symbol) {
+		for (Map.Entry<PieceType, Character> entry : PieceSymbols.entrySet()) {
+			if (entry.getValue() == symbol) {
+				return entry.getKey();
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Dereferences a piece type into its cooresponding character symbol
+	 *
+	 * @param type: The piece type
+	 * @return The character representation of the piece.
+	 */
+	public static char resolveChessPiece(PieceType type) {
+		return PieceSymbols.get(type);
+	}
+	
+	//
+	// ========================= MEMBER ATTRIBUTES ==============================
+	//
+	
+	private PieceType type;
+	private TeamColor pieceColor;
+	private char pieceSymbol;
+
+	//
+	// ========================= CONSTRUCTORS ===================================
+	//
+	
+	/**
+	 * Constructor for ChessPiece class
+	 *
+	 * @param pieceColor: The team color of the new piece
+	 * @param type: The type of chess piece, e.g. PAWN or ROOK.
+	 */
+	public ChessPiece(TeamColor pieceColor, PieceType type) {
+		this.type = type;
+		this.pieceColor = pieceColor;
+		this.pieceSymbol = ChessPiece.PieceSymbols.get(type);
+	}
+
+	// 
+	// ============================ MEMBER METHODS ==============================
+	//
+	
+	/**
+	 * Getter for the piece's color
+	 *
+	 * @return Color of the chess piece
+	 */
     public ChessGame.TeamColor getTeamColor() {
-		return this.teamColor;
+		return this.pieceColor;
     }
 
     /**
+	 * Getter for the piece's type
+	 *
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
@@ -55,64 +119,55 @@ public class ChessPiece {
         throw new RuntimeException("Not implemented");
     }
 
+	/**
+	 * Checks to see if an object is equal to the chess piece.
+	 *
+	 * Note that for it to return true, the object must be a 
+	 * ChessPiece with the same color and type.
+	 *
+	 * @return true if equal, false otherwise.
+	 */
 	@Override
 	public boolean equals(Object obj) {
-		// Obj must exist and be ChessPiece
+		// obj must exist and must be a ChessPiece
 		if (obj == null) { return false; }
 		if (obj.getClass() != ChessPiece.class) { return false; }
 
-		ChessPiece otherPiece = (ChessPiece) obj;
+		ChessPiece other = (ChessPiece) obj;
 
-		// If piece is the same type and color as the other, they are equal
-		if (this.type == otherPiece.getPieceType()) {
-			if (this.teamColor == otherPiece.getTeamColor()) {
-				return true;
+		// Compare the piece type and color
+		if (this.type != other.getPieceType() ||
+				this.pieceColor != other.getTeamColor()) {
+					return false;
 			}
-		}
 
-		return false;
+		return true;
 	}
 
-	@Override 
+	/**
+	 * Provids a hashing method for the ChessPiece.
+	 *
+	 * Is determined by its type and color.
+	 *
+	 * @return int: the hash code
+	 */
+	@Override
 	public int hashCode() {
-		int out = 0;
-		switch(this.type) {
-			case PAWN:
-				out++;
-			case BISHOP:
-				out++;
-			case KNIGHT:
-				out++;
-			case ROOK:
-				out++;
-			case QUEEN:
-				out++;
-			case KING:
-				out++;
-				break;
-			default:
-				out = 100;
-		}
-		out *= 31;
-
-		switch(this.teamColor) {
-			case BLACK:
-				out++;
-			case WHITE:
-				out++;
-				break;
-			default:
-				out += 100;
-		}
-
+		int out = this.type.hashCode() * 31;
+		out += this.pieceColor.hashCode();
 		return out;
 	}
 
-	@Override 
+	/**
+	 * Provides a string representation of a ChessPiece
+	 *
+	 * @return String representation.
+	 */
+	@Override
 	public String toString() {
 		StringBuilder outStr = new StringBuilder();
 
-		switch(this.teamColor) {
+		switch(this.pieceColor) {
 			case BLACK:
 				outStr.append("Black ");
 				break;
@@ -120,34 +175,12 @@ public class ChessPiece {
 				outStr.append("White ");
 				break;
 			default:
-				outStr.append("??? ");
-				break;
-		}
-		
-		switch(this.type) {
-			case PAWN:
-				outStr.append("Pawn");
-				break;
-			case BISHOP:
-				outStr.append("Bishop");
-				break;
-			case KNIGHT:
-				outStr.append("Knight");
-				break;
-			case ROOK:
-				outStr.append("Rook");
-				break;
-			case QUEEN:
-				outStr.append("Queen");
-				break;
-			case KING:
-				outStr.append("King");
-				break;
-			default:
-				outStr.append("???");
+				outStr.append("Unknown Color ");
 				break;
 		}
 
+		outStr.append(this.pieceSymbol);
+		
 		return outStr.toString();
 	}
 }
