@@ -7,9 +7,27 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessBoard {
+	private static int DEFAULT_ROW_NUM = 8;
+	private static int DEFAULT_COL_NUM = 8;
 
-    public ChessBoard() {
-        
+	private static ChessPiece[][] generateNewBoard(int rowNum, int colNum) {
+		return new ChessPiece[rowNum][colNum] ;	
+	}
+
+	int rowNum;
+	int colNum;
+
+	private ChessPiece[][] board;
+
+	public ChessBoard() {
+		this(ChessBoard.DEFAULT_COL_NUM, ChessBoard.DEFAULT_COL_NUM);
+	}
+
+    public ChessBoard(int rowNum, int colNum) {
+        // A 2D array representing the actuall board
+		this.rowNum = rowNum;
+		this.colNum = colNum;
+		this.board = ChessBoard.generateNewBoard(rowNum, colNum); 
     }
 
     /**
@@ -19,7 +37,10 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        throw new RuntimeException("Not implemented");
+		int row = position.getRow();
+		int col = position.getColumn();
+
+		this.board[row][col] = piece;
     }
 
     /**
@@ -30,7 +51,10 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        throw new RuntimeException("Not implemented");
+		int row = position.getRow();
+		int col = position.getColumn();
+
+		return this.board[row][col];
     }
 
     /**
@@ -38,6 +62,57 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+		this.board = generateNewBoard(this.rowNum, this.colNum);
     }
+
+	/**
+	 * Overrides the default toString() method to return a string implementation of the board
+	 */
+	@Override
+	public String toString() {
+		StringBuilder outStr = new StringBuilder();
+		for (int row = 0; row < board.length; row++) {
+			outStr.append("| ");
+			
+			for (int col = 0; col < board[row].length; col++) {
+				// Gets the piece at current index
+				ChessPiece piece = board[row][col];
+				char pieceSymbol;  
+
+				if (piece == null) {
+					pieceSymbol = '-';
+					continue;
+				}
+				switch(piece.getPieceType()) {
+					case KING:
+						pieceSymbol = 'K';
+						break;
+					case QUEEN:
+						pieceSymbol = 'Q';
+						break;
+					case BISHOP:
+						pieceSymbol = 'B';
+						break;
+					case KNIGHT:
+						pieceSymbol = 'N';
+						break;
+					case ROOK:
+						pieceSymbol = 'R';
+						break;
+					case PAWN:
+						pieceSymbol = 'P';
+						break;
+					default:
+						pieceSymbol = '?';
+				}
+
+				outStr.append(String.format(" %c ", pieceSymbol));
+			}	
+			outStr.append(" |");
+			if (row < board.length - 1) {
+				outStr.append("\n");
+			}
+		}
+		return outStr.toString(); 
+	}
 }
