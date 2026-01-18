@@ -30,4 +30,24 @@ public class ChessPosition {
     public int getColumn() {
 		return this.col;
     }
+
+	@Override 
+	public boolean equals(Object obj) {
+		// Object must exist and must be ChessPosition object
+		if (obj == null) { return false; }
+		if (obj.getClass() != ChessPosition.class) { return false; }
+
+		ChessPosition otherPos = (ChessPosition) obj;
+		// If the ChessPosition's column and row values are the same, they are equal
+		if (this.row == otherPos.getRow() && this.col == otherPos.getColumn()) {
+			return true;
+		}
+		
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return this.col + 31 * this.row;
+	}
 }
