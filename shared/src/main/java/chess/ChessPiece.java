@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Map;
 import java.lang.StringBuilder;
 
@@ -116,7 +117,108 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+		// I'm going to assume that we are a rook, just to see if I can get those rook tests passed
+		
+		System.out.println("BOARD STATE: ");
+		System.out.println(board.toString());
+		
+		Collection<ChessMove> moves = new ArrayList<>();
+		
+		// Up moves
+		int y = myPosition.getColumn() - 1;
+		int x = myPosition.getRow();
+		while (y >= 1) {
+			ChessPosition newPos = new ChessPosition(x, y);
+			
+			ChessPiece pieceAtPos = board.getPiece(newPos);
+
+			if (pieceAtPos == null) {
+				ChessMove newMove = new ChessMove(myPosition, newPos, null);
+				moves.add(newMove);
+				y--;
+				continue;
+			}
+			
+			// matching colors means we are blocked. break out of the loop
+			if (this.pieceColor == pieceAtPos.getTeamColor()) {
+				break;  
+			} 
+			// Diff colors, add one more to capture then break out of the loop
+			ChessMove newMove = new ChessMove(myPosition, newPos, null);
+			moves.add(newMove);
+			break;
+		}
+		// Down moves
+		y = myPosition.getColumn() + 1;
+		while (y <= board.getBoardHeight()) {
+			ChessPosition newPos = new ChessPosition(x, y);
+			
+			ChessPiece pieceAtPos = board.getPiece(newPos);
+
+			if (pieceAtPos == null) {
+				ChessMove newMove = new ChessMove(myPosition, newPos, null);
+				moves.add(newMove);
+				y++;
+				continue;
+			}
+			
+			// matching colors means we are blocked. break out of the loop
+			if (this.pieceColor == pieceAtPos.getTeamColor()) {
+				break;  
+			} 
+			// Diff colors, add one more to capture then break out of the loop
+			ChessMove newMove = new ChessMove(myPosition, newPos, null);
+			moves.add(newMove);
+			break;
+		}
+		// Left moves
+		y = myPosition.getColumn();
+		x = myPosition.getRow() - 1;
+		while (x >= 1) {
+			ChessPosition newPos = new ChessPosition(x, y);
+			
+			ChessPiece pieceAtPos = board.getPiece(newPos);
+
+			if (pieceAtPos == null) {
+				ChessMove newMove = new ChessMove(myPosition, newPos, null);
+				moves.add(newMove);
+				x--;
+				continue;
+			}
+			
+			// matching colors means we are blocked. break out of the loop
+			if (this.pieceColor == pieceAtPos.getTeamColor()) {
+				break;  
+			} 
+			// Diff colors, add one more to capture then break out of the loop
+			ChessMove newMove = new ChessMove(myPosition, newPos, null);
+			moves.add(newMove);
+			break;
+		}
+		// Right moves
+		x = myPosition.getRow() + 1;
+		while (x <= board.getBoardWidth()) {
+			ChessPosition newPos = new ChessPosition(x, y);
+			
+			ChessPiece pieceAtPos = board.getPiece(newPos);
+
+			if (pieceAtPos == null) {
+				ChessMove newMove = new ChessMove(myPosition, newPos, null);
+				moves.add(newMove);
+				x++;
+				continue;
+			}
+			
+			// matching colors means we are blocked. break out of the loop
+			if (this.pieceColor == pieceAtPos.getTeamColor()) {
+				break;  
+			} 
+			// Diff colors, add one more to capture then break out of the loop
+			ChessMove newMove = new ChessMove(myPosition, newPos, null);
+			moves.add(newMove);
+			break;
+		}
+		return moves;
     }
 
 	/**
