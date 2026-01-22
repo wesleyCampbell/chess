@@ -15,6 +15,11 @@ public class ChessPosition {
 		this.col = col;
     }
 
+	public ChessPosition(ChessPosition other) {
+		this.row = other.getRow();
+		this.col = other.getColumn();
+	}
+
     /**
      * @return which row this position is in
      * 1 codes for the bottom row
@@ -30,6 +35,11 @@ public class ChessPosition {
     public int getColumn() {
 		return this.col;
     }
+
+	public void add(ChessPosition other) {
+		this.row += other.getRow();
+		this.col+= other.getColumn();
+	}
 
 	@Override 
 	public boolean equals(Object obj) {
