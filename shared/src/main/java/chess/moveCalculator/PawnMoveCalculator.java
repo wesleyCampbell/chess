@@ -11,8 +11,13 @@ public class PawnMoveCalculator extends ChessPieceMoveCalculator {
 	// ============================ STATIC ATTRIBUTES =============================
 	//
 
-	private static ChessPosition[] pawnMoves = {
+	private static final ChessPosition[] pawnMoves = {
 		new ChessPosition(1, 0),
+	};
+
+	private static final ChessPosition[] attackMoves = {
+		new ChessPosition(1, -1),
+		new ChessPosition(1, 1),
 	};
 
 	private static int moveStanima = 1;
@@ -30,25 +35,31 @@ public class PawnMoveCalculator extends ChessPieceMoveCalculator {
 	 * @return the updated set of moves.
 	 */
 	private static ChessPosition[] applyDirectionScalarMoves(ChessPosition[] moves, TeamColor color) {
-		for (ChessPosition move : moves) {
-			System.out.println(move.toString());
-		}
+		// Copy the new moves
+		ChessPosition[] newMoves = new ChessPosition[moves.length];
+		System.out.println("Called applyDirectionScalarMoves");
+		ChessPosition scalars;
 		switch(color) {
 			case TeamColor.WHITE:
+				scalars = new ChessPosition(1, 1);
 				break;
 			case TeamColor.BLACK:
-				// Invert the vertical component for each move vector 
-				for (int i = 0; i < moves.length; i++) {
-					moves[i].setRow(-1 * moves[0].getRow());
-				}
+				scalars = new ChessPosition(-1, 1);
 				break;
+			default:
+				scalars = new ChessPosition(0, 0);
 		}
 
-		System.out.println("==================");
-		for (ChessPosition move : moves) {
-			System.out.println(move.toString());
+		for (int i = 0; i < moves.length; i++) {
+			ChessPosition move = moves[i];
+
+			int newRow = move.getRow() * scalars.getRow();
+			int newCol = move.getColumn() * scalars.getColumn();
+
+			newMoves[i] = new ChessPosition(newRow, newCol);
 		}
-		return moves;	
+
+		return newMoves;	
 	}
 	
 	//
@@ -58,6 +69,7 @@ public class PawnMoveCalculator extends ChessPieceMoveCalculator {
 	public PawnMoveCalculator(TeamColor pawnColor) {
 		super(PawnMoveCalculator.applyDirectionScalarMoves(PawnMoveCalculator.pawnMoves, pawnColor),
 				PawnMoveCalculator.moveStanima);
+		System.out.println("Exited applyDirectionScalarMoves");
 	}
 	
 	//
@@ -90,6 +102,8 @@ public class PawnMoveCalculator extends ChessPieceMoveCalculator {
 		// Step 1: Get the normal chess moves
 		HashSet<ChessMove> moves = super.calculateMoves(board, pawn, curPosition, false);
 		
+		System.out.println("Finished step 1");
+
 		// Step 2: Check for double jump moves
 		if (this.canDoubleJump(board, pawn.getTeamColor(), curPosition)) {
 			// set up the new move
@@ -100,10 +114,58 @@ public class PawnMoveCalculator extends ChessPieceMoveCalculator {
 			// append the new move to the set
 			moves.add(doubleJump);
 		}
+		System.out.println("Finished step 2");
 
 		// Step 3: Look for special diagnol capture lines
+		ChessPosition[] attackMoves = PawnMoveCalculator.applyDirectionScalarMoves(PawnMoveCalculator.attackMoves, pawn.getTeamColor());
+
+		for (ChessPosition move : attackMoves) {
+			System.out.println(move);
+		}
+		
+		for (ChessPosition attack : attackMoves) {
+			ChessPosition attackSquare = new ChessPosition(curPosition);
+			attackSquare.add(attack);
+
+			// Make sure the attack square is witin bounds
+			boolean inBounds = this.checkBounds(attackSquare, new ChessPosition(1,1), new ChessPosition(board.getBoardHeight(), board.getBoardWidth()), board);
+			if (!inBounds) {
+				continue;
+			}
+
+			// If there is a piece on the the square, we can capture it if it is of the other color
+			ChessPiece piece = board.getPiece(attackSquare);
+			if (piece != null && piece.getTeamColor() != pawn.getTeamColor()) {
+				moves.add(new ChessMove(curPosition, attackSquare, null));
+			}
+		}
 
 		// Step 4: Calculate the promotion lines
+
+		HashSet<ChessMove> promotionMoves = new HashSet<>();
+		HashSet<ChessMove> oldPromotionMoves = new HashSet<>();
+		for (ChessMove move : moves) {
+			// If a pawn reached the end of the board
+			if (pawn.getTeamColor() == TeamColor.WHITE && move.getEndPosition().getRow() == board.getBoardHeight() ||
+				pawn.getTeamColor() == TeamColor.BLACK && move.getEndPosition().getRow() == 1) {
+				// Add each of the valid chess types to the move set
+				for (ChessPiece.PieceType type : ChessPiece.PieceType.values()) {
+					// Pawns cannot promote to pawns
+					if (type == ChessPiece.PieceType.PAWN) { continue; }
+					// Pawns cannot promote to kings
+					if (type == ChessPiece.PieceType.KING) { continue; }
+
+					ChessMove promotionMove = new ChessMove(move.getStartPosition(), move.getEndPosition(), type);
+					promotionMoves.add(promotionMove);
+				}
+
+				// Remove the null promotion type
+				oldPromotionMoves.add(move);
+			}
+		}
+
+		moves.removeAll(oldPromotionMoves);
+		moves.addAll(promotionMoves);
 		
 		return moves;
 	}
