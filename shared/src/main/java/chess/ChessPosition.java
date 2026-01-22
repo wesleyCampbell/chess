@@ -28,6 +28,15 @@ public class ChessPosition {
 		return this.row;
     }
 
+	/**
+	 * Sets the row to a given value
+	 *
+	 * @param newRow: the new row
+	 */
+	public void setRow(int newRow) {
+		this.row = newRow;
+	}
+
     /**
      * @return which column this position is in
      * 1 codes for the left row
@@ -35,6 +44,15 @@ public class ChessPosition {
     public int getColumn() {
 		return this.col;
     }
+
+	/**
+	 * Sets the column to a given value
+	 *
+	 * @param newCol: the new column
+	 */
+	public void setCol(int newCol) {
+		this.col = newCol;
+	}
 
 	public void add(ChessPosition other) {
 		this.row += other.getRow();
