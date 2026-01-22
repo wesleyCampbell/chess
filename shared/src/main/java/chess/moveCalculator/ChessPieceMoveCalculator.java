@@ -29,6 +29,10 @@ public class ChessPieceMoveCalculator {
 	}
 
 	public HashSet<ChessMove> calculateMoves(ChessBoard board, ChessPiece piece, ChessPosition curPosition) {
+		return this.calculateMoves(board, piece, curPosition, true);
+	}
+
+	protected HashSet<ChessMove> calculateMoves(ChessBoard board, ChessPiece piece, ChessPosition curPosition, boolean capture) {
 		// This is the collection of all moves that are correct
 		HashSet<ChessMove> validMoves = new HashSet<>();
 
@@ -57,8 +61,8 @@ public class ChessPieceMoveCalculator {
 				// Check for piece blocking the path
 				ChessPiece blockingPiece = board.getPiece(newPos);
 				if (blockingPiece != null) {
-					// If it is of another color, we can capture it.
-					if (blockingPiece.getTeamColor() != piece.getTeamColor()) {
+					// If it is of another color and capture==true, we can capture it.
+					if (capture && blockingPiece.getTeamColor() != piece.getTeamColor()) {
 						validMoves.add(new ChessMove(curPosition, movePos, null));
 					}
 					break;

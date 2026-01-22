@@ -119,7 +119,7 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
 		PawnMoveCalculator calc;
-		calc = new PawnMoveCalculator(this.getTeamColor());
+		calc = new PawnMoveCalculator(this.pieceColor);
 
 		return calc.calculateMoves(board, this, myPosition);
     }
