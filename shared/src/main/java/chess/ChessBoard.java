@@ -132,6 +132,24 @@ public class ChessBoard {
 		this.setBoard(DEFAULT_BOARDSTATE);
 	}
 
+	/** 
+	 * Returns the board's height
+	 *
+	 * @return the height
+	 */
+	public int getBoardHeight() {
+		return this.board.length;
+	}
+
+	/**
+	 * Returns the board's width
+	 *
+	 * @return the width
+	 */
+	public int getBoardWidth() {
+		return this.board[0].length;
+	}
+
 	/**
 	 * A String representation of the board
 	 */
@@ -144,7 +162,7 @@ public class ChessBoard {
 		for (int i = 0; i < this.board.length; i++) {
 			outStr.append("| ");
 
-			for (int j = 0; j < board[j].length; j++) {
+			for (int j = 0; j < board[i].length; j++) {
 				// Gets the piece at the current index
 				ChessPiece piece = board[i][j];
 				char pieceSymbol;
