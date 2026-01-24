@@ -3,79 +3,125 @@ package chess.moveCalculator;
 import java.util.HashSet;
 
 import chess.*;
+import chess.ChessGame.TeamColor;
+import chess.ChessPiece.PieceType;
 
-public class ChessPieceMoveCalculator {
+/**
+ * Interface for the ChessPieceMoveCalculator object.
+ */
+public abstract class ChessPieceMoveCalculator {
+	
+	//
+	// ======================== STATIC METHODS =======================
+	//
 	
 	protected ChessPosition[] directionVectors;
 	protected int moveStanima;
 
+	// ======================== CONSTRUCTOR =======================
 	//
-	// ========================= CONSTRUCTORS ===================================
-	//
-	public ChessPieceMoveCalculator(ChessPosition[] dirVectors, int moveStanima) {
-		this.directionVectors = dirVectors;
+	
+	protected ChessPieceMoveCalculator(ChessPosition[] directionVectors, int moveStanima) {
+		this.directionVectors = directionVectors;
 		this.moveStanima = moveStanima;
 	}
 
-	protected boolean checkBounds(ChessPosition pos, ChessPosition bounds1, ChessPosition bounds2, ChessBoard board) {
-		if (pos.getRow() < bounds1.getRow() || pos.getRow() > bounds2.getRow()) {
-			return false;
-		}
-		if (pos.getColumn() < bounds1.getColumn() || pos.getColumn() > bounds2.getColumn()) {
-			return false;
-		}
+	// ======================== METHODS =======================
+	//
+	
+	/**
+	 * Checks to see if a given position is found within a board
+	 *
+	 * @param board The game board
+	 * @param pos The position to check
+	 *
+	 * @return true if the position is within the board, false otherwise
+	 */
+	protected boolean checkBoundaries(ChessBoard board, ChessPosition pos) {
+		int row = pos.getRow() - 1;
+		int col = pos.getColumn() - 1;
+
+		if (row < 0 || row >= board.getBoardHeight()) { return false; }
+		if (col < 0 || col >= board.getBoardWidth()) { return false; }
 
 		return true;
 	}
 
-	public HashSet<ChessMove> calculateMoves(ChessBoard board, ChessPiece piece, ChessPosition curPosition) {
-		return this.calculateMoves(board, piece, curPosition, true);
+	/**
+	 * Default version of the calculateMoves method.
+	 *
+	 * When this is called, capture will always be set to true, meaning 
+	 * that the piece will always try to capture, if it is able
+	 *
+	 * @param piece The chess piece
+	 * @param curPos The position of the chess piece
+	 * @param board The current board
+	 * 
+	 * @return A HashSet of all the valid moves the piece can make.
+	 */
+	public HashSet<ChessMove> calculateMoves(TeamColor color, ChessPosition curPos, ChessBoard board) {
+		return this.calculateMoves(color, curPos, board, true);
 	}
-
-	protected HashSet<ChessMove> calculateMoves(ChessBoard board, ChessPiece piece, ChessPosition curPosition, boolean capture) {
-		// This is the collection of all moves that are correct
+	
+	/**
+	 * Given a piece, position, and a board state, this function will
+	 * calculate all of the valid moves the piece can make.
+	 *
+	 * @param piece The chess piece 
+	 * @param curPos The position of the piece
+	 * @param board The current board
+	 * @param capture Whether the piece should capture pieces or not
+	 *
+	 * @return A Hashset of all the valid moves.
+	 */
+	public HashSet<ChessMove> calculateMoves(TeamColor color, ChessPosition curPos, ChessBoard board, boolean capture) {
 		HashSet<ChessMove> validMoves = new HashSet<>();
 
-		System.out.println(board.toString());
+		// iterate through each of the object's direction vectors;
+		for (ChessPosition dir : this.directionVectors) {
+			// copy the current position vector
+			ChessPosition newPos = new ChessPosition(curPos);
 
-		for (ChessPosition dirVec : this.directionVectors) {
-			// Make our new position vector and set it equal to the current piece position
-			ChessPosition newPos = new ChessPosition(0, 0);
-			newPos.add(curPosition);
+			// We can only move so far in one direction
+			// If this.moveStanima == -1, then there is no limit
+			int moveStanima = this.moveStanima;
+			while (this.moveStanima == -1 || moveStanima  > 0) {
 
-			int depth = 1;
-			while (depth <= this.moveStanima || this.moveStanima < 0) {
-				// Move in the current direction
-				newPos.add(dirVec);
+				// Adds the movement
+				newPos.add(dir);
 
-				// If the new position is out of bounds, go on to the next direction.
-				if (!checkBounds(newPos, new ChessPosition(1, 1), // the positions start at index 1
-						new ChessPosition(board.getBoardWidth(), board.getBoardHeight()),
-						board)) {
+				// Checks the boundaries 
+				if (!this.checkBoundaries(board, newPos)) {
 					break;
 				}
 
-				// A copy of the new position vector to pass into the validMoves set
+				// Make a copy of the current position vector to pass into the new move.
+				// It can't be the same because the passed reference would be changed with 
+				// future iterations
 				ChessPosition movePos = new ChessPosition(newPos);
 
-				// Check for piece blocking the path
+				// Check to see if we are blocked by another piece and whether we can capture
 				ChessPiece blockingPiece = board.getPiece(newPos);
 				if (blockingPiece != null) {
-					// If it is of another color and capture==true, we can capture it.
-					if (capture && blockingPiece.getTeamColor() != piece.getTeamColor()) {
-						validMoves.add(new ChessMove(curPosition, movePos, null));
+					// If capture is set to true and the piece belongs to an enemy team, we may capture
+					if (capture && blockingPiece.getTeamColor() != color) {
+						ChessMove lastMove = new ChessMove(curPos, movePos, null);
+						validMoves.add(lastMove);
 					}
+					// we are blocked, so we cannot continue.
 					break;
 				}
-// In bounds, no piece to capure
-				System.out.println("    Adding to validMoves");
-				validMoves.add(new ChessMove(curPosition, movePos, null));
+				
+				// If nothing is blocking us, we can add the move
+				ChessMove move = new ChessMove(curPos, movePos, null);
 
-				// update the move depth
-				depth++;
+				validMoves.add(move);
+
+				moveStanima--;
 			}
 		}
 
 		return validMoves;
 	}
 }
+

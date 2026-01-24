@@ -1,18 +1,30 @@
 package chess.moveCalculator;
 
-import chess.*;
+import chess.ChessPosition;
 
+/**
+ * Class for the Bishop ChessPiece move calculator
+ */
 public class BishopMoveCalculator extends ChessPieceMoveCalculator {
-	private static ChessPosition[] bishopMoves = {
-		new ChessPosition(1, 1),
-		new ChessPosition(1, -1),
-		new ChessPosition(-1, 1),
-		new ChessPosition(-1, -1),
+	//
+	// ======================== STATIC ATTRIBUTES =======================
+	//
+	
+	private static final ChessPosition[] DIR_VECTORS = {
+		new ChessPosition(1, 1),	
+		new ChessPosition(1, -1),	
+		new ChessPosition(-1, 1),	
+		new ChessPosition(-1, -1)	
 	};
 
-	private static int moveStanima = -1;
+	private static final int STANIMA = -1;
 
+	//
+	// ======================== CONSTRUCTORS ==============================
+	//
+	
 	public BishopMoveCalculator() {
-		super(BishopMoveCalculator.bishopMoves, BishopMoveCalculator.moveStanima);
+		super(BishopMoveCalculator.DIR_VECTORS, BishopMoveCalculator.STANIMA);
 	}
 }
+

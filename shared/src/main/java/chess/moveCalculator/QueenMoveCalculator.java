@@ -1,23 +1,35 @@
 package chess.moveCalculator;
 
-import chess.*;
+import chess.ChessPosition;
 
+/**
+ * Class for the Queen ChessPiece move calculator
+ */
 public class QueenMoveCalculator extends ChessPieceMoveCalculator {
-	private static ChessPosition[] queenMoves = {
-		new ChessPosition(1, 1),
-		new ChessPosition(1, -1),
-		new ChessPosition(-1, 1),
-		new ChessPosition(-1, -1),
+	//
+	// ======================== STATIC ATTRIBUTES =======================
+	//
+	
+	private static final ChessPosition[] DIR_VECTORS = {
+		new ChessPosition(1, 0),	
+		new ChessPosition(-1, 0),	
+		new ChessPosition(0, 1),	
+		new ChessPosition(0, -1),	
 
-		new ChessPosition(0, -1),
-		new ChessPosition(0, 1),
-		new ChessPosition(-1, 0),
-		new ChessPosition(1, 0),
+		new ChessPosition(1, 1),	
+		new ChessPosition(1, -1),	
+		new ChessPosition(-1, 1),	
+		new ChessPosition(-1, -1)	
 	};
 
-	private static int moveStanima = -1;
+	private static final int STANIMA = -1;
 
+	//
+	// ======================== CONSTRUCTORS ==============================
+	//
+	
 	public QueenMoveCalculator() {
-		super(QueenMoveCalculator.queenMoves, QueenMoveCalculator.moveStanima);
+		super(QueenMoveCalculator.DIR_VECTORS, QueenMoveCalculator.STANIMA);
 	}
 }
+

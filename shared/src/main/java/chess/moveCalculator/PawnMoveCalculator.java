@@ -1,174 +1,246 @@
 package chess.moveCalculator;
 
 import java.util.HashSet;
+import java.util.Set;
+import java.util.Collection;
 
-import chess.*;
+import chess.ChessMove;
+import chess.ChessPosition;
+import chess.ChessBoard;
+import chess.ChessPiece.PieceType;
+import chess.ChessPiece;
 import chess.ChessGame.TeamColor;
 
-public class PawnMoveCalculator extends ChessPieceMoveCalculator {
-
+/**
+ * Class for the Pawn ChessPiece move calculator
+ */
+public abstract class PawnMoveCalculator extends ChessPieceMoveCalculator {
 	//
-	// ============================ STATIC ATTRIBUTES =============================
+	// ======================== STATIC ATTRIBUTES =======================
 	//
-
-	private static final ChessPosition[] pawnMoves = {
-		new ChessPosition(1, 0),
+	
+	protected static final ChessPosition[] DIR_VECTORS = {
+		new ChessPosition(1, 0),	
 	};
 
-	private static final ChessPosition[] attackMoves = {
+	protected static final ChessPosition[] ATTACK_VECTORS = { 
 		new ChessPosition(1, -1),
-		new ChessPosition(1, 1),
+		new ChessPosition(1, 1)
 	};
 
-	private static int moveStanima = 1;
+	protected static final ChessPosition DOUBLE_JUMP_VECTOR = new ChessPosition(2, 0);
+
+	protected static final int STANIMA = 1;
+
+	protected static final Set<PieceType> INVALID_PROMOTION_TYPES = Set.of(
+		PieceType.KING,
+		PieceType.PAWN
+	);
 
 	//
-	// ============================ STATIC METHODS =============================
+	// ======================== STATIC METHODS ========================
 	//
+	
+	/**
+	 * A helper function used for making a new pawn object based on an inputed color
+	 *
+	 * @param pawnColor The color of the pawn
+	 *
+	 * @return A new PawnMoveCalculator object
+	 */
+	public static PawnMoveCalculator makeNewPawnMoveCalculator(TeamColor pawnColor) {
+		switch (pawnColor) {
+			case TeamColor.WHITE:
+				return new WhitePawnMoveCalculator();
+			case TeamColor.BLACK:
+				return new BlackPawnMoveCalculator();
+			default:
+				return null;
+		}
+	}
+	
+	/**
+	 * Applies a direction modifier to some movement vectors
+	 *
+	 * @param dirModifier The direction modifier
+	 * @param vectors The movement vectors
+	 *
+	 * @return The array of modified vectors
+	 */
+	protected static ChessPosition[] applyDirModifier(ChessPosition dirModifier, ChessPosition[] vectors) {
+		ChessPosition[] outVectors = new ChessPosition[vectors.length];
+
+		for (int i = 0; i < vectors.length; i++) {
+			outVectors[i] = PawnMoveCalculator.applyDirModifier(dirModifier, vectors[i]);
+		}
+		
+		return outVectors;
+	}
 
 	/**
-	 * If the color is black, will invert the vertical component as pawns are unidirectional.
+	 * Applies a direction modifier to a vector
 	 *
-	 * @param moves: the collection of movement vectors
-	 * @param color: the pawn's color
+	 * @param dirModifier The direction modifier
+	 * @param vector The vector
 	 *
-	 * @return the updated set of moves.
+	 * @return The modified vector
 	 */
-	private static ChessPosition[] applyDirectionScalarMoves(ChessPosition[] moves, TeamColor color) {
-		// Copy the new moves
-		ChessPosition[] newMoves = new ChessPosition[moves.length];
-		System.out.println("Called applyDirectionScalarMoves");
-		ChessPosition scalars;
-		switch(color) {
-			case TeamColor.WHITE:
-				scalars = new ChessPosition(1, 1);
-				break;
-			case TeamColor.BLACK:
-				scalars = new ChessPosition(-1, 1);
-				break;
-			default:
-				scalars = new ChessPosition(0, 0);
-		}
-
-		for (int i = 0; i < moves.length; i++) {
-			ChessPosition move = moves[i];
-
-			int newRow = move.getRow() * scalars.getRow();
-			int newCol = move.getColumn() * scalars.getColumn();
-
-			newMoves[i] = new ChessPosition(newRow, newCol);
-		}
-
-		return newMoves;	
+	protected static ChessPosition applyDirModifier(ChessPosition dirModifier, ChessPosition vector) {
+		ChessPosition outVector = new ChessPosition(vector);
+		outVector.multiply(dirModifier);
+		
+		return outVector;
 	}
 	
 	//
-	// ============================ CONSTRUCTORS =============================
+	// ======================== MEMBER ATTRIBUTES ==============================
 	//
 	
-	public PawnMoveCalculator(TeamColor pawnColor) {
-		super(PawnMoveCalculator.applyDirectionScalarMoves(PawnMoveCalculator.pawnMoves, pawnColor),
-				PawnMoveCalculator.moveStanima);
-		System.out.println("Exited applyDirectionScalarMoves");
+	ChessPosition[] attackVectors;
+	ChessPosition doubleJumpVector;
+
+
+	//
+	// ======================== CONSTRUCTORS ==============================
+	//
+	
+	protected PawnMoveCalculator(ChessPosition[] moveVectors, ChessPosition[] attackVectors, ChessPosition doubleJumpVector) {
+		super(moveVectors, PawnMoveCalculator.STANIMA);
+		this.attackVectors = attackVectors;
+		this.doubleJumpVector = doubleJumpVector;
+
 	}
-	
+
 	//
-	// ============================ MEMBER METHODS =============================
+	// ======================== MEMBER METHODS ============================
 	//
 	
-	private boolean canDoubleJump(ChessBoard board, TeamColor pawnColor, ChessPosition pos) {
-		// Verify the positions. White has to be on row 2, black on the second to last
-		if (pawnColor == TeamColor.WHITE && pos.getRow() != 2) {
-			return false;
-		} 
-		if (pawnColor == TeamColor.BLACK && pos.getRow() != board.getBoardHeight() - 1) {
-			return false;
+	/**
+	 * Calculates all the possible moves for the pawn chess piece.
+	 *
+	 * This is more complex than the chess move calculations for the other
+	 * pieces. The Pawn can also:
+	 * - Conditionally double jump
+	 * - Conditionally capture in en passant
+	 * - capture in different lines than its movement lines
+	 * - Can promote
+	 * - only move in one direction (uni-directional)
+	 *
+	 * @param color the pawn's color
+	 * @param curPos The current position of the pawn
+	 * @param board The current board
+	 *
+	 * @return A HashMap of all possible moves
+	 */
+	@Override
+	public HashSet<ChessMove> calculateMoves(TeamColor color, ChessPosition curPos, ChessBoard board) {
+
+		System.out.println(board);
+
+		System.out.println("My Moves:");
+		System.out.println(this.directionVectors[0]);
+
+		// Step 1: Collect all the normal moves
+		HashSet<ChessMove> validMoves = super.calculateMoves(color, curPos, board, false);
+		
+		// Step 2: Calculate double jump
+		if (canDoubleJump(color, curPos, board)) {
+			System.out.println("Can double jump!");
+			ChessPosition jumpSquare = new ChessPosition(curPos);
+			jumpSquare.add(this.doubleJumpVector);
+
+			validMoves.add(new ChessMove(curPos, jumpSquare, null));
 		}
 
-		int dirMod = (pawnColor == TeamColor.WHITE) ? 1 : -1;
-		// We need to check the two spaces in front of the pawn for pieces
-		for (int i = 1; i <= 2; i++) {
-			ChessPosition squareAhead = new ChessPosition(pos.getRow() + i * dirMod, pos.getColumn());
-			// If there is a piece, we cannot double jump.
-			if (board.getPiece(squareAhead) != null) {
-				return false;
+		// Step 3: Calculate captures 
+		
+		for (ChessPosition attackVector : this.attackVectors) {
+			// The square we are attacking 
+			ChessPosition attackSquare = new ChessPosition(curPos);
+			attackSquare.add(attackVector);
+
+			// Check bounds
+			if (!this.checkBoundaries(board, attackSquare)) { continue; }
+
+			ChessPiece attackPiece = board.getPiece(attackSquare);
+			if (attackPiece != null && attackPiece.getTeamColor() != color) {
+				validMoves.add(new ChessMove(curPos, attackSquare, null));
 			}
 		}
 
-		return true;
+		// Step 4: Calculate promotion lines
+
+		HashSet<ChessMove> promotionMoves = new HashSet<>();  // A place to store the promotion moves during iteration
+		HashSet<ChessMove> trash = new HashSet<>();  // A place to put the useless placeholder moves
+		for (ChessMove move : validMoves) {
+			if (color == TeamColor.WHITE) {
+				if (move.getEndPosition().getRow() == board.getBoardHeight()) {
+					this.addPromotionTypes(move, promotionMoves);
+					trash.add(move);
+				}
+			}
+			else if (color == TeamColor.BLACK) {
+				if (move.getEndPosition().getRow() == 1) {
+					this.addPromotionTypes(move, promotionMoves);
+					trash.add(move);
+				}
+			}
+		}
+
+		validMoves.addAll(promotionMoves);
+		validMoves.removeAll(trash);
+		
+		// Step 5: Return 
+		
+		return validMoves;
 	}
-	
-	public HashSet<ChessMove> calculateMoves(ChessBoard board, ChessPiece pawn, ChessPosition curPosition) {
-		// Step 1: Get the normal chess moves
-		HashSet<ChessMove> moves = super.calculateMoves(board, pawn, curPosition, false);
-		
-		System.out.println("Finished step 1");
 
-		// Step 2: Check for double jump moves
-		if (this.canDoubleJump(board, pawn.getTeamColor(), curPosition)) {
-			// set up the new move
-			int dirMod = (pawn.getTeamColor() == TeamColor.WHITE) ? 1 : -1;
-			ChessPosition targetSquare = new ChessPosition(curPosition.getRow() + 2 * dirMod, curPosition.getColumn());
-			ChessMove doubleJump = new ChessMove(curPosition, targetSquare, null);
-
-			// append the new move to the set
-			moves.add(doubleJump);
-		}
-		System.out.println("Finished step 2");
-
-		// Step 3: Look for special diagnol capture lines
-		ChessPosition[] attackMoves = PawnMoveCalculator.applyDirectionScalarMoves(PawnMoveCalculator.attackMoves, pawn.getTeamColor());
-
-		for (ChessPosition move : attackMoves) {
-			System.out.println(move);
-		}
-		
-		for (ChessPosition attack : attackMoves) {
-			ChessPosition attackSquare = new ChessPosition(curPosition);
-			attackSquare.add(attack);
-
-			// Make sure the attack square is witin bounds
-			boolean inBounds = this.checkBounds(attackSquare, new ChessPosition(1,1), new ChessPosition(board.getBoardHeight(), board.getBoardWidth()), board);
-			if (!inBounds) {
+	/**
+	 * Adds all the valid promotion moves to a set.
+	 *
+	 * @param move The chess move to iterate through
+	 * @param promotionMoves The set to add all valid promotion moves
+	 */
+	private void addPromotionTypes(ChessMove move, Collection<ChessMove> promotionMoves) {
+		for (PieceType type : PieceType.values()) {
+			if (PawnMoveCalculator.INVALID_PROMOTION_TYPES.contains(type)) {
 				continue;
 			}
 
-			// If there is a piece on the the square, we can capture it if it is of the other color
-			ChessPiece piece = board.getPiece(attackSquare);
-			if (piece != null && piece.getTeamColor() != pawn.getTeamColor()) {
-				moves.add(new ChessMove(curPosition, attackSquare, null));
-			}
+			promotionMoves.add(new ChessMove(move, type));
+		}
+	}
+
+	/**
+	 * Calculates to see if a pawn is capable of double jumping
+	 *
+	 * @param color The color of the pawn 
+	 * @param curPos The current position of the Pawn
+	 * @param board The current board 
+	 *
+	 * @return true, if the pawn can double jump, false otherwise
+	 */
+	private boolean canDoubleJump(TeamColor color, ChessPosition curPos, ChessBoard board) {
+		// Check to see if the pawn is on the correct row
+		if (color == TeamColor.WHITE && curPos.getRow() != 2) {
+			return false;
+		}
+		if (color == TeamColor.BLACK && curPos.getRow() != board.getBoardHeight() - 1) {
+			return false;
 		}
 
-		// Step 4: Calculate the promotion lines
-
-		HashSet<ChessMove> promotionMoves = new HashSet<>();
-		HashSet<ChessMove> oldPromotionMoves = new HashSet<>();
-		for (ChessMove move : moves) {
-			// If a pawn reached the end of the board
-			if (pawn.getTeamColor() == TeamColor.WHITE && move.getEndPosition().getRow() == board.getBoardHeight() ||
-				pawn.getTeamColor() == TeamColor.BLACK && move.getEndPosition().getRow() == 1) {
-				// Add each of the valid chess types to the move set
-				for (ChessPiece.PieceType type : ChessPiece.PieceType.values()) {
-					// Pawns cannot promote to pawns
-					if (type == ChessPiece.PieceType.PAWN) { continue; }
-					// Pawns cannot promote to kings
-					if (type == ChessPiece.PieceType.KING) { continue; }
-
-					ChessMove promotionMove = new ChessMove(move.getStartPosition(), move.getEndPosition(), type);
-					promotionMoves.add(promotionMove);
-				}
-
-				// Remove the null promotion type
-				oldPromotionMoves.add(move);
-			}
+		// Check to see if there are pieces blocking the jump
+		ChessPosition jumpSquare = new ChessPosition(curPos);
+		for (int i = 1; i <=2; i++) {
+			// I don't like this, but it isn't likely to cause an issue yet.
+			// TODO: Find a better way to do this.
+			jumpSquare.add(this.directionVectors[0]);
+			System.out.println(String.format("    jumpSquare piece: %s", board.getPiece(jumpSquare)));
+			if (board.getPiece(jumpSquare) != null) { return false; }
 		}
 
-		moves.removeAll(oldPromotionMoves);
-		moves.addAll(promotionMoves);
-		
-		return moves;
+		// With the checks passed, we can jump
+		return true;
 	}
 }
-
 
