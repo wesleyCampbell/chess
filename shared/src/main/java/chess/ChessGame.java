@@ -9,8 +9,22 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessGame {
+	//
+	// ============================ STATIC ATTRIBUTES =======================
+	//
+	
+	private static final TeamColor DEFAULT_START_COLOR = TeamColor.WHITE;
+
+	//
+	// ============================ MEMBER ATTRIBUTES =======================
+	//
+	
+	private ChessBoard gameBoard;
+	private TeamColor activeTeam;
 
     public ChessGame() {
+		this.gameBoard = new ChessBoard();
+		this.activeTeam = ChessGame.DEFAULT_START_COLOR;
 
     }
 
@@ -18,7 +32,7 @@ public class ChessGame {
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        throw new RuntimeException("Not implemented");
+		return activeTeam;
     }
 
     /**
@@ -27,7 +41,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        throw new RuntimeException("Not implemented");
+		this.activeTeam = team;
     }
 
     /**
@@ -46,7 +60,15 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+		ChessPiece piece = this.gameBoard.getPiece(startPosition);
+
+		Collection<ChessMove> allMoves;
+
+		if (piece != null) {
+			allMoves = piece.pieceMoves(this.gameBoard, startPosition);
+		}
+
+		return allMoves;
     }
 
     /**
