@@ -88,7 +88,14 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+		HashSet<ChessMove> allMoves = new HashSet<>();
+		// Step 1: Get the default moves of the piece on the square, if it exists
+		ChessPiece piece = this.gameBoard.getPiece(startPosition);
+		allMoves.addAll(piece.pieceMoves(this.gameBoard, startPosition));
+		// Step 2: Take out moves that put king in check
+		// Step 3: Add special moves, if necessary
+
+		return allMoves;
     }
 
     /**
@@ -98,7 +105,35 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+		// Step 1: Check to see if there is a valid piece at the start position
+		ChessPosition startPos = move.getStartPosition();
+		ChessPiece piece = this.gameBoard.getPiece(startPos);
+		if (piece == null || piece.getTeamColor() != this.activeTeam) {
+			String err = String.format("Piece at square %s either doesn't exist or it is not their turn!", startPos);
+			throw new InvalidMoveException(err);
+		}
+
+		// Step 2: Verify that move is valid
+		Collection<ChessMove> validMoves = this.validMoves(startPos);
+		if (!validMoves.contains(move)) {
+			String err = String.format("Move %s is invalid!", move);
+			throw new InvalidMoveException(err);
+		}
+		// Step 3: Make move
+		//throw new RuntimeException("Steps 3 and 4 of makeMove not implemented!");
+		ChessPosition endPos = move.getEndPosition();
+		
+		this.gameBoard.addPiece(startPos, null);
+
+		ChessPiece capturePiece = this.gameBoard.getPiece(endPos);
+		if (capturePiece != null) {
+			this.chessTeamData.get(piece.getTeamColor()).addCapturedPiece(capturePiece);
+		}
+
+		this.gameBoard.addPiece(endPos, piece);
+		
+		// Step 4: Update databases
+		this.updateDatabases();
     }
 
 	/** 
@@ -183,8 +218,23 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+		if (this.isInCheck(teamColor)) { return false; }
+
+		// If the moveSet is empty, then the team is in stalemate
+		return this.chessTeamData.get(teamColor).getMoveSet().isEmpty();
     }
+
+	/**
+	 * Updates the team databases with a new board state
+	 *
+	 * @param board The new board state
+	 */
+	private void updateDatabases() {
+
+		for (ChessTeamDatabase db : this.chessTeamData.values()) {
+			db.update(this.gameBoard);
+		}
+	}
 
     /**
      * Sets this game's chessboard with a given board
@@ -192,8 +242,9 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-		// this.gameBoard = new ChessBoard(board);
-        throw new RuntimeException("Not implemented");
+		this.gameBoard = new ChessBoard(board);
+		
+		this.updateDatabases();
     }
 
     /**
@@ -202,6 +253,6 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        throw new RuntimeException("Not implemented");
+		return this.gameBoard;
     }
 }
