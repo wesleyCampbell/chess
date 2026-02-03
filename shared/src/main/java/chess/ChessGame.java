@@ -1,6 +1,10 @@
 package chess;
 
+import chess.ChessPiece.PieceType;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -15,6 +19,23 @@ public class ChessGame {
 	
 	private static final TeamColor DEFAULT_START_COLOR = TeamColor.WHITE;
 
+    /**
+     * Enum identifying the 2 possible teams in a chess game
+     */
+    public static enum TeamColor {
+        WHITE,
+        BLACK
+    }
+
+	private static Map<TeamColor, ChessTeamDatabase> generateTeamDatabase(ChessBoard board) {
+		HashMap<TeamColor, ChessTeamDatabase> database = new HashMap<>();
+		for (TeamColor color : TeamColor.values()) {
+			database.put(color, new ChessTeamDatabase(color, board));
+		}
+
+		return database;
+	}
+
 	//
 	// ============================ MEMBER ATTRIBUTES =======================
 	//
@@ -22,11 +43,25 @@ public class ChessGame {
 	private ChessBoard gameBoard;
 	private TeamColor activeTeam;
 
+	private Map<TeamColor, ChessTeamDatabase> chessTeamData;
+	
+	//
+	// ============================ CONSTRUCTORS =======================
+	//
+
     public ChessGame() {
 		this.gameBoard = new ChessBoard();
+		this.gameBoard.resetBoard();
+
 		this.activeTeam = ChessGame.DEFAULT_START_COLOR;
 
+		this.chessTeamData = ChessGame.generateTeamDatabase(this.gameBoard);
+
     }
+
+	//
+	// ============================ MEMBER METHODS =======================
+	//
 
     /**
      * @return Which team's turn it is
@@ -44,13 +79,6 @@ public class ChessGame {
 		this.activeTeam = team;
     }
 
-    /**
-     * Enum identifying the 2 possible teams in a chess game
-     */
-    public enum TeamColor {
-        WHITE,
-        BLACK
-    }
 
     /**
      * Gets a valid moves for a piece at the given location
@@ -60,15 +88,7 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-		ChessPiece piece = this.gameBoard.getPiece(startPosition);
-
-		Collection<ChessMove> allMoves;
-
-		if (piece != null) {
-			allMoves = piece.pieceMoves(this.gameBoard, startPosition);
-		}
-
-		return allMoves;
+        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -88,7 +108,25 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+		HashSet<ChessPosition> kingPos = this.chessTeamData.get(teamColor).getKingPos();
+
+		// Go through all other team databases and make a union of their attack moves
+		// end positions
+		HashSet<ChessPosition> attackSquares = new HashSet<>();
+		for (ChessTeamDatabase database : this.chessTeamData.values()) {
+			if (database.getTeamColor() != teamColor) {
+				HashSet<ChessMove> attackMoves = database.getAttackMoveSet();
+				// We are only interested in the endPositions
+				attackSquares.addAll(ChessMove.extractEndPositions(attackMoves));
+			}
+		}
+
+		// Check to see if any of the king positions are in the attack squares
+		for (ChessPosition king : kingPos) {
+			if (attackSquares.contains(king)) { return true; }
+		}
+
+		return false;
     }
 
     /**
@@ -98,6 +136,11 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
+		// Must be in check to be in checkmate
+		if (!this.isInCheck(teamColor)) {
+			return false; 
+		}
+
         throw new RuntimeException("Not implemented");
     }
 
@@ -118,6 +161,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
+		// this.gameBoard = new ChessBoard(board);
         throw new RuntimeException("Not implemented");
     }
 
