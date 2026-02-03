@@ -101,6 +101,26 @@ public class ChessGame {
         throw new RuntimeException("Not implemented");
     }
 
+	/** 
+	 * Returns a union of all attack moves except for one team color's
+	 *
+	 * @param excludeColor The color to exclude from the set
+	 *
+	 * @return A set of all attack moves from all teams except the one provided
+	 */
+	private HashSet<ChessMove> generateTeamAttacks(TeamColor teamColor) {
+		HashSet<ChessMove> attackMoves = new HashSet<>();
+
+		for (ChessTeamDatabase db : this.chessTeamData.values()) {
+			// Exclude the provided team
+			if (db.getTeamColor() == teamColor) { continue; }
+
+			attackMoves.addAll(db.getAttackMoveSet());
+		}
+
+		return attackMoves;
+	}
+
     /**
      * Determines if the given team is in check
      *
@@ -110,16 +130,8 @@ public class ChessGame {
     public boolean isInCheck(TeamColor teamColor) {
 		HashSet<ChessPosition> kingPos = this.chessTeamData.get(teamColor).getKingPos();
 
-		// Go through all other team databases and make a union of their attack moves
-		// end positions
-		HashSet<ChessPosition> attackSquares = new HashSet<>();
-		for (ChessTeamDatabase database : this.chessTeamData.values()) {
-			if (database.getTeamColor() != teamColor) {
-				HashSet<ChessMove> attackMoves = database.getAttackMoveSet();
-				// We are only interested in the endPositions
-				attackSquares.addAll(ChessMove.extractEndPositions(attackMoves));
-			}
-		}
+		// Generate attacks from all teams except teamColor and take out the endPositions
+		HashSet<ChessPosition> attackSquares = ChessMove.extractEndPositions(this.generateTeamAttacks(teamColor));
 
 		// Check to see if any of the king positions are in the attack squares
 		for (ChessPosition king : kingPos) {
@@ -141,7 +153,26 @@ public class ChessGame {
 			return false; 
 		}
 
-        throw new RuntimeException("Not implemented");
+		HashSet<ChessPosition> attackSquares = ChessMove.extractEndPositions(this.generateTeamAttacks(teamColor));
+		HashSet<ChessPosition> kingPos = this.chessTeamData.get(teamColor).getKingPos();
+
+		for (ChessPosition pos : kingPos) {
+			ChessPiece king = this.gameBoard.getPiece(pos);
+
+			// Get all the move squares
+			Collection<ChessMove> moves = king.pieceMoves(this.gameBoard, pos);
+			HashSet<ChessPosition> moveSquares = ChessMove.extractEndPositions(moves);
+
+			// Remove all of the attackSquares from the moveSquares to see if the king has any legal moves
+			moveSquares.removeAll(attackSquares);
+
+			// e.g. the king cannot move
+			if (moveSquares.isEmpty()) {
+				return true;
+			}
+		}
+
+		return false;
     }
 
     /**
