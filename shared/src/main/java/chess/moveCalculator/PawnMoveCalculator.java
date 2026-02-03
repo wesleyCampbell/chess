@@ -242,5 +242,41 @@ public abstract class PawnMoveCalculator extends ChessPieceMoveCalculator {
 		// With the checks passed, we can jump
 		return true;
 	}
+
+	/**
+	 * Calculates all the valid attack moves that the pawn piece can make
+	 *
+	 * @param board The current chess board
+	 * @param pos The position of the pawn
+	 * @param color The pawn's team color
+	 *
+	 * @return A hash set containing all legal attack moves
+	 */
+	@Override
+	public HashSet<ChessMove> calculateAttackMoves(ChessBoard board, ChessPosition pos, TeamColor color) {
+		HashSet<ChessMove> outMoves = new HashSet<>();
+		// Iterate through all attack moves and see if they are possible
+		for (ChessPosition attackMove : this.attackVectors) {
+			// calculate the square position
+			ChessPosition attackSquare = new ChessPosition(pos);
+			attackSquare.add(attackMove);
+			
+			// Verify that it is in bounds
+			if (!this.checkBoundaries(board, attackSquare)) {
+				continue;
+			}
+
+			// Check to see if there is a piece blocking
+			ChessPiece attackPiece = board.getPiece(attackSquare);
+			if (attackPiece != null && attackPiece.getTeamColor() == color) {
+				continue;
+			}
+
+			// Move is within bounds and there is no blocking piece
+			outMoves.add(new ChessMove(pos, attackSquare, null));
+		}
+
+		return outMoves;
+	}
 }
 

@@ -1,5 +1,8 @@
 package chess;
 
+import java.util.HashSet;
+import java.util.Collection;
+
 import chess.ChessPiece.PieceType;
 
 /**
@@ -9,6 +12,27 @@ import chess.ChessPiece.PieceType;
  * signature of the existing methods.
  */
 public class ChessMove {
+
+	//
+	// ======================== STATIC METHODS =========================
+	//
+	
+	/**
+	 * Returns a HashSet of the end positions of a collection of chess moves
+	 *
+	 * @param moves A Collection of ChessMove objects
+	 *
+	 * @return A HashSet of all the end positions of the ChessMove Collection
+	 */
+	public static HashSet<ChessPosition> extractEndPositions(Collection<ChessMove> moves) {
+		HashSet<ChessPosition> endPositions = new HashSet<>();
+
+		for (ChessMove move : moves) {
+			endPositions.add(move.getEndPosition());
+		}
+
+		return endPositions;
+	}
 
 	//
 	// ======================== MEMBER ATTRIBUTES =========================

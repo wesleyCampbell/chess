@@ -123,5 +123,17 @@ public abstract class ChessPieceMoveCalculator {
 
 		return validMoves;
 	}
+
+	/**
+	 * Calculates all valid attack moves. Note that in most cases this method will return
+	 * the same as ChessPieceMoveCalculator.calculateMoves().
+	 *
+	 * @param board The current chess board
+	 * @param pos The position of the ChessPiece
+	 * @param color The color of the piece
+	 */
+	public HashSet<ChessMove> calculateAttackMoves(ChessBoard board, ChessPosition pos, TeamColor color) {
+		return this.calculateMoves(color, pos, board);
+	}
 }
 
