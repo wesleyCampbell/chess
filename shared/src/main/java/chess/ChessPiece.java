@@ -100,7 +100,7 @@ public class ChessPiece {
 	 * @param pieceType The piece's type
 	 * @return the character symbol of the type, or null if it doesn't match any known symbol
 	 */
-	public static char resolveChessType(PieceType pieceType) {
+	public static Character resolveChessType(PieceType pieceType) {
 		return ChessPiece.typeSymbolMap.get(pieceType);
 	}	
 	
@@ -192,6 +192,19 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
 		return this.moveCalculator.calculateMoves(this.color, myPosition, board);
     }
+
+	/** 
+	 * Calculates all the valid attack moves that a piece can do.
+	 * Most of the time will be the same as ChessPiece.pieceMoves
+	 *
+	 * @param board The Current chessboard
+	 * @param pos The position of the chess piece
+	 *
+	 * @return Collection of valid chess moves
+	 */
+	public HashSet<ChessMove> getAttackMoves(ChessBoard board, ChessPosition pos) {
+		return this.moveCalculator.calculateAttackMoves(board, pos, this.color);
+	}
 
 	/**
 	 * Overriden equality opperator
