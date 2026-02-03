@@ -22,11 +22,23 @@ public class ChessBoardGenerator {
 		"RNBQKBNR"
 	};
 
+	public static final String[] STANDARD_EMPTY_STATE = {
+		"--------",
+		"--------",
+		"--------",
+		"--------",
+		"--------",
+		"--------",
+		"--------",
+		"--------"
+	};
+
 	//
 	// ======================== MEMBER ATTRIBUTES =======================
 	//
 	
 	private String[] standardState;
+	private String[] currentState;
 
 	//
 	// ======================== CONSTRUCTORS =======================
@@ -49,6 +61,18 @@ public class ChessBoardGenerator {
 	 */
 	public ChessBoardGenerator(String[] standardState) {
 		this.standardState = standardState;
+		this.currentState = ChessBoardGenerator.STANDARD_EMPTY_STATE; 
+	}
+
+	/**
+	 * Constructor that allows custom standard state and custom starting board state
+	 *
+	 * @param standardState The default state of a chessboard, for reseting purposes.
+	 * @param currentState The current state of the chessboard.
+	 */
+	public ChessBoardGenerator(String[] standardState, String[] currentState) {
+		this.standardState = standardState;
+		this.currentState = currentState;
 	}
 
 	//
@@ -64,6 +88,7 @@ public class ChessBoardGenerator {
 	 * @return A 2D array of ChessPieces, all initialized to null.
 	 */
 	public ChessPiece[][] generateEmptyBoard(int rowNum, int colNum) {
+		this.currentState = ChessBoardGenerator.STANDARD_EMPTY_STATE;
 		return new ChessPiece[rowNum][colNum];
 	}
 
@@ -101,7 +126,21 @@ public class ChessBoardGenerator {
 			}
 		}
 
+		this.currentState = state;
 		return newBoard;
+	}
+
+	/**
+	 * Copies the board state of another ChessBoard
+	 *
+	 * @param other The ChessBoard to copy
+	 *
+	 * @return A 2D array of Chess Pieces
+	 */
+	public ChessPiece[][] copyBoardState(ChessBoard other) {
+		String[] otherBoardState = other.getBoardState();
+
+		return this.generateBoard(otherBoardState);
 	}
 
 	/**
@@ -111,6 +150,40 @@ public class ChessBoardGenerator {
 		return this.generateBoard(this.standardState);
 	}
 
+	/**
+	 * Getter for the currentState
+	 *
+	 * @return String array representing the state of a chessboard.
+	 */
+	public String[] getState(ChessBoard board) {
+		int rowNum = board.getBoardHeight();
+		int colNum = board.getBoardWidth();
 
+		String[] outState = new String[rowNum];
+
+		// Iterate through each square and append the cooresponding piece type into the array
+		for (int row = 0; row < rowNum; row++) {
+			StringBuilder rowStr = new StringBuilder();
+
+			for (int col = 0; col < colNum; col++) {
+				// Get the piece at the given square
+				ChessPosition square = new ChessPosition(row + 1, col + 1);
+				ChessPiece piece = board.getPiece(square);
+
+				// Resolve the piece symbol to see what piece it is
+				Character pieceSymbol = ChessPiece.resolveChessType(piece.getPieceType());
+				if (pieceSymbol == null) {
+					pieceSymbol = '-';
+				}
+
+				rowStr.append(pieceSymbol);
+			}
+
+			// Append the new row
+			outState[row] = rowStr.toString();
+		}
+
+		return outState;
+	}
 
 }

@@ -41,6 +41,16 @@ public class ChessBoard {
     }
 
 	/**
+	 * Copy constructor
+	 * @param other The ChessBoard to copy
+	 */
+	public ChessBoard(ChessBoard other) {
+		this(other.getBoardHeight(), other.getBoardWidth());
+
+		this.board = this.boardGenerator.copyBoardState(other);
+	}
+
+	/**
 	 * Constructor. Allows custom row and column values for the board.
 	 */
 	public ChessBoard(int rowNum, int colNum) {
@@ -106,6 +116,10 @@ public class ChessBoard {
 	 */
 	public int getBoardWidth() {
 		return this.colNum;
+	}
+
+	public String[] getBoardState() {
+		return this.boardGenerator.getState(this);
 	}
 
 	/**
