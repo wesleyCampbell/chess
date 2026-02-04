@@ -91,6 +91,8 @@ public class ChessTeamDatabase {
 	}
 
 	private HashSet<ChessMove> generateMoveSet(ChessBoard board) {
+		System.out.println(String.format("    DEBUG: Color: %s", this.teamColor));
+		System.out.println(board);
 		HashSet<ChessMove> moves = new HashSet<>();
 
 		// Iterates through all the squares on the board looking for pieces of the same color
@@ -105,6 +107,9 @@ public class ChessTeamDatabase {
 					continue;
 				}
 
+				System.out.println(String.format("    DEBUG: position: %s", square));
+				System.out.println(String.format("    DEBUG: piece: %s", piece));
+
 				// Filter out pieces of different colors
 				if (piece.getTeamColor() == this.teamColor) {
 					moves.addAll(piece.pieceMoves(board, square));
@@ -112,6 +117,7 @@ public class ChessTeamDatabase {
 			}
 		}
 
+		System.out.println(String.format("    DEBUG moves: %s", moves));
 		return moves;
 	}	
 

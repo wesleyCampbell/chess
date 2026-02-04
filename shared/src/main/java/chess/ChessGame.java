@@ -1,6 +1,8 @@
 package chess;
 
 import chess.ChessPiece.PieceType;
+import chess.moveCalculator.ChessPieceMoveCalculator;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.HashMap;
@@ -93,7 +95,6 @@ public class ChessGame {
 		ChessPiece piece = this.gameBoard.getPiece(startPosition);
 
 		if (piece != null) {
-			System.out.println(piece);
 			allMoves.addAll(piece.pieceMoves(this.gameBoard, startPosition));
 		}
 
@@ -168,16 +169,10 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-		System.out.println(this.gameBoard);
-
 		HashSet<ChessPosition> kingPos = this.chessTeamData.get(teamColor).getKingPos();
-
-		System.out.println(String.format("DEBUG: kingPos: %s", kingPos));
 
 		// Generate attacks from all teams except teamColor and take out the endPositions
 		HashSet<ChessPosition> attackSquares = ChessMove.extractEndPositions(this.generateTeamAttacks(teamColor));
-
-		System.out.println(String.format("DEBUG: attackSquares: %s", attackSquares));
 
 		// Check to see if any of the king positions are in the attack squares
 		for (ChessPosition king : kingPos) {
@@ -199,21 +194,22 @@ public class ChessGame {
 			return false; 
 		}
 
-		System.out.println("DEBUG: team in check");
-
 		HashSet<ChessPosition> attackSquares = ChessMove.extractEndPositions(this.generateTeamAttacks(teamColor));
 		HashSet<ChessPosition> kingPos = this.chessTeamData.get(teamColor).getKingPos();
 
 		for (ChessPosition pos : kingPos) {
 			ChessPiece king = this.gameBoard.getPiece(pos);
+t status
+	git add *ChessPieceMoCalculator*
+	git commit
+	iUPDATE: Included ally pieces to be considered for capturing.
 
+	This allows for protected pieces further down the road.
 			// Get all the move squares
 			Collection<ChessMove> moves = king.pieceMoves(this.gameBoard, pos);
 			
 
 			HashSet<ChessPosition> moveSquares = ChessMove.extractEndPositions(moves);
-
-			System.out.println(String.format("DEBUG: moves: %s", moveSquares));
 
 			// Remove all of the attackSquares from the moveSquares to see if the king has any legal moves
 			moveSquares.removeAll(attackSquares);
@@ -237,7 +233,12 @@ public class ChessGame {
     public boolean isInStalemate(TeamColor teamColor) {
 		if (this.isInCheck(teamColor)) { return false; }
 
+		System.out.println(String.format("DEBUG: %s NOT IN CHECK", teamColor));
+		System.out.println(this.gameBoard);
+
 		// If the moveSet is empty, then the team is in stalemate
+		System.out.println(String.format("DEBUG: moveSet: %s", this.chessTeamData.get(teamColor).getMoveSet()));
+
 		return this.chessTeamData.get(teamColor).getMoveSet().isEmpty();
     }
 
@@ -259,8 +260,19 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
+		for (int row = 0; row < board.getBoardHeight(); row++) {
+			for (int col = 0; col < board.getBoardWidth(); col++) {
+				ChessPosition square = new ChessPosition(row+1, col+1);
+				ChessPiece piece = board.getPiece(square);
+
+				if (piece == null) {
+					continue;
+				} 
+			}
+		}
+
 		this.gameBoard = new ChessBoard(board);
-		
+
 		this.updateDatabases();
     }
 
