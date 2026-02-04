@@ -91,7 +91,12 @@ public class ChessGame {
 		HashSet<ChessMove> allMoves = new HashSet<>();
 		// Step 1: Get the default moves of the piece on the square, if it exists
 		ChessPiece piece = this.gameBoard.getPiece(startPosition);
-		allMoves.addAll(piece.pieceMoves(this.gameBoard, startPosition));
+
+		if (piece != null) {
+			System.out.println(piece);
+			allMoves.addAll(piece.pieceMoves(this.gameBoard, startPosition));
+		}
+
 		// Step 2: Take out moves that put king in check
 		// Step 3: Add special moves, if necessary
 
@@ -163,10 +168,16 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
+		System.out.println(this.gameBoard);
+
 		HashSet<ChessPosition> kingPos = this.chessTeamData.get(teamColor).getKingPos();
+
+		System.out.println(String.format("DEBUG: kingPos: %s", kingPos));
 
 		// Generate attacks from all teams except teamColor and take out the endPositions
 		HashSet<ChessPosition> attackSquares = ChessMove.extractEndPositions(this.generateTeamAttacks(teamColor));
+
+		System.out.println(String.format("DEBUG: attackSquares: %s", attackSquares));
 
 		// Check to see if any of the king positions are in the attack squares
 		for (ChessPosition king : kingPos) {
@@ -188,6 +199,8 @@ public class ChessGame {
 			return false; 
 		}
 
+		System.out.println("DEBUG: team in check");
+
 		HashSet<ChessPosition> attackSquares = ChessMove.extractEndPositions(this.generateTeamAttacks(teamColor));
 		HashSet<ChessPosition> kingPos = this.chessTeamData.get(teamColor).getKingPos();
 
@@ -196,7 +209,11 @@ public class ChessGame {
 
 			// Get all the move squares
 			Collection<ChessMove> moves = king.pieceMoves(this.gameBoard, pos);
+			
+
 			HashSet<ChessPosition> moveSquares = ChessMove.extractEndPositions(moves);
+
+			System.out.println(String.format("DEBUG: moves: %s", moveSquares));
 
 			// Remove all of the attackSquares from the moveSquares to see if the king has any legal moves
 			moveSquares.removeAll(attackSquares);
