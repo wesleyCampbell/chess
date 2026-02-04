@@ -211,13 +211,11 @@ public class ChessBoard {
 				outStr.append(String.format(" %c ", symbol));
 			}
 
-			if (row != 0) {
-				outStr.append("\n");
-			}
+			outStr.append("\n");
 		}
 
 		outStr.append("   ------------------------\n");
-		outStr.append("\n    A  B  C  D  E  F  G  H  \n");
+		outStr.append("    A  B  C  D  E  F  G  H  \n");
 
 		return outStr.toString();
 	}
