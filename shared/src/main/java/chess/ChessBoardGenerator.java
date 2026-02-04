@@ -171,9 +171,11 @@ public class ChessBoardGenerator {
 				ChessPiece piece = board.getPiece(square);
 
 				// Resolve the piece symbol to see what piece it is
-				Character pieceSymbol = ChessPiece.resolveChessType(piece.getPieceType());
-				if (pieceSymbol == null) {
+				char pieceSymbol;
+				if (piece == null) {
 					pieceSymbol = '-';
+				} else {
+					pieceSymbol = ChessPiece.resolveChessType(piece.getPieceType());
 				}
 
 				rowStr.append(pieceSymbol);
