@@ -134,18 +134,11 @@ public abstract class PawnMoveCalculator extends ChessPieceMoveCalculator {
 	 */
 	@Override
 	public HashSet<ChessMove> calculateMoves(TeamColor color, ChessPosition curPos, ChessBoard board) {
-
-		System.out.println(board);
-
-		System.out.println("My Moves:");
-		System.out.println(this.directionVectors[0]);
-
 		// Step 1: Collect all the normal moves
 		HashSet<ChessMove> validMoves = super.calculateMoves(color, curPos, board, false);
 		
 		// Step 2: Calculate double jump
 		if (canDoubleJump(color, curPos, board)) {
-			System.out.println("Can double jump!");
 			ChessPosition jumpSquare = new ChessPosition(curPos);
 			jumpSquare.add(this.doubleJumpVector);
 
@@ -235,7 +228,6 @@ public abstract class PawnMoveCalculator extends ChessPieceMoveCalculator {
 			// I don't like this, but it isn't likely to cause an issue yet.
 			// TODO: Find a better way to do this.
 			jumpSquare.add(this.directionVectors[0]);
-			System.out.println(String.format("    jumpSquare piece: %s", board.getPiece(jumpSquare)));
 			if (board.getPiece(jumpSquare) != null) { return false; }
 		}
 
