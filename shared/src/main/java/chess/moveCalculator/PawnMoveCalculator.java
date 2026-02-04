@@ -247,6 +247,7 @@ public abstract class PawnMoveCalculator extends ChessPieceMoveCalculator {
 	@Override
 	public HashSet<ChessMove> calculateAttackMoves(ChessBoard board, ChessPosition pos, TeamColor color) {
 		HashSet<ChessMove> outMoves = new HashSet<>();
+		// TODO: Make this more robust
 		// Iterate through all attack moves and see if they are possible
 		for (ChessPosition attackMove : this.attackVectors) {
 			// calculate the square position
@@ -255,12 +256,6 @@ public abstract class PawnMoveCalculator extends ChessPieceMoveCalculator {
 			
 			// Verify that it is in bounds
 			if (!this.checkBoundaries(board, attackSquare)) {
-				continue;
-			}
-
-			// Check to see if there is a piece blocking
-			ChessPiece attackPiece = board.getPiece(attackSquare);
-			if (attackPiece != null && attackPiece.getTeamColor() == color) {
 				continue;
 			}
 

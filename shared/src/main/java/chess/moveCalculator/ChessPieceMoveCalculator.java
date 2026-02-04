@@ -1,6 +1,7 @@
 package chess.moveCalculator;
 
 import java.util.HashSet;
+import java.util.Locale.Category;
 
 import chess.*;
 import chess.ChessGame.TeamColor;
@@ -60,9 +61,9 @@ public abstract class ChessPieceMoveCalculator {
 	 * @return A HashSet of all the valid moves the piece can make.
 	 */
 	public HashSet<ChessMove> calculateMoves(TeamColor color, ChessPosition curPos, ChessBoard board) {
-		return this.calculateMoves(color, curPos, board, true);
+		return this.calculateMoves(color, curPos, board, true, false);
 	}
-	
+
 	/**
 	 * Given a piece, position, and a board state, this function will
 	 * calculate all of the valid moves the piece can make.
@@ -70,11 +71,27 @@ public abstract class ChessPieceMoveCalculator {
 	 * @param piece The chess piece 
 	 * @param curPos The position of the piece
 	 * @param board The current board
-	 * @param capture Whether the piece should capture pieces or not
+	 * @param captureEnemy Whether the piece should captureEnemy pieces or not
 	 *
 	 * @return A Hashset of all the valid moves.
 	 */
-	public HashSet<ChessMove> calculateMoves(TeamColor color, ChessPosition curPos, ChessBoard board, boolean capture) {
+	public HashSet<ChessMove> calculateMoves(TeamColor color, ChessPosition curPos, ChessBoard board, boolean captureEnemy) {
+		return this.calculateMoves(color, curPos, board, captureEnemy, false);	
+	}
+
+	/**
+	 * Given a piece, position, and a board state, this function will
+	 * calculate all of the valid moves the piece can make.
+	 *
+	 * @param piece The chess piece 
+	 * @param curPos The position of the piece
+	 * @param board The current board
+	 * @param captureEnemy Whether the piece should captureEnemy pieces or not
+	 * @param captureAlly Whether the piece should capure ally pieces or not
+	 *
+	 * @return A Hashset of all the valid moves.
+	 */
+	private HashSet<ChessMove> calculateMoves(TeamColor color, ChessPosition curPos, ChessBoard board, boolean captureEnemy, boolean captureAlly) {
 		HashSet<ChessMove> validMoves = new HashSet<>();
 
 		// iterate through each of the object's direction vectors;
@@ -100,14 +117,20 @@ public abstract class ChessPieceMoveCalculator {
 				// future iterations
 				ChessPosition movePos = new ChessPosition(newPos);
 
-				// Check to see if we are blocked by another piece and whether we can capture
+				// Check to see if we are blocked by another piece and whether we can captureEnemy
 				ChessPiece blockingPiece = board.getPiece(newPos);
 				if (blockingPiece != null) {
-					// If capture is set to true and the piece belongs to an enemy team, we may capture
-					if (capture && blockingPiece.getTeamColor() != color) {
+					// If captureEnemy is set to true and the piece belongs to an enemy team, we may captureEnemy 
+					// The same if captureAlly is true and the piece is an ally
+					TeamColor pieceColor = blockingPiece.getTeamColor();
+					if ((captureEnemy && pieceColor != color) || 
+						 (captureAlly && pieceColor == color)) {
+						if (captureAlly && pieceColor ==color) {
+						}
 						ChessMove lastMove = new ChessMove(curPos, movePos, null);
 						validMoves.add(lastMove);
 					}
+
 					// we are blocked, so we cannot continue.
 					break;
 				}
@@ -133,7 +156,7 @@ public abstract class ChessPieceMoveCalculator {
 	 * @param color The color of the piece
 	 */
 	public HashSet<ChessMove> calculateAttackMoves(ChessBoard board, ChessPosition pos, TeamColor color) {
-		return this.calculateMoves(color, pos, board);
+		return this.calculateMoves(color, pos, board, true, true);
 	}
 }
 
