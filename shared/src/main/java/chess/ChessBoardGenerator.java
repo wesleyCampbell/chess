@@ -105,16 +105,21 @@ public class ChessBoardGenerator {
 
 		ChessPiece[][] newBoard = new ChessPiece[rowNum][colNum];
 
-		TeamColor pieceColor = TeamColor.WHITE;
+		// TeamColor pieceColor = TeamColor.WHITE;
 		for (int row = 0; row < rowNum; row++) {
 			// first half of board is white, second is black
-			if (row > rowNum / 2) {
-				pieceColor = TeamColor.BLACK;
-			}
 
 			for (int col = 0; col < colNum; col++) {
 				char pieceSymbol = state[row].charAt(col);
 				PieceType newPieceType = ChessPiece.resolveChessType(pieceSymbol);
+
+				// TODO: do something better for this to support more teams than 2
+				TeamColor pieceColor;
+				if (Character.isUpperCase(pieceSymbol)) {
+					pieceColor = TeamColor.WHITE;
+				} else {
+					pieceColor = TeamColor.BLACK;
+				}
 
 				// If the new piece is null, then we need an empty square.
 				if (newPieceType == null) { 
@@ -175,7 +180,7 @@ public class ChessBoardGenerator {
 				if (piece == null) {
 					pieceSymbol = '-';
 				} else {
-					pieceSymbol = ChessPiece.resolveChessType(piece.getPieceType());
+					pieceSymbol = ChessPiece.resolveChessType(piece.getPieceType(), piece.getTeamColor());
 				}
 
 				rowStr.append(pieceSymbol);

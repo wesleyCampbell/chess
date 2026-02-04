@@ -86,6 +86,7 @@ public class ChessPiece {
 	 * @return pieceType or null, if the symbol doesn't match any known type.
 	 */
 	public static PieceType resolveChessType(char symbol) {
+		symbol = Character.toUpperCase(symbol);
 		for (Map.Entry<PieceType, Character> entry : ChessPiece.typeSymbolMap.entrySet()) {
 			if (entry.getValue() == symbol) {
 				return entry.getKey();
@@ -100,8 +101,12 @@ public class ChessPiece {
 	 * @param pieceType The piece's type
 	 * @return the character symbol of the type, or null if it doesn't match any known symbol
 	 */
-	public static Character resolveChessType(PieceType pieceType) {
-		return ChessPiece.typeSymbolMap.get(pieceType);
+	public static Character resolveChessType(PieceType pieceType, TeamColor color) {
+		char symbol = ChessPiece.typeSymbolMap.get(pieceType); 
+		if (color != TeamColor.WHITE) {
+			symbol = Character.toLowerCase(symbol);
+		}
+		return symbol;
 	}	
 	
 	//

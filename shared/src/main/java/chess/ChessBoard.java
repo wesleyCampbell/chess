@@ -205,7 +205,7 @@ public class ChessBoard {
 				if (piece == null) { 
 					symbol = '-';
 				} else {
-					symbol = ChessPiece.resolveChessType(piece.getPieceType());
+					symbol = ChessPiece.resolveChessType(piece.getPieceType(), piece.getTeamColor());
 				}
 
 				outStr.append(String.format(" %c ", symbol));
