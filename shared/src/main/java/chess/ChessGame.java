@@ -418,4 +418,46 @@ public class ChessGame {
     public ChessBoard getBoard() {
 		return this.gameBoard;
     }
+
+	/**
+	 * Overrides the equals() method.
+	 *
+	 * Determines equality based on the chessBoard contained as well as who's turn it is
+	 *
+	 * @param obj The other chessGame to compare
+	 *
+	 * @return boolean true if equal, false otherwise
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		// Must exist and must be ChessGame
+		if (obj == null || !(obj instanceof ChessGame)) { return false; }
+
+		ChessGame other = (ChessGame)obj;
+
+		// Check to see if the chessboards are equal
+		if (!this.gameBoard.equals(other.getBoard())) { return false; }
+
+		if (this.activeTeam != other.getTeamTurn()) { return false; }
+
+		return true;
+	}
+
+	/**
+	 * Overrides the hashCode() method.
+	 *
+	 * Returns a unique integer hash based upon the game board and team turn.
+	 *
+	 * @return Unique int code
+	 */
+	@Override
+	public int hashCode() {
+		int hash = 0;
+
+		hash += this.gameBoard.hashCode() * 31;
+
+		hash += this.activeTeam.hashCode();
+
+		return hash * 31;
+	}
 }
