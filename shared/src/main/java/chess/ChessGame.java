@@ -158,9 +158,11 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+
 		// STEP 1: Check to see if there is a valid piece at the start position
 		ChessPosition startPos = move.getStartPosition();
 		ChessPiece piece = this.gameBoard.getPiece(startPos);
+
 		if (piece == null || piece.getTeamColor() != this.activeTeam) {
 			String err = String.format("Piece at square %s either doesn't exist or it is not their turn!", startPos);
 			throw new InvalidMoveException(err);
@@ -176,6 +178,7 @@ public class ChessGame {
 		this._makeMove(move, piece);
 
 		// STEP 4: Update databases
+		this.chessTeamData.get(piece.getTeamColor()).addMovedPiece(piece);
 
 		// STEP 5: Change who's turn it is
 		this.changeTurn();
