@@ -18,8 +18,8 @@ public class ChessBoardGenerator {
 		"--------",
 		"--------",
 		"--------",
-		"PPPPPPPP",
-		"RNBQKBNR"
+		"pppppppp",
+		"rnbqkbnr"
 	};
 
 	public static final String[] STANDARD_EMPTY_STATE = {
