@@ -18,6 +18,23 @@ public class ChessMove {
 	//
 	
 	/**
+	 * Returns a HashSet of the start positions of a collection of chessmoves
+	 *
+	 * @param moves A Collection of chess moves
+	 *
+	 * @return A Hashset of all the start positions of the ChessMove Collection
+	 */
+	public static HashSet<ChessPosition> extractStartPositions(Collection<ChessMove> moves) {
+		HashSet<ChessPosition> startPositions = new HashSet<>();
+
+		for (ChessMove move: moves) {
+			startPositions.add(move.getStartPosition());
+		}
+
+		return startPositions;
+	}
+
+	/**
 	 * Returns a HashSet of the end positions of a collection of chess moves
 	 *
 	 * @param moves A Collection of ChessMove objects
