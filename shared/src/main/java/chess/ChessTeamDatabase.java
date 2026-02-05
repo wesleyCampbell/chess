@@ -12,33 +12,46 @@ public class ChessTeamDatabase {
 	// ============================== MEMBER ATTRIBUTES ============================== 
 	//
 	
-	// private static ChessPosition[] findKingPos(TeamColor color, Chessboard board) {
-	//
-	// }
-	
-	//
-	// ============================== MEMBER ATTRIBUTES ============================== 
-	//
-	
 	private TeamColor teamColor;
 	private HashSet<ChessPosition> kingPositions;
 	private HashSet<ChessMove> attackMoveSet;
 	private HashSet<ChessMove> moveSet;
 	private ArrayList<ChessPiece> capturedPieces;
+	private HashSet<ChessPiece> movedPieces;
 
 	//
 	// ============================== CONSTRUCTORS ============================== 
 	//
 	
+	/**
+	 * Constructor.
+	 *
+	 * @param teamColor The color of the team to be databased
+	 * @param currentBoard A reference to the current board state
+	 */
 	public ChessTeamDatabase(TeamColor teamColor, ChessBoard currentBoard) {
 		this.teamColor = teamColor;
-		// this.kingPositions = ChessTeamDatabase.findKingPos(teamColor, currentBoard);
+
 		this.kingPositions = this.findKingPos(currentBoard);
+
 		this.attackMoveSet = this.generateAttackMoveSet(currentBoard);
 		this.moveSet = this.generateMoveSet(currentBoard);
+
 		this.capturedPieces = new ArrayList<>();
+		this.movedPieces = new HashSet<>();
 	}
 
+	//
+	// ============================== MEMBER METHODS ============================== 
+	//
+	
+	/**
+	 * Returns a HashSet of all the king positions on a chessboard
+	 *
+	 * @param board A current chess board to search
+	 *
+	 * @return HashSet containing all positions of a color's kings.
+	 */
 	private HashSet<ChessPosition> findKingPos(ChessBoard board) {
 		HashSet<ChessPosition> kingPos = new HashSet<>();
 
@@ -60,10 +73,22 @@ public class ChessTeamDatabase {
 		return kingPos;
 	}
 
+	/**
+	 * Update the database records of king positions
+	 *
+	 * @param board The current game board
+	 */
 	public void updateKingPos(ChessBoard board) {
 		this.kingPositions = this.findKingPos(board);
 	}
 
+	/**
+	 * Given a Chessboard, generates a HashSet of all attack moves for the team
+	 *
+	 * @param board The current game board
+	 *
+	 * @return HashSet containing all moves attacking other pieces.
+	 */
 	private HashSet<ChessMove> generateAttackMoveSet(ChessBoard board) {
 		HashSet<ChessMove> attackMoves = new HashSet<>();
 
@@ -91,6 +116,23 @@ public class ChessTeamDatabase {
 		return attackMoves;
 	}
 
+	/**
+	 * Updates the team's attackMoveSet
+	 *
+	 * @param board The current game board
+	 */
+
+	public void updateAttackMoveSet(ChessBoard board) {
+		this.attackMoveSet = this.generateAttackMoveSet(board);
+	}
+
+	/**
+	 * Given a ChessBoard, generates a HashSet of all moves a color can make
+	 *
+	 * @param board The current game board
+	 *
+	 * @return HashSet containing all team piece moves.
+	 */
 	private HashSet<ChessMove> generateMoveSet(ChessBoard board) {
 		HashSet<ChessMove> moves = new HashSet<>();
 
@@ -116,15 +158,22 @@ public class ChessTeamDatabase {
 		return moves;
 	}	
 
-	public void updateAttackMoveSet(ChessBoard board) {
-		this.attackMoveSet = this.generateAttackMoveSet(board);
-	}
 
+	/**
+	 * Updates the teams moveSet
+	 *
+	 * @param board The current game board
+	 */
 	public void updateMoveSet(ChessBoard board) {
 		this.moveSet = this.generateMoveSet(board);
 	}
 
 	// not the most efficient. Good enough, for now
+	/**
+	 * Updates all team database sets
+	 *
+	 * @param board The current game board
+	 */
 	public void update(ChessBoard board) {
 		this.updateAttackMoveSet(board);
 		this.updateMoveSet(board);
@@ -132,27 +181,75 @@ public class ChessTeamDatabase {
 	}
 
 
+	/**
+	 * Getter for the teams king position data set
+	 *
+	 * @return HashSet containing all positions of team's kings
+	 */
 	public HashSet<ChessPosition> getKingPos() {
 		return this.kingPositions;
 	}	
 
+	/**
+	 * Getter for the team's color
+	 *
+	 * @return the team color
+	 */
 	public TeamColor getTeamColor() {
 		return this.teamColor;
 	}
 
+	/**
+	 * Getter for the team's attack move data set
+	 *
+	 * @return HashSet containing all team piece attacks
+	 */
 	public HashSet<ChessMove> getAttackMoveSet() {
 		return this.attackMoveSet;
 	}
 
+	/**
+	 * Getter for team's move data set
+	 *
+	 * @return HashSet containing all team piece moves
+	 */
 	public HashSet<ChessMove> getMoveSet() {
 		return this.moveSet;
 	}
 
+	/**
+	 * Getter for team's captured pieces data set
+	 *
+	 * @return ArrayList containing all captured pieces
+	 */
 	public ArrayList<ChessPiece> getCapturedPieces() {
 		return this.capturedPieces;
 	}
 
+	/**
+	 * Adds a captured piece to the list
+	 *
+	 * @param capturedPiece The piece that was captured
+	 */
 	public void addCapturedPiece(ChessPiece capturedPiece) {
 		this.capturedPieces.add(capturedPiece);
+	}
+
+	/**
+	 * Getter for the team's moved pieces
+	 *
+	 * @return HashSet containing all of team's pieces that have moved.
+	 */
+	public HashSet<ChessPiece> getMovedPieces() {
+		return this.movedPieces;
+	}
+
+	/**
+	 * Adds a piece to the database's movedPieces data set
+	 *
+	 * @param piece The chess piece that moved
+	 */
+	public void addMovedPiece(ChessPiece piece) {
+		this.movedPieces.add(piece);
 	}
 }

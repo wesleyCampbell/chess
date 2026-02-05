@@ -104,6 +104,7 @@ public class ChessPiece {
 	public static Character resolveChessType(PieceType pieceType, TeamColor color) {
 		char symbol = ChessPiece.typeSymbolMap.get(pieceType); 
 		if (color != TeamColor.WHITE) {
+			// TODO: This inheirently limits us to two teams. Will need a more elegant solution eventually.
 			symbol = Character.toLowerCase(symbol);
 		}
 		return symbol;
