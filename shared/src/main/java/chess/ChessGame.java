@@ -2,9 +2,11 @@ package chess;
 
 import chess.ChessPiece.PieceType;
 import chess.moveCalculator.ChessPieceMoveCalculator;
+import static util.Debugger.debug;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +28,13 @@ public class ChessGame {
      */
     public static enum TeamColor {
         WHITE,
-        BLACK
+        BLACK;
+
+		private static final TeamColor[] VALUES = values();
+
+		public TeamColor next() {
+			return VALUES[(this.ordinal() + 1) % VALUES.length];
+		}
     }
 
 	private static Map<TeamColor, ChessTeamDatabase> generateTeamDatabase(ChessBoard board) {
@@ -91,18 +99,57 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
 		HashSet<ChessMove> allMoves = new HashSet<>();
-		// Step 1: Get the default moves of the piece on the square, if it exists
+
+		// STEP 1: Get the default moves of the piece on the square, if it exists
 		ChessPiece piece = this.gameBoard.getPiece(startPosition);
 
-		if (piece != null) {
-			allMoves.addAll(piece.pieceMoves(this.gameBoard, startPosition));
+		// If there is no piece on the square, just return empty set
+		if (piece == null) {
+			return allMoves;
 		}
 
-		// Step 2: Take out moves that put king in check
-		// Step 3: Add special moves, if necessary
+		// allMoves.addAll(piece.pieceMoves(this.gameBoard, startPosition));
+		Collection<ChessMove> defaultMoves = piece.pieceMoves(this.gameBoard, startPosition);
+
+		// STEP 2: Take out moves that put king in check
+		for (ChessMove move : defaultMoves) {
+			if (this.moveRevealsCheck(move)) {
+				continue;
+			}
+
+			// If the move doesn't reveal check, make the move
+			allMoves.add(move);
+		}
+
+		// STEP 3: Add special moves, if necessary
 
 		return allMoves;
     }
+
+	private boolean moveRevealsCheck(ChessMove move) {
+		Boolean ret = false;
+		ChessPosition startPos = move.getStartPosition();
+		ChessPosition endPos = move.getEndPosition();
+
+		// Copy the data that will be overwritten
+		ChessPiece capturedPiece = this.gameBoard.getPiece(endPos);
+		ChessPiece movedPiece = this.gameBoard.getPiece(startPos);
+
+		// Make the move to see if it puts the king in check.
+		this._makeMove(move, movedPiece);
+
+		// If the king is in check, the move revealed check.
+		if (this.isInCheck(movedPiece.getTeamColor())) {
+			ret = true;	
+		}
+
+		// undo the move
+		this.gameBoard.addPiece(startPos, movedPiece);
+		this.gameBoard.addPiece(endPos, capturedPiece);
+		this.updateDatabases();
+		
+		return ret;
+	}
 
     /**
      * Makes a move in a chess game
@@ -111,7 +158,10 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-		// Step 1: Check to see if there is a valid piece at the start position
+		System.out.println(this.gameBoard);
+		debug(String.format("move: %s", move), 0);
+
+		// STEP 1: Check to see if there is a valid piece at the start position
 		ChessPosition startPos = move.getStartPosition();
 		ChessPiece piece = this.gameBoard.getPiece(startPos);
 		if (piece == null || piece.getTeamColor() != this.activeTeam) {
@@ -119,28 +169,78 @@ public class ChessGame {
 			throw new InvalidMoveException(err);
 		}
 
-		// Step 2: Verify that move is valid
-		Collection<ChessMove> validMoves = this.validMoves(startPos);
-		if (!validMoves.contains(move)) {
+		// STEP 2: Verify that move is valid
+		if (!this.isMoveValid(move)) {
 			String err = String.format("Move %s is invalid!", move);
 			throw new InvalidMoveException(err);
 		}
-		// Step 3: Make move
-		//throw new RuntimeException("Steps 3 and 4 of makeMove not implemented!");
-		ChessPosition endPos = move.getEndPosition();
+
+		// STEP 3: Make move
+		this._makeMove(move, piece);
+
+		debug("GameBoard after move: ", 0);
+		System.out.println(this.gameBoard);
 		
-		this.gameBoard.addPiece(startPos, null);
+		// STEP 4: Update databases
+
+		// STEP 5: Change who's turn it is
+		this.changeTurn();
+    }
+
+	/**
+	 * Performs a chess move, no questions asked.
+	 *
+	 * @param move The move to make
+	 * @param piece2Move The piece being moved
+	 */
+	private void _makeMove(ChessMove move, ChessPiece piece2Move) {
+		ChessPosition startPos = move.getStartPosition();
+		ChessPosition endPos = move.getEndPosition();
 
 		ChessPiece capturePiece = this.gameBoard.getPiece(endPos);
 		if (capturePiece != null) {
-			this.chessTeamData.get(piece.getTeamColor()).addCapturedPiece(capturePiece);
+			this.chessTeamData.get(piece2Move.getTeamColor()).addCapturedPiece(capturePiece);
 		}
 
-		this.gameBoard.addPiece(endPos, piece);
-		
-		// Step 4: Update databases
+		// Check to see if there is a promotion to do
+		PieceType promotionType = move.getPromotionPiece();
+		if (promotionType != null) {
+			piece2Move = ChessPiece.makeNewPiece(piece2Move.getTeamColor(), promotionType);
+		}
+
+		// The actual move
+		this.gameBoard.addPiece(startPos, null);
+		this.gameBoard.addPiece(endPos, piece2Move);
+
+		// Update the move databases
 		this.updateDatabases();
-    }
+	}
+
+	/**
+	 * Checks to see if a proposed move would be valid.
+	 *
+	 * @param move The move to test
+	 *
+	 * @return true if move is valid, false otherwise
+	 */
+	private boolean isMoveValid(ChessMove move) {
+		ChessPosition startPos = move.getStartPosition();
+
+		Collection<ChessMove> validMoves = this.validMoves(startPos);
+
+		if (!validMoves.contains(move)) {
+			return false;
+		}
+	
+		return true;
+	}
+
+	/**
+	 * Changes the active team to the next team in the order
+	 */
+	private void changeTurn() {
+		this.activeTeam = this.activeTeam.next();
+	}
 
 	/** 
 	 * Returns a union of all attack moves except for one team color's
@@ -199,12 +299,6 @@ public class ChessGame {
 
 		for (ChessPosition pos : kingPos) {
 			ChessPiece king = this.gameBoard.getPiece(pos);
-t status
-	git add *ChessPieceMoCalculator*
-	git commit
-	iUPDATE: Included ally pieces to be considered for capturing.
-
-	This allows for protected pieces further down the road.
 			// Get all the move squares
 			Collection<ChessMove> moves = king.pieceMoves(this.gameBoard, pos);
 			
@@ -233,11 +327,7 @@ t status
     public boolean isInStalemate(TeamColor teamColor) {
 		if (this.isInCheck(teamColor)) { return false; }
 
-		System.out.println(String.format("DEBUG: %s NOT IN CHECK", teamColor));
-		System.out.println(this.gameBoard);
-
 		// If the moveSet is empty, then the team is in stalemate
-		System.out.println(String.format("DEBUG: moveSet: %s", this.chessTeamData.get(teamColor).getMoveSet()));
 
 		return this.chessTeamData.get(teamColor).getMoveSet().isEmpty();
     }
