@@ -2,6 +2,7 @@ package chess;
 
 import chess.ChessGame.TeamColor;
 import chess.ChessPiece.PieceType;
+import static util.Debugger.debug;
 
 import java.util.HashSet;
 import java.util.ArrayList;
@@ -119,9 +120,14 @@ public class ChessTeamDatabase {
 		this.attackMoveSet = this.generateAttackMoveSet(board);
 	}
 
+	public void updateMoveSet(ChessBoard board) {
+		this.moveSet = this.generateMoveSet(board);
+	}
+
 	// not the most efficient. Good enough, for now
 	public void update(ChessBoard board) {
 		this.updateAttackMoveSet(board);
+		this.updateMoveSet(board);
 		this.updateKingPos(board);
 	}
 

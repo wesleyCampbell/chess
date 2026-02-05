@@ -158,9 +158,6 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-		System.out.println(this.gameBoard);
-		debug(String.format("move: %s", move), 0);
-
 		// STEP 1: Check to see if there is a valid piece at the start position
 		ChessPosition startPos = move.getStartPosition();
 		ChessPiece piece = this.gameBoard.getPiece(startPos);
@@ -178,9 +175,6 @@ public class ChessGame {
 		// STEP 3: Make move
 		this._makeMove(move, piece);
 
-		debug("GameBoard after move: ", 0);
-		System.out.println(this.gameBoard);
-		
 		// STEP 4: Update databases
 
 		// STEP 5: Change who's turn it is
@@ -282,6 +276,28 @@ public class ChessGame {
 		return false;
     }
 
+	/**
+	 * Gets all enemy attacks that target a set of squares
+	 *
+	 * @param teamColor The team being targeted
+	 * @param squares A collection of squares to target
+	 *
+	 * @return A hashset containing all the attacks that target the squares
+	 */
+	private HashSet<ChessMove> getMovesTargetingSquare(TeamColor teamColor,
+													   Collection<ChessPosition> squares) {
+		HashSet<ChessMove> attackMoves = this.generateTeamAttacks(teamColor);
+		HashSet<ChessMove> outMoves = new HashSet<>();
+
+		for (ChessMove move : attackMoves) {
+			if (squares.contains(move.getEndPosition())) {
+				outMoves.add(move);
+			}
+		}
+
+		return outMoves;
+	}
+
     /**
      * Determines if the given team is in checkmate
      *
@@ -294,27 +310,45 @@ public class ChessGame {
 			return false; 
 		}
 
-		HashSet<ChessPosition> attackSquares = ChessMove.extractEndPositions(this.generateTeamAttacks(teamColor));
 		HashSet<ChessPosition> kingPos = this.chessTeamData.get(teamColor).getKingPos();
+
+		// Get the enemy attacks targeting the king
+		// HashSet<ChessPosition> attackSquares = ChessMove.extractEndPositions(getMovesTargetingSquare(teamColor, kingPos));
+		HashSet<ChessPosition> attackSquares = ChessMove.extractEndPositions(this.generateTeamAttacks(teamColor));
 
 		for (ChessPosition pos : kingPos) {
 			ChessPiece king = this.gameBoard.getPiece(pos);
 			// Get all the move squares
 			Collection<ChessMove> moves = king.pieceMoves(this.gameBoard, pos);
 			
-
 			HashSet<ChessPosition> moveSquares = ChessMove.extractEndPositions(moves);
 
 			// Remove all of the attackSquares from the moveSquares to see if the king has any legal moves
 			moveSquares.removeAll(attackSquares);
 
-			// e.g. the king cannot move
-			if (moveSquares.isEmpty()) {
-				return true;
+			// If the king's move set isn't empty, it can escape check
+			if (!moveSquares.isEmpty()) {
+				return false;
+			}
+
+			// Check to see if the king can have a piece capture the attacking piece.
+			// if (this.chessTeamData.get(teamColor).getAttackMoveSet().contains(
+			HashSet<ChessPosition> movesTargetingKing = ChessMove.extractStartPositions(this.getMovesTargetingSquare(teamColor, kingPos));
+
+			for (ChessMove defenseMove : this.chessTeamData.get(teamColor).getAttackMoveSet()) {
+				// If there is a piece that can kill the attacking team
+				if (movesTargetingKing.contains(defenseMove.getEndPosition())) {
+					// Check to see if taking out the piece resolves the check attack
+					if (this.moveRevealsCheck(defenseMove)) {
+						continue;
+					}
+
+					return false;
+				}
 			}
 		}
 
-		return false;
+		return true;
     }
 
     /**
@@ -325,11 +359,21 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
+		// You can't be in check and be in stalemate
 		if (this.isInCheck(teamColor)) { return false; }
 
-		// If the moveSet is empty, then the team is in stalemate
+		// Fetch all the available moves
+		HashSet<ChessMove> allMoves = this.chessTeamData.get(teamColor).getMoveSet();
 
-		return this.chessTeamData.get(teamColor).getMoveSet().isEmpty();
+		// If there is a move that can escape check, the team is not in stalemate
+		for (ChessMove move : allMoves) {
+			if (!this.moveRevealsCheck(move)) {
+				return false;
+			}
+		}
+
+		// There are no moves
+		return true;
     }
 
 	/**
