@@ -126,6 +126,13 @@ public class ChessGame {
 		return allMoves;
     }
 
+	/**
+	 * Tests a move to see if it leaves the king in check
+	 *
+	 * @param move The move to test
+	 *
+	 * @return true if move leaves king in check, false otherwise
+	 */
 	private boolean moveRevealsCheck(ChessMove move) {
 		Boolean ret = false;
 		ChessPosition startPos = move.getStartPosition();
@@ -178,14 +185,29 @@ public class ChessGame {
 		this._makeMove(move, piece);
 
 		// STEP 4: Update databases
-		this.chessTeamData.get(piece.getTeamColor()).addMovedPiece(piece);
+		ChessTeamDatabase db = this.chessTeamData.get(piece.getTeamColor());
+		db.addMovedPiece(piece);
 
-		// STEP 5: Change who's turn it is
+		ChessPiece capturePiece = this.gameBoard.getPiece(move.getEndPosition());
+		if (capturePiece != null) { 
+			db.addCapturedPiece(capturePiece);
+		}
+
+		// STEP 5: Switch to the next team's turn
 		this.changeTurn();
     }
 
 	/**
-	 * Performs a chess move, no questions asked.
+	 * Performs a chess move, no questions asked. A dumb utility function. Use at your risk.
+	 *
+	 * Note that this method will only update the team movement databases as to allow testing.
+	 * All other team databases will need to be updated by the caller.
+	 *
+	 * Can be used to perform an actual chess move, in which case the caller will want to
+	 * update the cooresponding team databases.
+	 *
+	 * Can also be used to test if a move is valid as the movement databases are updated.
+	 * If used in this way, make sure to undo the move.
 	 *
 	 * @param move The move to make
 	 * @param piece2Move The piece being moved
@@ -193,11 +215,6 @@ public class ChessGame {
 	private void _makeMove(ChessMove move, ChessPiece piece2Move) {
 		ChessPosition startPos = move.getStartPosition();
 		ChessPosition endPos = move.getEndPosition();
-
-		ChessPiece capturePiece = this.gameBoard.getPiece(endPos);
-		if (capturePiece != null) {
-			this.chessTeamData.get(piece2Move.getTeamColor()).addCapturedPiece(capturePiece);
-		}
 
 		// Check to see if there is a promotion to do
 		PieceType promotionType = move.getPromotionPiece();
@@ -316,7 +333,6 @@ public class ChessGame {
 		HashSet<ChessPosition> kingPos = this.chessTeamData.get(teamColor).getKingPos();
 
 		// Get the enemy attacks targeting the king
-		// HashSet<ChessPosition> attackSquares = ChessMove.extractEndPositions(getMovesTargetingSquare(teamColor, kingPos));
 		HashSet<ChessPosition> attackSquares = ChessMove.extractEndPositions(this.generateTeamAttacks(teamColor));
 
 		for (ChessPosition pos : kingPos) {
@@ -335,7 +351,6 @@ public class ChessGame {
 			}
 
 			// Check to see if the king can have a piece capture the attacking piece.
-			// if (this.chessTeamData.get(teamColor).getAttackMoveSet().contains(
 			HashSet<ChessPosition> movesTargetingKing = ChessMove.extractStartPositions(this.getMovesTargetingSquare(teamColor, kingPos));
 
 			for (ChessMove defenseMove : this.chessTeamData.get(teamColor).getAttackMoveSet()) {
