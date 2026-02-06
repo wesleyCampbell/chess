@@ -93,6 +93,23 @@ public class ChessPosition {
 		this.col *= multPosition.getColumn();
 	}	
 
+	/** 
+	 * Performs the absolute value opperation on its row and column values
+	 */
+	public void absValue() {
+		if (this.row < 0) { this.row *= -1; }
+		if (this.col < 0) { this.col *= -1; }
+	}
+
+	/** 
+	 * A version of a normalize algorithm. 
+	 * Will set each direction component to 1, if not zero
+	 */
+	public void normalize() {
+		if (this.row != 0) { this.row = 1; };
+		if (this.col != 0) { this.col = 1; };
+	}
+
 	/**
 	 * Overriden equality function.
 	 *

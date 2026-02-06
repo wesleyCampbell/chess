@@ -3,6 +3,7 @@ package chess;
 import chess.ChessPiece.PieceType;
 import chess.moveCalculator.ChessPieceMoveCalculator;
 import static util.Debugger.debug;
+import chess.moveEngine.*;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -37,7 +38,7 @@ public class ChessGame {
 		}
     }
 
-	private static Map<TeamColor, ChessTeamDatabase> generateTeamDatabase(ChessBoard board) {
+	public static Map<TeamColor, ChessTeamDatabase> generateTeamDatabase(ChessBoard board) {
 		HashMap<TeamColor, ChessTeamDatabase> database = new HashMap<>();
 		for (TeamColor color : TeamColor.values()) {
 			database.put(color, new ChessTeamDatabase(color, board));
@@ -52,8 +53,9 @@ public class ChessGame {
 	
 	private ChessBoard gameBoard;
 	private TeamColor activeTeam;
-
+	private ChessMoveEngine moveEngine;
 	private Map<TeamColor, ChessTeamDatabase> chessTeamData;
+
 	
 	//
 	// ============================ CONSTRUCTORS =======================
@@ -65,8 +67,9 @@ public class ChessGame {
 
 		this.activeTeam = ChessGame.DEFAULT_START_COLOR;
 
-		this.chessTeamData = ChessGame.generateTeamDatabase(this.gameBoard);
+		this.moveEngine = new StandardChessMoveEngine(this.gameBoard);
 
+		this.chessTeamData = this.moveEngine.getChessTeamDatabase();
     }
 
 	//
@@ -98,32 +101,7 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-		HashSet<ChessMove> allMoves = new HashSet<>();
-
-		// STEP 1: Get the default moves of the piece on the square, if it exists
-		ChessPiece piece = this.gameBoard.getPiece(startPosition);
-
-		// If there is no piece on the square, just return empty set
-		if (piece == null) {
-			return allMoves;
-		}
-
-		// allMoves.addAll(piece.pieceMoves(this.gameBoard, startPosition));
-		Collection<ChessMove> defaultMoves = piece.pieceMoves(this.gameBoard, startPosition);
-
-		// STEP 2: Take out moves that put king in check
-		for (ChessMove move : defaultMoves) {
-			if (this.moveRevealsCheck(move)) {
-				continue;
-			}
-
-			// If the move doesn't reveal check, make the move
-			allMoves.add(move);
-		}
-
-		// STEP 3: Add special moves, if necessary
-
-		return allMoves;
+		return this.moveEngine.validMoves(this.gameBoard, startPosition);
     }
 
 	/**
@@ -134,101 +112,22 @@ public class ChessGame {
 	 * @return true if move leaves king in check, false otherwise
 	 */
 	private boolean moveRevealsCheck(ChessMove move) {
-		Boolean ret = false;
-		ChessPosition startPos = move.getStartPosition();
-		ChessPosition endPos = move.getEndPosition();
-
-		// Copy the data that will be overwritten
-		ChessPiece capturedPiece = this.gameBoard.getPiece(endPos);
-		ChessPiece movedPiece = this.gameBoard.getPiece(startPos);
-
-		// Make the move to see if it puts the king in check.
-		this._makeMove(move, movedPiece);
-
-		// If the king is in check, the move revealed check.
-		if (this.isInCheck(movedPiece.getTeamColor())) {
-			ret = true;	
-		}
-
-		// undo the move
-		this.gameBoard.addPiece(startPos, movedPiece);
-		this.gameBoard.addPiece(endPos, capturedPiece);
-		this.updateDatabases();
-		
-		return ret;
+		return this.moveEngine.moveRevealsCheck(this.gameBoard, move);
 	}
 
     /**
-     * Makes a move in a chess game
+     * Makes a move in a chess game and updates all team database values
      *
      * @param move chess move to perform
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+		this.moveEngine.makeMove(this.gameBoard, move, this.activeTeam);
 
-		// STEP 1: Check to see if there is a valid piece at the start position
-		ChessPosition startPos = move.getStartPosition();
-		ChessPiece piece = this.gameBoard.getPiece(startPos);
-
-		if (piece == null || piece.getTeamColor() != this.activeTeam) {
-			String err = String.format("Piece at square %s either doesn't exist or it is not their turn!", startPos);
-			throw new InvalidMoveException(err);
-		}
-
-		// STEP 2: Verify that move is valid
-		if (!this.isMoveValid(move)) {
-			String err = String.format("Move %s is invalid!", move);
-			throw new InvalidMoveException(err);
-		}
-
-		// STEP 3: Make move
-		this._makeMove(move, piece);
-
-		// STEP 4: Update databases
-		ChessTeamDatabase db = this.chessTeamData.get(piece.getTeamColor());
-		db.addMovedPiece(piece);
-
-		ChessPiece capturePiece = this.gameBoard.getPiece(move.getEndPosition());
-		if (capturePiece != null) { 
-			db.addCapturedPiece(capturePiece);
-		}
-
-		// STEP 5: Switch to the next team's turn
+		// Switches turns
 		this.changeTurn();
     }
 
-	/**
-	 * Performs a chess move, no questions asked. A dumb utility function. Use at your risk.
-	 *
-	 * Note that this method will only update the team movement databases as to allow testing.
-	 * All other team databases will need to be updated by the caller.
-	 *
-	 * Can be used to perform an actual chess move, in which case the caller will want to
-	 * update the cooresponding team databases.
-	 *
-	 * Can also be used to test if a move is valid as the movement databases are updated.
-	 * If used in this way, make sure to undo the move.
-	 *
-	 * @param move The move to make
-	 * @param piece2Move The piece being moved
-	 */
-	private void _makeMove(ChessMove move, ChessPiece piece2Move) {
-		ChessPosition startPos = move.getStartPosition();
-		ChessPosition endPos = move.getEndPosition();
-
-		// Check to see if there is a promotion to do
-		PieceType promotionType = move.getPromotionPiece();
-		if (promotionType != null) {
-			piece2Move = ChessPiece.makeNewPiece(piece2Move.getTeamColor(), promotionType);
-		}
-
-		// The actual move
-		this.gameBoard.addPiece(startPos, null);
-		this.gameBoard.addPiece(endPos, piece2Move);
-
-		// Update the move databases
-		this.updateDatabases();
-	}
 
 	/**
 	 * Checks to see if a proposed move would be valid.
@@ -238,15 +137,7 @@ public class ChessGame {
 	 * @return true if move is valid, false otherwise
 	 */
 	private boolean isMoveValid(ChessMove move) {
-		ChessPosition startPos = move.getStartPosition();
-
-		Collection<ChessMove> validMoves = this.validMoves(startPos);
-
-		if (!validMoves.contains(move)) {
-			return false;
-		}
-	
-		return true;
+		return this.moveEngine.isMoveValid(this.gameBoard, move);
 	}
 
 	/**
@@ -256,25 +147,6 @@ public class ChessGame {
 		this.activeTeam = this.activeTeam.next();
 	}
 
-	/** 
-	 * Returns a union of all attack moves except for one team color's
-	 *
-	 * @param excludeColor The color to exclude from the set
-	 *
-	 * @return A set of all attack moves from all teams except the one provided
-	 */
-	private HashSet<ChessMove> generateTeamAttacks(TeamColor teamColor) {
-		HashSet<ChessMove> attackMoves = new HashSet<>();
-
-		for (ChessTeamDatabase db : this.chessTeamData.values()) {
-			// Exclude the provided team
-			if (db.getTeamColor() == teamColor) { continue; }
-
-			attackMoves.addAll(db.getAttackMoveSet());
-		}
-
-		return attackMoves;
-	}
 
     /**
      * Determines if the given team is in check
@@ -283,40 +155,9 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-		HashSet<ChessPosition> kingPos = this.chessTeamData.get(teamColor).getKingPos();
-
-		// Generate attacks from all teams except teamColor and take out the endPositions
-		HashSet<ChessPosition> attackSquares = ChessMove.extractEndPositions(this.generateTeamAttacks(teamColor));
-
-		// Check to see if any of the king positions are in the attack squares
-		for (ChessPosition king : kingPos) {
-			if (attackSquares.contains(king)) { return true; }
-		}
-
-		return false;
+		return this.moveEngine.isInCheck(teamColor);
     }
 
-	/**
-	 * Gets all enemy attacks that target a set of squares
-	 *
-	 * @param teamColor The team being targeted
-	 * @param squares A collection of squares to target
-	 *
-	 * @return A hashset containing all the attacks that target the squares
-	 */
-	private HashSet<ChessMove> getMovesTargetingSquare(TeamColor teamColor,
-													   Collection<ChessPosition> squares) {
-		HashSet<ChessMove> attackMoves = this.generateTeamAttacks(teamColor);
-		HashSet<ChessMove> outMoves = new HashSet<>();
-
-		for (ChessMove move : attackMoves) {
-			if (squares.contains(move.getEndPosition())) {
-				outMoves.add(move);
-			}
-		}
-
-		return outMoves;
-	}
 
     /**
      * Determines if the given team is in checkmate
@@ -325,48 +166,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-		// Must be in check to be in checkmate
-		if (!this.isInCheck(teamColor)) {
-			return false; 
-		}
-
-		HashSet<ChessPosition> kingPos = this.chessTeamData.get(teamColor).getKingPos();
-
-		// Get the enemy attacks targeting the king
-		HashSet<ChessPosition> attackSquares = ChessMove.extractEndPositions(this.generateTeamAttacks(teamColor));
-
-		for (ChessPosition pos : kingPos) {
-			ChessPiece king = this.gameBoard.getPiece(pos);
-			// Get all the move squares
-			Collection<ChessMove> moves = king.pieceMoves(this.gameBoard, pos);
-			
-			HashSet<ChessPosition> moveSquares = ChessMove.extractEndPositions(moves);
-
-			// Remove all of the attackSquares from the moveSquares to see if the king has any legal moves
-			moveSquares.removeAll(attackSquares);
-
-			// If the king's move set isn't empty, it can escape check
-			if (!moveSquares.isEmpty()) {
-				return false;
-			}
-
-			// Check to see if the king can have a piece capture the attacking piece.
-			HashSet<ChessPosition> movesTargetingKing = ChessMove.extractStartPositions(this.getMovesTargetingSquare(teamColor, kingPos));
-
-			for (ChessMove defenseMove : this.chessTeamData.get(teamColor).getAttackMoveSet()) {
-				// If there is a piece that can kill the attacking team
-				if (movesTargetingKing.contains(defenseMove.getEndPosition())) {
-					// Check to see if taking out the piece resolves the check attack
-					if (this.moveRevealsCheck(defenseMove)) {
-						continue;
-					}
-
-					return false;
-				}
-			}
-		}
-
-		return true;
+		return this.moveEngine.isInCheckmate(this.gameBoard, teamColor);
     }
 
     /**
@@ -377,34 +177,9 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-		// You can't be in check and be in stalemate
-		if (this.isInCheck(teamColor)) { return false; }
-
-		// Fetch all the available moves
-		HashSet<ChessMove> allMoves = this.chessTeamData.get(teamColor).getMoveSet();
-
-		// If there is a move that can escape check, the team is not in stalemate
-		for (ChessMove move : allMoves) {
-			if (!this.moveRevealsCheck(move)) {
-				return false;
-			}
-		}
-
-		// There are no moves
-		return true;
+		return moveEngine.isInStalemate(this.gameBoard, teamColor);
     }
 
-	/**
-	 * Updates the team databases with a new board state
-	 *
-	 * @param board The new board state
-	 */
-	private void updateDatabases() {
-
-		for (ChessTeamDatabase db : this.chessTeamData.values()) {
-			db.update(this.gameBoard);
-		}
-	}
 
     /**
      * Sets this game's chessboard with a given board
@@ -425,7 +200,7 @@ public class ChessGame {
 
 		this.gameBoard = new ChessBoard(board);
 
-		this.updateDatabases();
+		this.moveEngine.updateDatabases(board);
     }
 
     /**

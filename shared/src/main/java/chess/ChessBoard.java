@@ -219,4 +219,28 @@ public class ChessBoard {
 
 		return outStr.toString();
 	}
+
+	/**
+	 * Checks to see if a given chess position is within bounds of the board
+	 *
+	 * @param pos The position to check
+	 *
+	 * @return true if in bounds, false otherwise.
+	 */
+	public boolean isInBounds(ChessPosition pos) {
+		int row = pos.getRow();
+		int col = pos.getColumn();
+
+		// check row bounds
+		if (0 >= row || row > this.rowNum) {
+			return false;
+		}
+
+		// check column bounds
+		if (0 >= col || col > this.colNum) {
+			return false;
+		}
+
+		return true;
+	}
 }

@@ -17,7 +17,7 @@ public class ChessTeamDatabase {
 	private HashSet<ChessMove> attackMoveSet;
 	private HashSet<ChessMove> moveSet;
 	private ArrayList<ChessPiece> capturedPieces;
-	private HashSet<ChessPiece> movedPieces;
+	private ArrayList<ChessPiece> movedPieces;
 
 	//
 	// ============================== CONSTRUCTORS ============================== 
@@ -38,7 +38,7 @@ public class ChessTeamDatabase {
 		this.moveSet = this.generateMoveSet(currentBoard);
 
 		this.capturedPieces = new ArrayList<>();
-		this.movedPieces = new HashSet<>();
+		this.movedPieces = new ArrayList<>();
 	}
 
 	//
@@ -240,7 +240,7 @@ public class ChessTeamDatabase {
 	 *
 	 * @return HashSet containing all of team's pieces that have moved.
 	 */
-	public HashSet<ChessPiece> getMovedPieces() {
+	public ArrayList<ChessPiece> getMovedPieces() {
 		return this.movedPieces;
 	}
 
@@ -251,5 +251,23 @@ public class ChessTeamDatabase {
 	 */
 	public void addMovedPiece(ChessPiece piece) {
 		this.movedPieces.add(piece);
+	}
+
+	/** 
+	 * Checks to see if the moved piece database contains a piece by reference, not 
+	 * the equals() method.
+	 *
+	 * @param piece The piece to check for
+	 *
+	 * @return true if the list containst the same reference, false otherwise
+	 */
+	public boolean pieceHasMoved(ChessPiece piece) {
+		for (ChessPiece dbPiece : this.movedPieces) {
+			if (dbPiece == piece) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }
