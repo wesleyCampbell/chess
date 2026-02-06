@@ -18,6 +18,7 @@ public class ChessTeamDatabase {
 	private HashSet<ChessMove> moveSet;
 	private ArrayList<ChessPiece> capturedPieces;
 	private ArrayList<ChessPiece> movedPieces;
+	private ChessPiece lastMovedPiece;
 
 	//
 	// ============================== CONSTRUCTORS ============================== 
@@ -251,6 +252,7 @@ public class ChessTeamDatabase {
 	 */
 	public void addMovedPiece(ChessPiece piece) {
 		this.movedPieces.add(piece);
+		this.lastMovedPiece = piece;
 	}
 
 	/** 
@@ -269,5 +271,14 @@ public class ChessTeamDatabase {
 		}
 
 		return false;
+	}
+
+	/** 
+	 * Returns a refference to the piece that was last moved by the team
+	 *
+	 * @return ChessPiece
+	 */
+	public ChessPiece getLastMovedPiece() {
+		return this.lastMovedPiece;
 	}
 }
