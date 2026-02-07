@@ -3,8 +3,10 @@ package chess;
 import chess.ChessGame.TeamColor;
 import chess.ChessPiece.PieceType;
 import static util.Debugger.debug;
+import util.Pair;
 
 import java.util.HashSet;
+
 import java.util.ArrayList;
 
 public class ChessTeamDatabase {
@@ -18,7 +20,7 @@ public class ChessTeamDatabase {
 	private HashSet<ChessMove> moveSet;
 	private ArrayList<ChessPiece> capturedPieces;
 	private ArrayList<ChessPiece> movedPieces;
-	private ChessPiece lastMovedPiece;
+	private Pair<ChessPiece, ChessMove> lastMovedPiece;
 
 	//
 	// ============================== CONSTRUCTORS ============================== 
@@ -40,6 +42,8 @@ public class ChessTeamDatabase {
 
 		this.capturedPieces = new ArrayList<>();
 		this.movedPieces = new ArrayList<>();
+
+		this.lastMovedPiece = null;
 	}
 
 	//
@@ -249,10 +253,11 @@ public class ChessTeamDatabase {
 	 * Adds a piece to the database's movedPieces data set
 	 *
 	 * @param piece The chess piece that moved
+	 * @param move The move that the piece did
 	 */
-	public void addMovedPiece(ChessPiece piece) {
+	public void addMovedPiece(ChessPiece piece, ChessMove move) {
 		this.movedPieces.add(piece);
-		this.lastMovedPiece = piece;
+		this.lastMovedPiece = new Pair<ChessPiece, ChessMove>(piece, move);
 	}
 
 	/** 
@@ -278,7 +283,7 @@ public class ChessTeamDatabase {
 	 *
 	 * @return ChessPiece
 	 */
-	public ChessPiece getLastMovedPiece() {
+	public Pair<ChessPiece, ChessMove> getLastMovedPiece() {
 		return this.lastMovedPiece;
 	}
 }

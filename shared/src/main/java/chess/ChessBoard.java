@@ -78,6 +78,18 @@ public class ChessBoard {
 		this.board[row - 1][col - 1] = piece;
     }
 
+	/**
+	 * Removes a piece from the board, esentially deleting it
+	 *
+	 * @param position The position to remove the piece from
+	 */
+	public void removePiece(ChessPosition position) {
+		int row = position.getRow() - 1;
+		int col = position.getColumn() - 1;
+
+		this.board[row][col] = null;
+	}
+
     /**
      * Gets a chess piece on the chessboard
      *

@@ -71,6 +71,16 @@ public class ChessPosition {
 	}
 
 	/**
+	 * Allows a ChessPosition to be subtracted from this one
+	 *
+	 * @param subPosition The position to subtract
+	 */
+	public void subtract(ChessPosition subPosition) {
+		this.col -= subPosition.getColumn();
+		this.row -= subPosition.getRow();
+	}
+
+	/**
 	 * Allows a row and column value to be added on to itself 
 	 *
 	 * @param rowValue The value to add to the row
@@ -101,13 +111,25 @@ public class ChessPosition {
 		if (this.col < 0) { this.col *= -1; }
 	}
 
+	/**
+	 * Returns a copy of the ChessPosition but with its absolute value;
+	 */
+	public ChessPosition absValueCopy() {
+		ChessPosition newPos = new ChessPosition(this);
+		newPos.absValue();
+		return newPos;
+	}
+
 	/** 
 	 * A version of a normalize algorithm. 
-	 * Will set each direction component to 1, if not zero
+	 * Will set each direction component to 1 or -1, if not zero
 	 */
 	public void normalize() {
-		if (this.row != 0) { this.row = 1; };
-		if (this.col != 0) { this.col = 1; };
+		if (this.row < 0) { this.row = -1; }
+		else if (this.row > 0) { this.row = 1; }
+
+		if (this.col < 0) { this.col = -1; }
+		else if (this.col > 0) { this.col = 1; }
 	}
 
 	/**
