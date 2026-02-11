@@ -33,6 +33,10 @@ public class ChessBoardGenerator {
 		"--------"
 	};
 
+	public static final char SYMBOL_EMPTY_SQUARE = '-';
+	public static final char SYMBOL_BARRIER = 'X';
+	public static final char SYMBOL_VOID = ' ';
+
 	//
 	// ======================== MEMBER ATTRIBUTES =======================
 	//
@@ -88,8 +92,49 @@ public class ChessBoardGenerator {
 	 * @return A 2D array of ChessPieces, all initialized to null.
 	 */
 	public ChessPiece[][] generateEmptyBoard(int rowNum, int colNum) {
-		this.currentState = ChessBoardGenerator.STANDARD_EMPTY_STATE;
+		String[] newState = new String[rowNum];
+
+		for (int row = 0; row < rowNum; row++) {
+			StringBuilder rowStr = new StringBuilder();
+
+			for (int col = 0; col < colNum; col++) {
+				rowStr.append(ChessBoardGenerator.SYMBOL_EMPTY_SQUARE);
+			}
+
+			newState[row] = rowStr.toString();
+		}
+
 		return new ChessPiece[rowNum][colNum];
+	}
+
+
+	/**
+	 * Verifies that the dimentions of a string state are valid
+	 *
+	 * The dimentions must match a rectangle.
+	 *
+	 * @param state The state to verify
+	 *
+	 * @return true if valid, false otherwise
+	 */
+	public boolean verifyStateDims(String[] state) {
+		int rowNum = state.length;
+
+		// A state must have at least one row
+		if (rowNum == 0) {
+			return false;
+		}
+
+		int colNum = state[0].length();
+
+		// Check to see if all rows have the same number of columns
+		for (int row = 0; row < rowNum; row++) {
+			if (state[row].length() != colNum) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -100,6 +145,10 @@ public class ChessBoardGenerator {
 	 * @return The new ChessBoard array
 	 */
 	public ChessPiece[][] generateBoard(String[] state) {
+		if (!verifyStateDims(state)) {
+			throw new InvalidBoardStateException();
+		}
+
 		int rowNum = state.length;
 		int colNum = state[0].length();
 
