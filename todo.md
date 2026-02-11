@@ -1,7 +1,7 @@
 # TODO
 
-- [ ] Implement em passant pawn special move
-- [ ] Totally refactor code to allow ChessBoard to use its own iterator
+- [ x ] Implement em passant pawn special move
+- [ x ] Totally refactor code to allow ChessBoard to use its own iterator
 - [ ] Figure out ChessBoardGenerator refactor
         - Different Chess Board shapes
         - File input reading for different formats
