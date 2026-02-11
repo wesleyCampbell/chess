@@ -3,19 +3,25 @@ package chess;
 import chess.ChessPiece.PieceType;
 import chess.ChessGame.TeamColor;
 
+import java.util.Iterator;
+import java.lang.Iterable;
+import java.util.NoSuchElementException;
+
 /**
  * A chessboard that can hold and rearrange chess pieces.
  * <p>
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessBoard {
+public class ChessBoard implements Iterable<ChessBoard.IndexedPiece>{
 	//
 	// ======================== STATIC ATTRIBUTES =======================
 	//
 	
 	private static final int STANDARD_ROW_NUM = 8;
 	private static final int STANDARD_COL_NUM = 8;
+
+	public static record IndexedPiece(ChessPosition position, ChessPiece piece) {}
 	
 
 	//
@@ -149,19 +155,15 @@ public class ChessBoard {
 		ChessBoard other = (ChessBoard)obj;
 
 		// Check each board position for equality
-		for (int row = 0; row < this.rowNum; row++) {
-			for (int col = 0; col < this.colNum; col++) {
-				ChessPosition square = new ChessPosition(row + 1, col + 1);
-				
-				ChessPiece thisPiece = this.getPiece(square);
-				ChessPiece otherPiece = other.getPiece(square);
+		for (IndexedPiece pieceInx : this) {
+			ChessPiece thisPiece = pieceInx.piece();
+			ChessPiece otherPiece = other.getPiece(pieceInx.position());
 
-				// Can't perform equals() if thisPiece is null
-				if (thisPiece == null) {
-					if (thisPiece != otherPiece) { return false; }
-				} else {
-					if (!thisPiece.equals(otherPiece)) { return false; }
-				}
+			// Can't perform equals() if thisPiece is null
+			if (thisPiece == null) {
+				if (thisPiece != otherPiece) { return false; }
+			} else {
+				if (!thisPiece.equals(otherPiece)) { return false; }
 			}
 		}
 		
@@ -180,18 +182,16 @@ public class ChessBoard {
 	public int hashCode() {
 		int hash = 0;
 
-		for (int row = 0; row < this.rowNum; row++) {
-			for (int col = 0; col < this.colNum; col++) {
-				ChessPosition square = new ChessPosition(row + 1, col + 1);
+		for (IndexedPiece pieceInx : this) {
 
-				ChessPiece piece = this.getPiece(square);
-
-				if (piece == null) { hash += 3 * col + 5 * row; }
-
-				else { hash += piece.hashCode(); }
-
-				hash *= 31;
+			if (pieceInx.piece() == null) {
+				hash += 3 * pieceInx.position().getColumn();
+				hash += 5 * pieceInx.position().getRow();
+			} else {
+				hash += pieceInx.piece().hashCode();
 			}
+
+			hash *= 31;
 		}
 		
 		return hash;
@@ -206,24 +206,29 @@ public class ChessBoard {
 	public String toString() {
 		StringBuilder outStr = new StringBuilder();
 
-		for (int row = this.rowNum - 1; row >= 0; row--) {
-			outStr.append(String.format("%d: ", row + 1));
-			for (int col = 0; col < this.colNum; col++ ){
-				ChessPosition square = new ChessPosition(row + 1, col + 1);
-				ChessPiece piece = this.getPiece(square);
+		for (IndexedPiece pieceInx : this) {
+			char symbol;
+			ChessPiece piece = pieceInx.piece();
+			ChessPosition square = pieceInx.position();
 
-				char symbol;
-
-				if (piece == null) { 
-					symbol = '-';
-				} else {
-					symbol = ChessPiece.resolveChessType(piece.getPieceType(), piece.getTeamColor());
-				}
-
-				outStr.append(String.format(" %c ", symbol));
+			// Inserts the row number in front of each row
+			if (square.getColumn() == 1) {
+				outStr.append(String.format("%d ", square.getRow()));
 			}
 
-			outStr.append("\n");
+			if (piece == null) { 
+				symbol = '-';
+			} else {
+				symbol = ChessPiece.resolveChessType(piece.getPieceType(), piece.getTeamColor());
+			}
+
+			outStr.append(String.format(" %c ", symbol));
+
+			// gives a new line for each new row
+			if (square.getColumn() == this.rowNum) {
+				outStr.append("\n");
+			}
+			
 		}
 
 		outStr.append("   ------------------------\n");
@@ -254,5 +259,46 @@ public class ChessBoard {
 		}
 
 		return true;
+	}
+
+	//
+	// ===================================== ITERATOR =======================================
+	//
+	
+	public Iterator<IndexedPiece> iterator() {
+		return new BoardIterator();
+	}
+
+	private class BoardIterator implements Iterator<IndexedPiece> {
+		private int row = 0;
+		private int col = 0;
+
+		@Override 
+		public boolean hasNext() {
+			return row < rowNum;
+		}
+
+		@Override
+		public IndexedPiece next() {
+			if (!this.hasNext()) {
+				throw new NoSuchElementException();
+			}
+			
+			ChessPiece piece = board[row][col];
+			ChessPosition pos = new ChessPosition(row + 1, col + 1);  // +1 as ChessPosition is 1-indexed
+
+			this.incrementIndex();
+
+			return new IndexedPiece(pos, piece);
+		}
+
+		private void incrementIndex() {
+			col++;
+			if (col >= board[row].length) {
+				col = 0;
+				row++;
+			}
+
+		}
 	}
 }

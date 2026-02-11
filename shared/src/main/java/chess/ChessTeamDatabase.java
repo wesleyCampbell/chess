@@ -61,17 +61,14 @@ public class ChessTeamDatabase {
 		HashSet<ChessPosition> kingPos = new HashSet<>();
 
 		// Iterate through each square on the board looking for the kings
-		for (int row = 0; row < board.getBoardHeight(); row++) {
-			for (int col = 0; col < board.getBoardWidth(); col++) {
-				ChessPosition square = new ChessPosition(row + 1, col + 1);
-				ChessPiece piece = board.getPiece(square);
+		for (ChessBoard.IndexedPiece pieceInx : board) {
+			ChessPiece piece = pieceInx.piece();
 
-				// Checks to see if the piece exists, is the same color, and is a king
-				if (piece != null &&
-					piece.getPieceType() == PieceType.KING &&
-					piece.getTeamColor() == this.teamColor) {
-						kingPos.add(square);
-				}
+			// Checks to see if the piece exists, is the same color, and is a king
+			if (piece != null &&
+				piece.getPieceType() == PieceType.KING &&
+				piece.getTeamColor() == this.teamColor) {
+					kingPos.add(pieceInx.position());
 			}
 		}
 
@@ -98,26 +95,22 @@ public class ChessTeamDatabase {
 		HashSet<ChessMove> attackMoves = new HashSet<>();
 
 		// Iterates through all the squares on the board looking for pieces of the same color
-		for (int row = 0; row < board.getBoardHeight(); row++) {
-			for (int col = 0; col < board.getBoardWidth(); col++) {
-				// Get the piece at the current square
-				ChessPosition square = new ChessPosition(row+1, col+1);
-				ChessPiece piece = board.getPiece(square);
+		for (ChessBoard.IndexedPiece pieceInx : board) {
+			ChessPiece piece = pieceInx.piece();
 
-				// If the sqare is empty, nothing to calculate
-				if (piece == null) {
-					continue;
-				}
-
-				// Filter out pieces of different color
-				if (piece.getTeamColor() == this.teamColor) {
-					HashSet<ChessMove> attacks = piece.getAttackMoves(board, square);
-					// Adds all the ending positions of the attack moves
-					attackMoves.addAll(attacks);
-				} 
+			// If the sqare is empty, nothing to calculate
+			if (piece == null) {
+				continue;
 			}
+
+			// Filter out pieces of different color
+			if (piece.getTeamColor() == this.teamColor) {
+				HashSet<ChessMove> attacks = piece.getAttackMoves(board, pieceInx.position());
+				// Adds all the ending positions of the attack moves
+				attackMoves.addAll(attacks);
+			} 
 		}
-		
+
 		return attackMoves;
 	}
 
@@ -142,21 +135,17 @@ public class ChessTeamDatabase {
 		HashSet<ChessMove> moves = new HashSet<>();
 
 		// Iterates through all the squares on the board looking for pieces of the same color
-		for (int row = 0; row < board.getBoardHeight(); row++) {
-			for (int col = 0; col < board.getBoardWidth(); col++) {
-				// Get the piece at the current square
-				ChessPosition square = new ChessPosition(row+1, col+1);
-				ChessPiece piece = board.getPiece(square);
+		for (ChessBoard.IndexedPiece pieceInx : board) {
+			ChessPiece piece = pieceInx.piece();	
 
-				// If the square is empty, there is nothing to do
-				if (piece == null) {
-					continue;
-				}
+			// If the square is empty, there is nothing to do
+			if (piece == null) {
+				continue;
+			}
 
-				// Filter out pieces of different colors
-				if (piece.getTeamColor() == this.teamColor) {
-					moves.addAll(piece.pieceMoves(board, square));
-				}
+			// Filter out pieces of different colors
+			if (piece.getTeamColor() == this.teamColor) {
+				moves.addAll(piece.pieceMoves(board, pieceInx.position()));
 			}
 		}
 

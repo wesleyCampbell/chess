@@ -187,17 +187,6 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-		for (int row = 0; row < board.getBoardHeight(); row++) {
-			for (int col = 0; col < board.getBoardWidth(); col++) {
-				ChessPosition square = new ChessPosition(row+1, col+1);
-				ChessPiece piece = board.getPiece(square);
-
-				if (piece == null) {
-					continue;
-				} 
-			}
-		}
-
 		this.gameBoard = new ChessBoard(board);
 
 		this.moveEngine.updateDatabases(board);

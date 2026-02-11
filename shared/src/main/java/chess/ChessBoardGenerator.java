@@ -166,28 +166,26 @@ public class ChessBoardGenerator {
 
 		String[] outState = new String[rowNum];
 
+		StringBuilder rowStr = new StringBuilder();
 		// Iterate through each square and append the cooresponding piece type into the array
-		for (int row = 0; row < rowNum; row++) {
-			StringBuilder rowStr = new StringBuilder();
+		for (ChessBoard.IndexedPiece pieceInx : board) {
+			char pieceSymbol;
 
-			for (int col = 0; col < colNum; col++) {
-				// Get the piece at the given square
-				ChessPosition square = new ChessPosition(row + 1, col + 1);
-				ChessPiece piece = board.getPiece(square);
+			ChessPiece piece = pieceInx.piece();
 
-				// Resolve the piece symbol to see what piece it is
-				char pieceSymbol;
-				if (piece == null) {
-					pieceSymbol = '-';
-				} else {
-					pieceSymbol = ChessPiece.resolveChessType(piece.getPieceType(), piece.getTeamColor());
-				}
-
-				rowStr.append(pieceSymbol);
+			if (piece == null) {
+				pieceSymbol = '-';
+			} else {
+				pieceSymbol = ChessPiece.resolveChessType(piece.getPieceType(), piece.getTeamColor());
 			}
 
-			// Append the new row
-			outState[row] = rowStr.toString();
+			rowStr.append(pieceSymbol);
+
+			if (pieceInx.position().getColumn() == board.getBoardWidth()) {
+				outState[pieceInx.position().getRow() - 1] = rowStr.toString();
+				rowStr = new StringBuilder();
+			}
+
 		}
 
 		return outState;
