@@ -1,7 +1,9 @@
 package chess;
 
 import chess.ChessPiece.PieceType;
+import chess.pieces.Barrier;
 import chess.ChessGame.TeamColor;
+import static util.Debugger.debug;
 
 /**
  * A class used for generating new boards based off of string configurations.
@@ -32,6 +34,57 @@ public class ChessBoardGenerator {
 		"--------",
 		"--------"
 	};
+	
+	//
+	// ======================== STATIC METHODS =======================
+	//
+	
+	/**
+	 * Given a given set of dimentions, generates an empty board state
+	 *
+	 * @param rowNum The number of rows
+	 * @param colNum the number of cols
+	 *
+	 * @return A string array representing the borad state
+	 */
+	public static String[] generateEmptyBoardState(int rowNum, int colNum) {
+		String[] outState = new String[rowNum];
+
+		// As all rows are the same, we can avoid O(n^2) and just build the row once
+		StringBuilder rowStrBuilder = new StringBuilder();
+		for (int col = 0; col < colNum; col++) {
+			rowStrBuilder.append(SYMBOL_EMPTY_SQUARE);
+		}
+
+		// sets the row to each row slot
+		String rowStr = rowStrBuilder.toString();
+		for (int row = 0; row < rowNum; row++) {
+			outState[row] = rowStr;
+		}
+
+		return outState;
+	}
+	
+	public static ChessPiece resolveChessPiece(char pieceSymbol) {
+		ChessPiece outPiece;
+
+		switch (pieceSymbol) {
+			case SYMBOL_EMPTY_SQUARE:
+				return null;
+			case SYMBOL_BARRIER:
+				// TODO: make new piece for this resolution
+				outPiece = new Barrier();
+				break;
+			case SYMBOL_VOID:
+				// TODO: make new piece for this thing
+				outPiece = null;
+				break;
+			default:
+				outPiece = ChessPiece.resolveChessPiece(pieceSymbol);
+		}
+
+		return outPiece;
+	}
 
 	public static final char SYMBOL_EMPTY_SQUARE = '-';
 	public static final char SYMBOL_BARRIER = 'X';
@@ -64,8 +117,14 @@ public class ChessBoardGenerator {
 	 * see ChessBoardGenerator.STANDARD_BOARD_STATE
 	 */
 	public ChessBoardGenerator(String[] standardState) {
+		if (!verifyStateDims(standardState)) {
+			standardState = STANDARD_BOARD_STATE;
+		}
+
 		this.standardState = standardState;
-		this.currentState = ChessBoardGenerator.STANDARD_EMPTY_STATE; 
+		int rowNum = standardState.length;
+		int colNum = standardState[0].length();
+		this.currentState = generateEmptyBoardState(rowNum, colNum);
 	}
 
 	/**
@@ -104,6 +163,7 @@ public class ChessBoardGenerator {
 			newState[row] = rowStr.toString();
 		}
 
+		this.currentState = newState;
 		return new ChessPiece[rowNum][colNum];
 	}
 
@@ -128,7 +188,7 @@ public class ChessBoardGenerator {
 		int colNum = state[0].length();
 
 		// Check to see if all rows have the same number of columns
-		for (int row = 0; row < rowNum; row++) {
+		for (int row = 1; row < rowNum; row++) {
 			if (state[row].length() != colNum) {
 				return false;
 			}
@@ -144,7 +204,8 @@ public class ChessBoardGenerator {
 	 *
 	 * @return The new ChessBoard array
 	 */
-	public ChessPiece[][] generateBoard(String[] state) {
+	public ChessPiece[][] generateBoard(String[] state) throws InvalidBoardStateException {
+		// make sure the state is valid
 		if (!verifyStateDims(state)) {
 			throw new InvalidBoardStateException();
 		}
@@ -154,28 +215,30 @@ public class ChessBoardGenerator {
 
 		ChessPiece[][] newBoard = new ChessPiece[rowNum][colNum];
 
-		// TeamColor pieceColor = TeamColor.WHITE;
 		for (int row = 0; row < rowNum; row++) {
 			// first half of board is white, second is black
 
 			for (int col = 0; col < colNum; col++) {
 				char pieceSymbol = state[row].charAt(col);
-				PieceType newPieceType = ChessPiece.resolveChessType(pieceSymbol);
 
-				// TODO: do something better for this to support more teams than 2
-				TeamColor pieceColor;
-				if (Character.isUpperCase(pieceSymbol)) {
-					pieceColor = TeamColor.WHITE;
-				} else {
-					pieceColor = TeamColor.BLACK;
-				}
+				ChessPiece newPiece = resolveChessPiece(pieceSymbol);
 
-				// If the new piece is null, then we need an empty square.
-				if (newPieceType == null) { 
-					continue;
-				}
-
-				ChessPiece newPiece = ChessPiece.makeNewPiece(pieceColor, newPieceType);
+				//PieceType newPieceType = ChessPiece.resolveChessType(pieceSymbol);
+				//
+				//// TODO: do something better for this to support more teams than 2
+				//TeamColor pieceColor;
+				//if (Character.isUpperCase(pieceSymbol)) {
+				//	pieceColor = TeamColor.WHITE;
+				//} else {
+				//	pieceColor = TeamColor.BLACK;
+				//}
+				//
+				//// If the new piece is null, then we need an empty square.
+				//if (newPieceType == null) { 
+				//	continue;
+				//}
+				//
+				//ChessPiece newPiece = ChessPiece.makeNewPiece(pieceColor, newPieceType);
 				newBoard[row][col] = newPiece;
 			}
 		}
@@ -194,14 +257,26 @@ public class ChessBoardGenerator {
 	public ChessPiece[][] copyBoardState(ChessBoard other) {
 		String[] otherBoardState = other.getBoardState();
 
-		return this.generateBoard(otherBoardState);
+		try {
+
+			ChessPiece[][] outBoard = this.generateBoard(otherBoardState);
+			return outBoard; 
+		} catch (InvalidBoardStateException err) {
+			return null;
+		}
+
+		//return this.generateBoard(otherBoardState);
 	}
 
 	/**
 	 * Generates and returns a board complying with the configured standard board state.
 	 */
 	public ChessPiece[][] generateStandardBoard() {
+		try {
 		return this.generateBoard(this.standardState);
+		} catch (InvalidBoardStateException err) {
+			return null;
+		}
 	}
 
 	/**

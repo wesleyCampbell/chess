@@ -1,11 +1,14 @@
 package chess;
 
+import static util.Debugger.debug;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import chess.ChessGame.TeamColor;
 import chess.moveCalculator.BishopMoveCalculator;
 import chess.moveCalculator.ChessPieceMoveCalculator;
+import chess.moveCalculator.ImmobileMoveCalculator;
 import chess.moveCalculator.KingMoveCalculator;
 import chess.moveCalculator.KnightMoveCalculator;
 import chess.moveCalculator.PawnMoveCalculator;
@@ -33,7 +36,8 @@ public class ChessPiece {
         BISHOP,
         KNIGHT,
         ROOK,
-        PAWN
+        PAWN,
+		IMMOBILE
     }
 	
 	private static Map<PieceType, Character> typeSymbolMap = Map.of(
@@ -109,6 +113,30 @@ public class ChessPiece {
 		}
 		return symbol;
 	}	
+
+	/**
+	 * Resolves a character symbol into its cooresponding symbol.
+	 *
+	 * @param symbol The character symbolizing the ChessPiece
+	 *
+	 * @return ChessPiece or null, if the symbol doesn't match any known type
+	 */
+	public static ChessPiece resolveChessPiece(char symbol) {
+		PieceType type = resolveChessType(symbol);
+
+		// If the piece is null, no sense in calculating team color. There's no piece.
+		if (type == null) { return null; }
+
+		// TODO: figure out refactor for more than two teams
+		TeamColor color;
+		if (Character.isUpperCase(symbol)) {
+			color = TeamColor.WHITE;
+		} else {
+			color = TeamColor.BLACK;
+		}
+
+		return makeNewPiece(color, type);
+	}
 	
 	//
 	// ======================== MEMBER ATTRIBUTES =======================
@@ -130,6 +158,11 @@ public class ChessPiece {
 		this.color = pieceColor;
 		this.type = type;
 
+		if (pieceColor == ChessGame.UTILITY_COLOR) {
+			this.moveCalculator = new ImmobileMoveCalculator();
+			return;
+		}
+
 		// I mean, honestly. This goes against everything OOP stands for. 
 		switch(type) {
 			case KING:
@@ -149,6 +182,9 @@ public class ChessPiece {
 				break;
 			case PAWN:
 				this.moveCalculator = PawnMoveCalculator.makeNewPawnMoveCalculator(pieceColor);
+				break;
+			case IMMOBILE:
+				this.moveCalculator = new ImmobileMoveCalculator();
 				break;
 			default:
 				this.moveCalculator = null;
@@ -196,6 +232,7 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+
 		return this.moveCalculator.calculateMoves(this.color, myPosition, board);
     }
 

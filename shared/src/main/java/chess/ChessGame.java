@@ -23,24 +23,33 @@ public class ChessGame {
 	//
 	
 	private static final TeamColor DEFAULT_START_COLOR = TeamColor.WHITE;
+	public static final TeamColor UTILITY_COLOR = TeamColor.UTILITY;
 
     /**
      * Enum identifying the 2 possible teams in a chess game
      */
     public static enum TeamColor {
         WHITE,
-        BLACK;
+        BLACK,
+		UTILITY;
 
 		private static final TeamColor[] VALUES = values();
 
 		public TeamColor next() {
-			return VALUES[(this.ordinal() + 1) % VALUES.length];
+			TeamColor col = VALUES[(this.ordinal() + 1) % VALUES.length];
+			if (col == UTILITY_COLOR) {
+				return col.next();
+			}
+			return col;
 		}
     }
 
 	public static Map<TeamColor, ChessTeamDatabase> generateTeamDatabase(ChessBoard board) {
 		HashMap<TeamColor, ChessTeamDatabase> database = new HashMap<>();
 		for (TeamColor color : TeamColor.values()) {
+			if (color == UTILITY_COLOR) {
+				continue;
+			}
 			database.put(color, new ChessTeamDatabase(color, board));
 		}
 

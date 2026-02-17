@@ -43,7 +43,12 @@ public class ChessBoard implements Iterable<ChessBoard.IndexedPiece>{
 	 * Default constructor. Assigns colNum and rowNum to predetermined standard values
 	 */
     public ChessBoard() {
-		this(ChessBoard.STANDARD_ROW_NUM, ChessBoard.STANDARD_COL_NUM);
+		//this(ChessBoard.STANDARD_ROW_NUM, ChessBoard.STANDARD_COL_NUM);
+		this.colNum = STANDARD_COL_NUM;
+		this.rowNum = STANDARD_ROW_NUM;
+		
+		this.boardGenerator = new ChessBoardGenerator();
+		this.board = this.boardGenerator.generateEmptyBoard(rowNum, colNum);
     }
 
 	/**
@@ -63,7 +68,9 @@ public class ChessBoard implements Iterable<ChessBoard.IndexedPiece>{
 		this.colNum = colNum;
 		this.rowNum = rowNum;
 
-		this.boardGenerator = new ChessBoardGenerator();
+		String[] standardBoardState = ChessBoardGenerator.generateEmptyBoardState(rowNum, colNum);
+
+		this.boardGenerator = new ChessBoardGenerator(standardBoardState);
 		this.board = this.boardGenerator.generateEmptyBoard(rowNum, colNum);
 	}
 
