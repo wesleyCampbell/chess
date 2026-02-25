@@ -1,6 +1,7 @@
 package service;
 
 import dataAccess.AuthDAO;
+import dataAccess.UserDAO;
 import dataAccess.DataAccessException;
 
 public class RegisterService {
@@ -10,23 +11,25 @@ public class RegisterService {
 	//
 
 	public record RegisterRequest(String username, String password, String email) {} 
-	public record RegisterResponse(String username, String authToken) {}
+	public record RegisterResult(String username, String authToken) {}
 	
 	//
 	// ====================== CONSTRUCTORS ============================
 	//
 	
 	private AuthDAO authDAO;
+	private UserDAO userDAO;
 
-	public RegisterService(AuthDAO authDAO) {
+	public RegisterService(AuthDAO authDAO, UserDAO userDAO) {
 		this.authDAO = authDAO;
+		this.userDAO = userDAO;
 	}
 
 	//
 	// ====================== MEMBER METHODS ============================
 	//
 	
-	public RegisterResponse register(RegisterRequest request) throws DataAccessException {
+	public RegisterResult register(RegisterRequest request) throws DataAccessException {
 		throw new DataAccessException("NOT IMPLEMENTED YET!!");
 	}
 }

@@ -1,7 +1,7 @@
 package service;
 
 import dataAccess.AuthDAO;
-import dataAccess.DataAccessException;
+import dataAccess.AuthenticationException;
 
 public class LogoutService {
 	//
@@ -9,7 +9,7 @@ public class LogoutService {
 	//
 	
 	public static record LogoutRequest(String authToken) {}
-	public static record LogoutResponse() {}
+	public static record LogoutResult() {}
 
 	//
 	// ======================= CONSTRUCTORS ========================
@@ -25,8 +25,8 @@ public class LogoutService {
 	// ======================= MEMBER METHODS ========================
 	//
 	
-	public LogoutResponse logout(LogoutRequest request) throws DataAccessException {
-		throw new DataAccessException("NOT IMPLEMENTED YET!!");
+	public LogoutResult logout(LogoutRequest request) throws AuthenticationException {
+		throw new AuthenticationException("NOT IMPLEMENTED YET!!");
 	}
 
 

@@ -27,7 +27,7 @@ public class JoinGameService {
 	// ================== CONSTRUCTORS =====================
 	//
 	
-	public JoinGameResult joinGame(JoinGameRequest request) throws DataAccessException {
+	public JoinGameResult joinGame(JoinGameRequest request) throws DataAccessException, AuthenticationException {
 		throw new DataAccessException("NOT IMPLEMENTED YET");
 	}
 }

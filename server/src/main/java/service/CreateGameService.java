@@ -1,6 +1,7 @@
 package service;
 
 import dataAccess.AuthDAO;
+import dataAccess.AuthenticationException;
 import dataAccess.GameDAO;
 import dataAccess.DataAccessException;
 
@@ -10,7 +11,7 @@ public class CreateGameService {
 	//
 	
 	public static record CreateGameRequest(String authToken, String gameName) {}
-	public static record CreateGameResponse(String gameID) {}
+	public static record CreateGameResult(String gameID) {}
 	
 	//
 	// ================== CONSTRUCTORS ====================
@@ -28,7 +29,7 @@ public class CreateGameService {
 	// ================== MEMBER METHODS ====================
 	//
 	
-	public CreateGameRequest createGame(CreateGameRequest request) throws DataAccessException {
-		throw new DataAccessException("NOT IMPLEMENTED YET");
+	public CreateGameResult createGame(CreateGameRequest request) throws AuthenticationException {
+		throw new AuthenticationException("NOT IMPLEMENTED YET");
 	}
 }

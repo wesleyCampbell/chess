@@ -9,7 +9,7 @@ public class LoginService {
 	//
 	
 	public static record LoginRequest(String username, String password) {}
-	public static record LoginResponse(String username, String authToken) {}
+	public static record LoginResult(String username, String authToken) {}
 	
 	//
 	// ====================== CONSTRUCTORS ====================== 
@@ -25,7 +25,7 @@ public class LoginService {
 	// ====================== MEMBER METHODS ====================== 
 	//
 
-	public LoginResponse login(LoginRequest request) throws DataAccessException {
+	public LoginResult login(LoginRequest request) throws DataAccessException {
 		throw new DataAccessException("NOT IMPLEMENTED YET");
 	}
 }

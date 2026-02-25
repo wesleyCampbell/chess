@@ -3,6 +3,7 @@ package service;
 import java.util.Collection;
 
 import dataAccess.AuthDAO;
+import dataAccess.AuthenticationException;
 import dataAccess.GameDAO;
 import dataAccess.DataAccessException;
 
@@ -13,7 +14,7 @@ public class ListGameService {
 	
 	public static record ListGameRequest(String authToken) {}
 
-	public static record ListGameResponse() {}
+	public static record ListGameResult() {}
 	
 	//
 	// ================= CONSTRUCTORS ==================
@@ -22,7 +23,7 @@ public class ListGameService {
 	private AuthDAO authDAO;
 	private GameDAO gameDAO;
 
-	public ListGameService(AuthDAO authDAO, GameDAO, gameDAO) {
+	public ListGameService(AuthDAO authDAO, GameDAO gameDAO) {
 		this.authDAO = authDAO;
 		this.gameDAO = gameDAO;
 	}
@@ -31,7 +32,7 @@ public class ListGameService {
 	// ================= MEMBER METHODS ==================
 	//
 	
-	public ListGameResponse listGames(ListGameRequest request) throws DataAccessException {
-		throw new DataAccessException("NOT IMPLEMENTED YET");
+	public ListGameResult listGames(ListGameRequest request) throws AuthenticationException {
+		throw new AuthenticationException("NOT IMPLEMENTED YET");
 	}
 }
