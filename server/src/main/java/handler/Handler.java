@@ -1,5 +1,7 @@
 package handler;
 
+import java.util.Map;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
@@ -20,16 +22,21 @@ public abstract class Handler {
 	protected static final int HTTP_CODE_OK = 200;
 	protected static final int HTTP_CODE_UNAUTH = 401;
 	protected static final int HTTP_CODE_TAKEN = 403;
+
+	//
+	// ======================= HTTP MSG RESULT TOKENS ======================
+	//
+	
+	protected static final String MSG_REPLY_TOKEN = "msg";
+	protected static final String AUTH_REPLY_TOKEN = "authorization";
 	
 	//
 	// ====================== DEFAULT HTTP MESSAGES ===========================
 	//
 
-	protected final String successHTTPMsg = toJson(new HTTPCodeRequest(HTTP_CODE_OK, ""));
-
-	protected final String unauthorizedHTTPMsg = toJson(new HTTPCodeRequest(HTTP_CODE_UNAUTH, "Error: unauthorized"));
-
-	protected final String takenHTTPMsg = toJson(new HTTPCodeRequest(HTTP_CODE_TAKEN, "Error: Username already taken"));
+	protected final String successHTTPMsg = toJson(Map.of());
+	protected final String unauthorizedHTTPMsg = toJson(Map.of(MSG_REPLY_TOKEN, "Error: unauthorized"));
+	protected final String takenHTTPMsg = toJson(Map.of(MSG_REPLY_TOKEN, "Already taken"));
 	
 	//
 	// ====================== JSON FORMATING METHODS ===========================

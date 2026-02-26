@@ -4,7 +4,10 @@ import dataAccess.AuthDAO;
 import dataAccess.UserDAO;
 import dataAccess.DataAccessException;
 
-public class RegisterService {
+import model.UserData;
+import model.AuthData;
+
+public class RegisterService extends AuthenticableService {
 
 	//
 	// ====================== PUBLIC STATIC CLASSES ============================
@@ -30,6 +33,13 @@ public class RegisterService {
 	//
 	
 	public RegisterResult register(RegisterRequest request) throws DataAccessException {
-		throw new DataAccessException("NOT IMPLEMENTED YET!!");
+		UserData userData = new UserData(request.username(), request.password(), request.email());
+
+		// this will throw an error if the username is already taken
+		this.userDAO.createUser(userData);
+		
+		AuthData authData = this.createNewAuthData(authDAO, userData.username());
+
+		return new RegisterResult(request.username(), authData.authToken());
 	}
 }

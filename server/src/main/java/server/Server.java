@@ -5,6 +5,7 @@ import io.javalin.*;
 import dataAccess.*;
 import dataAccess.memoryDAO.*;
 import handler.*;
+import service.AuthenticationService;
 
 public class Server {
 
@@ -13,28 +14,28 @@ public class Server {
 	//
 	// Database Access interfaces
 	private final AuthDAO authDAO;
-	private final GameDAO gameDAO;
+	// private final GameDAO gameDAO;
 	private final UserDAO userDAO;
 
 	// Handlers
-	private final DatabaseHandler databaseHandler;
-	private final GamesHandler gamesHandler;
-	private final LoginCtlHandler loginCtlHandler;
+	// private final DatabaseHandler databaseHandler;
+	// private final GamesHandler gamesHandler;
+	// private final LoginCtlHandler loginCtlHandler;
 	private final UserAccountHandler accountHandler;
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
 		// Universal data access interfaces
-		authDAO = new MemoryAuthDAO();
-		gameDAO = new MemoryGameDAO();
-		userDAO = new MemoryUserDAO();
+		this.authDAO = new MemoryAuthDAO();
+		// gameDAO = new MemoryGameDAO();
+		this.userDAO = new MemoryUserDAO();
 
 		// Request handler initialization
-		databaseHandler = new DatabaseHandler(authDAO, gameDAO, userDAO);
-		gamesHandler = new GamesHandler(authDAO, gameDAO);
-		loginCtlHandler = new LoginCtlHandler(authDAO);
-		accountHandler = new UserAccountHandler(authDAO, userDAO);
+		// databaseHandler = new DatabaseHandler(authDAO, gameDAO, userDAO);
+		// gamesHandler = new GamesHandler(authDAO, gameDAO);
+		// loginCtlHandler = new LoginCtlHandler(authDAO);
+		accountHandler = new UserAccountHandler(this.authDAO, this.userDAO);
 		
 		// POST endpoints
 		javalin.post("/user", this.accountHandler::registerRequest);

@@ -4,6 +4,10 @@ import service.RegisterService;
 import service.RegisterService.RegisterRequest;
 import service.RegisterService.RegisterResult;
 
+import static util.Debugger.debug;
+
+import java.util.Map;
+
 import dataAccess.*;
 import io.javalin.http.Context;
 
@@ -22,24 +26,31 @@ public class UserAccountHandler extends Handler {
 	// ======================== MEMBER METHODS ====================
 	//
 	
-	public String registerRequest(String requestStr) {
-		// Deserialize the request into its correct form
-		RegisterRequest request = fromJson(requestStr, RegisterRequest.class);
+	/**
+	 * Given a HTTP request context, will translate it into a format
+	 * that the Registration Service can understand.
+	 *
+	 * @param ctx The Javalin HTTP request context.
+	 *
+	 * @return True if registration successfull, false otherwise
+	 */
+	public boolean registerRequest(Context ctx) {
+		RegisterRequest request = fromJson(ctx.body(), RegisterRequest.class);
+		debug(String.format("request: %s", request));
+
+		ctx.contentType("application/json");
 
 		RegisterResult result;
 		try {
 			result = this.registerService.register(request);
+		} catch (DataAccessException ex) {
+			ctx.status(HTTP_CODE_TAKEN);
+			ctx.result(this.takenHTTPMsg);
+			return false;
 		}
-		// In this context, a DataAccessException represents the username already being taken.
-		catch (DataAccessException ex) {
-			return this.takenHTTPMsg;
-		}
 
-		// Return the expected result + HTTP code
-		return toJsonWithHTTPCode(result, HTTP_CODE_OK);
-	}
-
-	public void registerRequest(Context ctx) {
-
+		ctx.status(HTTP_CODE_OK);
+		ctx.result(toJson(Map.of(AUTH_REPLY_TOKEN, result.authToken())));
+		return true;
 	}
 }
