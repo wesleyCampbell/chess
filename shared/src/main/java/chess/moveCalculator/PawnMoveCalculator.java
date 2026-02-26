@@ -34,7 +34,8 @@ public abstract class PawnMoveCalculator extends ChessPieceMoveCalculator {
 
 	protected static final Set<PieceType> INVALID_PROMOTION_TYPES = Set.of(
 		PieceType.KING,
-		PieceType.PAWN
+		PieceType.PAWN,
+		PieceType.IMMOBILE
 	);
 
 	//
