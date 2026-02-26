@@ -52,7 +52,7 @@ public class Server {
 		javalin.post("/game", this.gamesHandler::createGameRequest);
 
 		// GET endpoints
-		// javalin.get("/game", this.gamesHandler::listGameRequest);
+		javalin.get("/game", this.gamesHandler::listGameRequest);
 		
 		// DELETE endpoints
 		javalin.delete("/session", this.loginCtlHandler::logoutRequest);

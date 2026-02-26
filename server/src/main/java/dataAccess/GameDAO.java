@@ -13,7 +13,7 @@ public interface GameDAO {
 	 *
 	 * @return A Collection containing all data from games.
 	 */
-	public Collection<GameData> getAllGames() throws DataAccessException;	
+	public Collection<GameData> getAllGames();	
 
 	/**
 	 * Creates a game with given data.

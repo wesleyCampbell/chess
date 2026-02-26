@@ -25,7 +25,7 @@ public class MemoryGameDAO implements GameDAO {
 	// ======================== DATA ACCESS ===============================
 	//
 	
-	public Collection<GameData> getAllGames() throws DataAccessException {
+	public Collection<GameData> getAllGames() {
 		return this.db.values();
 	}
 

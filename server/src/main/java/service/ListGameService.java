@@ -7,14 +7,16 @@ import dataAccess.AuthenticationException;
 import dataAccess.GameDAO;
 import dataAccess.DataAccessException;
 
-public class ListGameService {
+import model.GameData;
+
+public class ListGameService extends AuthenticableService {
 	//
 	// ================= PUBLIC STATIC CLASSES ==================
 	//
 	
 	public static record ListGameRequest(String authToken) {}
 
-	public static record ListGameResult() {}
+	public static record ListGameResult(Collection<GameData> gameData) {}
 	
 	//
 	// ================= CONSTRUCTORS ==================
@@ -33,6 +35,12 @@ public class ListGameService {
 	//
 	
 	public ListGameResult listGames(ListGameRequest request) throws AuthenticationException {
-		throw new AuthenticationException("NOT IMPLEMENTED YET");
+		if (!this.isAuthenticated(this.authDAO, request.authToken())) {
+			throw new AuthenticationException("User is not authenticated");
+		}
+
+		Collection<GameData> games = this.gameDAO.getAllGames();
+
+		return new ListGameResult(games);
 	}
 }

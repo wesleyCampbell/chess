@@ -46,7 +46,6 @@ public class GamesHandler extends Handler {
 	 * @return True if create game was a success, false otherwise
 	 */
 	public boolean createGameRequest(Context ctx) {
-
 		String authToken = ctx.header(HTTP_HEADER_AUTH);
 		String jsonRequest = this.addAuthTokenJsonProperty(ctx.body(), authToken);
 
@@ -129,7 +128,31 @@ public class GamesHandler extends Handler {
 		return toJsonWithHTTPCode(result, HTTP_CODE_OK);
 	}
 
-	public void listGameRequest(Context ctx) {
+	/**
+	 * Takes a HTTP json request and translates it into a format that the ListGamesService can understand. Makes the request and puts the response in a Javalin context result.
+	 *
+	 * @param ctx Javalin HTTP context
+	 *
+	 * @return True if listGame request successfull, false otherwise
+	 */
+	public boolean listGameRequest(Context ctx) {
+		String authToken = ctx.header(HTTP_HEADER_AUTH);
+		ListGameRequest request = new ListGameRequest(authToken);
 
+		ctx.contentType("application/json");
+		debug(String.format("request: %s", request));
+
+		ListGameResult result;
+		try {
+			result = this.listGameService.listGames(request);
+		} catch (AuthenticationException ex) {
+			ctx.status(HTTP_CODE_UNAUTH);
+			ctx.result(this.unauthorizedHTTPMsg);
+			return false;
+		}
+
+		ctx.status(HTTP_CODE_OK);
+		ctx.result(toJson(result));
+		return true;
 	}
 }
