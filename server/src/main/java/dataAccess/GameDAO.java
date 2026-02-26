@@ -22,7 +22,7 @@ public interface GameDAO {
 	 *
 	 * @return The data object for the game
 	 */
-	public GameData createGame(String gameName) throws DataAccessException;
+	public GameData createGame(String gameName);
 
 	/**
 	 * Gets a given game, given its id

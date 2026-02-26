@@ -80,7 +80,7 @@ public class LoginCtlHandler extends Handler {
 	public boolean logoutRequest(Context ctx) {
 		// Deserialzie the request
 		// LogoutRequest request = fromJson(ctx.body(), LogoutRequest.class);
-		String authToken = ctx.header("Authorization");
+		String authToken = ctx.header(HTTP_HEADER_AUTH);
 		LogoutRequest request = new LogoutRequest(authToken);
 
 		debug(String.format("request: %s", request));

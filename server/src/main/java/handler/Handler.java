@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public abstract class Handler {
 
@@ -14,6 +15,12 @@ public abstract class Handler {
 	protected record HTTPCodeRequest(int code, String msg) {};
 	
 	private final Gson gson = new Gson();
+	
+	//
+	// ======================= HTTP HEADER CODES =====================
+	//
+	
+	protected static final String HTTP_HEADER_AUTH = "Authorization";
 	
 	//
 	// ====================== HTTP CODE DEFINITIONS ===========================
@@ -81,5 +88,20 @@ public abstract class Handler {
 
 		String json = gson.toJson(jsonObj);
 		return json;
+	}
+
+	/**
+	 * Takes a json string and adds in an authToken property.
+	 *
+	 * @param jsonBody The json string
+	 * @param authToken the authToken to add
+	 *
+	 * @return The new Json string
+	 */
+	protected String addAuthTokenJsonProperty(String jsonBody, String authToken) {
+		JsonObject obj = JsonParser.parseString(jsonBody).getAsJsonObject();
+		obj.addProperty("authToken", authToken);
+
+		return obj.toString();
 	}
 }

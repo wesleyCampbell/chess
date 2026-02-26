@@ -49,7 +49,7 @@ public class Server {
 		// POST endpoints
 		javalin.post("/user", this.accountHandler::registerRequest);
 		javalin.post("/session", this.loginCtlHandler::loginRequest);
-		// javalin.post("/game", this.gamesHandler::createGameRequest);
+		javalin.post("/game", this.gamesHandler::createGameRequest);
 
 		// GET endpoints
 		// javalin.get("/game", this.gamesHandler::listGameRequest);

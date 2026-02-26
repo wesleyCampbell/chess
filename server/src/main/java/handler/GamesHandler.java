@@ -12,6 +12,8 @@ import service.ListGameService;
 import service.ListGameService.ListGameRequest;
 import service.ListGameService.ListGameResult;
 
+import static util.Debugger.debug;
+
 import dataAccess.*;
 import io.javalin.http.Context;
 
@@ -35,31 +37,37 @@ public class GamesHandler extends Handler {
 	// ================================ MEMBER METHODS ==========================
 	//
 	
-	/** Takes a JSON createGame request and parses it into the data needed by the CreateGameService.
-	 *  Then makes the service request and returns a JSON version of the result.
+	/**
+	 * Translates a HTTP request context object into a createGameRequest that the CreateGameService
+	 * can understand. Makes the reqeust and returns the result in the context result.
 	 *
-	 *  @param requestStr The JSON string. It must be in the format '{"authToken": "", "gameName": ""}'.
-	 *  	The easiest way to do this is to simply make a CreateGameService.CreateGameRequest object and parse it as GSON.
+	 * @param ctx The javalin HTTP context
+	 *
+	 * @return True if create game was a success, false otherwise
 	 */
-	public String createGameRequest(String requestStr) {
-		// Deserialize the request into a format understood by the service
-		CreateGameRequest request = fromJson(requestStr, CreateGameRequest.class);
+	public boolean createGameRequest(Context ctx) {
+
+		String authToken = ctx.header(HTTP_HEADER_AUTH);
+		String jsonRequest = this.addAuthTokenJsonProperty(ctx.body(), authToken);
+
+		CreateGameRequest request = fromJson(jsonRequest, CreateGameRequest.class);
+
+		ctx.contentType("application/json");
+		debug(String.format("request: %s", request));
 
 		CreateGameResult result;
 		try {
 			result = this.createGameService.createGame(request);
-		} 
-		// User is not authenticated
-		catch (AuthenticationException ex) {
-			return this.unauthorizedHTTPMsg;
 		}
+		catch (AuthenticationException ex) {
+			ctx.status(HTTP_CODE_UNAUTH);
+			ctx.result(this.unauthorizedHTTPMsg);
+			return false;
+		} 
 
-		// Return the expected result
-		return toJsonWithHTTPCode(result, HTTP_CODE_OK);
-	}
-
-	public void createGameRequest(Context ctx) {
-
+		ctx.status(HTTP_CODE_OK);
+		ctx.result(toJson(result));
+		return true;
 	}
 
 	/**

@@ -5,7 +5,9 @@ import dataAccess.AuthenticationException;
 import dataAccess.GameDAO;
 import dataAccess.DataAccessException;
 
-public class CreateGameService {
+import model.GameData;
+
+public class CreateGameService extends AuthenticableService {
 	//
 	// ================== PUBLIC STATIC CLASS ====================
 	//
@@ -30,6 +32,14 @@ public class CreateGameService {
 	//
 	
 	public CreateGameResult createGame(CreateGameRequest request) throws AuthenticationException {
-		throw new AuthenticationException("NOT IMPLEMENTED YET");
+		if (this.isAuthenticated(authDAO, request.authToken())) {
+			GameData data = this.gameDAO.createGame(request.gameName());
+
+			CreateGameResult result = new CreateGameResult(data.gameID());
+
+			return result;
+		}
+		
+		throw new AuthenticationException("User is not authenticated");
 	}
 }

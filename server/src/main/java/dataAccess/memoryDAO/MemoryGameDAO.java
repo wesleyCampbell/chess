@@ -34,7 +34,7 @@ public class MemoryGameDAO implements GameDAO {
 		return String.valueOf(this.nextOpenID - 1);
 	}
 
-	public GameData createGame(String gameName) throws DataAccessException {
+	public GameData createGame(String gameName) {
 		String gameID = this.getNextGameID();
 		ChessGame game = new ChessGame();
 
