@@ -49,4 +49,23 @@ public abstract class AuthenticableService {
 
 		throw new DataAccessException("Auth Token generation failed");
 	}
+
+	/**
+	 * Given an authorization database and a authToken, will determine if it is a valid authToken
+	 *
+	 * @param dao The authorization database interface
+	 * @param authToken The authorization token to check
+	 *
+	 * @return true if valid, false otherwise
+	 */
+	public boolean isAuthenticated(AuthDAO dao, String authToken) {
+		// If successfull, it means that the auth token is in the database
+		// it is not if an error thrown.
+		try {
+			dao.getAuth(authToken);
+			return true;
+		} catch (DataAccessException ex) {
+			return false;
+		}
+	}
 }

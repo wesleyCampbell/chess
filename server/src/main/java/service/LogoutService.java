@@ -2,8 +2,11 @@ package service;
 
 import dataAccess.AuthDAO;
 import dataAccess.AuthenticationException;
+import dataAccess.DataAccessException;
 
-public class LogoutService {
+import model.AuthData;
+
+public class LogoutService extends AuthenticableService {
 	//
 	// ======================= PUBLIC STATIC CLASSES ========================
 	//
@@ -26,7 +29,15 @@ public class LogoutService {
 	//
 	
 	public LogoutResult logout(LogoutRequest request) throws AuthenticationException {
-		throw new AuthenticationException("NOT IMPLEMENTED YET!!");
+		AuthData data;
+		try {
+			data = this.authDAO.getAuth(request.authToken());
+			this.authDAO.removeAuth(data);
+
+			return new LogoutResult();
+		} catch (DataAccessException ex) {
+			throw new AuthenticationException("User not authenticated");
+		}
 	}
 
 

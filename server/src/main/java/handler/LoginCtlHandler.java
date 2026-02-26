@@ -41,31 +41,6 @@ public class LoginCtlHandler extends Handler {
 	//
 	
 	/**
-	 * Given a JSON login request, will deserialize it into a format the LoginService can understand,
-	 * and will make the request, returning a JSON serialization of the result.
-	 *
-	 * @param requestStr The JSON login request. Must be in format '{"username": "", "password": ""}'
-	 *
-	 * @return JSON loginResponse string 
-	 */
-	String loginRequest(String requestStr) {
-		// Deserialize the request
-		LoginRequest request = fromJson(requestStr, LoginRequest.class);
-
-		LoginResult result;
-		try {
-			result = this.loginService.login(request);
-		} 
-		// In this context, a DataAccessException means the password doesn't match the username.
-		catch (DataAccessException ex) {
-			return unauthorizedHTTPMsg;
-		}
-
-		// Return expected result with HTTP code attached
-		return toJsonWithHTTPCode(result, HTTP_CODE_OK);
-	}
-
-	/**
 	 * Given a HTTP request Context object, this deserialize it into a format that the LoginService
 	 * can understand. It will then make the request, putting the result into the context.
 	 *
@@ -95,32 +70,35 @@ public class LoginCtlHandler extends Handler {
 	}
 
 	/**
-	 * Given a JSON logout request, will deserialize it into a format the LogoutService can understand
-	 * and will make the request, returning a JSON serialization of the result.
+	 * Given a HTTP context object, this method will extract the logout request
+	 * and will pass it to the logoutService.
 	 *
-	 * @param requestStr The JSON logout request. Must be in format '{"authToken": ""}'.
+	 * @param ctx The Javalin HTTP context object
 	 *
-	 * @return JSON LogoutResponse string 
+	 * @return True if logout successfull, false otherwise
 	 */
-	String logoutRequest(String requestStr) {
-		// Deserialize the request
-		LogoutRequest request = fromJson(requestStr, LogoutRequest.class);
-		
+	public boolean logoutRequest(Context ctx) {
+		// Deserialzie the request
+		// LogoutRequest request = fromJson(ctx.body(), LogoutRequest.class);
+		String authToken = ctx.header("Authorization");
+		LogoutRequest request = new LogoutRequest(authToken);
+
+		debug(String.format("request: %s", request));
+
+		ctx.contentType("application/json");
+
 		LogoutResult result;
 		try {
 			result = this.logoutService.logout(request);
-		} 
-		// The user's authentication is incorrect
-		catch (AuthenticationException ex) {
-			return this.unauthorizedHTTPMsg;
+		} catch (AuthenticationException ex) {
+			ctx.status(HTTP_CODE_UNAUTH);
+			ctx.result(this.unauthorizedHTTPMsg);
+			return false;
 		}
 
-		// Return expected result with associated HTTP code
-		return toJsonWithHTTPCode(result, HTTP_CODE_OK);
-	}
-
-	public void logoutRequest(Context ctx) {
-
+		ctx.status(HTTP_CODE_OK);
+		ctx.result(toJson(result));
+		return true;
 	}
 }	
 
