@@ -8,6 +8,10 @@ import service.LogoutService;
 import service.LogoutService.LogoutRequest;
 import service.LogoutService.LogoutResult;
 
+import static util.Debugger.debug;
+
+import java.util.Map;
+
 import dataAccess.*;
 import io.javalin.http.Context;
 
@@ -27,8 +31,8 @@ public class LoginCtlHandler extends Handler {
 	 *
 	 * @param authDAO Reference to the authentication database access object
 	 */
-	public LoginCtlHandler(AuthDAO authDAO) {
-		this.loginService = new LoginService(authDAO);
+	public LoginCtlHandler(AuthDAO authDAO, UserDAO userDAO) {
+		this.loginService = new LoginService(authDAO, userDAO);
 		this.logoutService = new LogoutService(authDAO);
 	}
 
@@ -61,8 +65,33 @@ public class LoginCtlHandler extends Handler {
 		return toJsonWithHTTPCode(result, HTTP_CODE_OK);
 	}
 
-	public void loginRequest(Context ctx) {
+	/**
+	 * Given a HTTP request Context object, this deserialize it into a format that the LoginService
+	 * can understand. It will then make the request, putting the result into the context.
+	 *
+	 * @param ctx The Javalin HTTP context object
+	 *
+	 * @param True if login is successfull, false otherwise
+	 */
+	public boolean loginRequest(Context ctx) {
+		LoginRequest request = fromJson(ctx.body(), LoginRequest.class);
 
+		debug(String.format("request: %s", request));
+
+		ctx.contentType("application/json");
+
+		LoginResult result;
+		try {
+			result = this.loginService.login(request);
+		} catch (DataAccessException ex) {
+			ctx.status(HTTP_CODE_UNAUTH);
+			ctx.result(this.unauthorizedHTTPMsg);
+			return false;
+		}
+
+		ctx.status(HTTP_CODE_OK);
+		ctx.result(toJson(Map.of(AUTH_REPLY_TOKEN, result.authToken())));
+		return true;
 	}
 
 	/**

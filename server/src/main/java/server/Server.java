@@ -5,41 +5,50 @@ import io.javalin.*;
 import dataAccess.*;
 import dataAccess.memoryDAO.*;
 import handler.*;
-import service.AuthenticationService;
 
 public class Server {
 
     private final Javalin javalin;
 
 	//
-	// Database Access interfaces
+	// ================= DATABASE ACCESS INTERFACES ============ 
+	//
+	
 	private final AuthDAO authDAO;
-	// private final GameDAO gameDAO;
+	private final GameDAO gameDAO;
 	private final UserDAO userDAO;
 
-	// Handlers
-	// private final DatabaseHandler databaseHandler;
-	// private final GamesHandler gamesHandler;
-	// private final LoginCtlHandler loginCtlHandler;
+	//
+	// =================== HTTP REQUEST HANDLERS ====================
+	//
+	
+	private final DatabaseHandler databaseHandler;
+	private final GamesHandler gamesHandler;
+	private final LoginCtlHandler loginCtlHandler;
 	private final UserAccountHandler accountHandler;
+
+	//
+	// ======================== CONSTRUCTORS ========================
+	//
+	
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
 		// Universal data access interfaces
 		this.authDAO = new MemoryAuthDAO();
-		// gameDAO = new MemoryGameDAO();
+		this.gameDAO = new MemoryGameDAO();
 		this.userDAO = new MemoryUserDAO();
 
 		// Request handler initialization
-		// databaseHandler = new DatabaseHandler(authDAO, gameDAO, userDAO);
-		// gamesHandler = new GamesHandler(authDAO, gameDAO);
-		// loginCtlHandler = new LoginCtlHandler(authDAO);
-		accountHandler = new UserAccountHandler(this.authDAO, this.userDAO);
+		this.databaseHandler = new DatabaseHandler(authDAO, gameDAO, userDAO);
+		this.gamesHandler = new GamesHandler(authDAO, gameDAO);
+		this.loginCtlHandler = new LoginCtlHandler(authDAO, userDAO);
+		this.accountHandler = new UserAccountHandler(this.authDAO, this.userDAO);
 		
 		// POST endpoints
 		javalin.post("/user", this.accountHandler::registerRequest);
-		// javalin.post("/session", this.loginCtlHandler::loginRequest);
+		javalin.post("/session", this.loginCtlHandler::loginRequest);
 		// javalin.post("/game", this.gamesHandler::createGameRequest);
 
 		// GET endpoints
