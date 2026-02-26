@@ -37,19 +37,19 @@ public class Server {
 		accountHandler = new UserAccountHandler(authDAO, userDAO);
 		
 		// POST endpoints
-		javalin.post("/user/{username}{password}{email}", this.accountHandler::registerRequest);
-		javalin.post("/session/{username}{password}", this.loginCtlHandler::loginRequest);
-		javalin.post("/game/{gameName}", this.gamesHandler::createGameRequest);
+		javalin.post("/user", this.accountHandler::registerRequest);
+		// javalin.post("/session", this.loginCtlHandler::loginRequest);
+		// javalin.post("/game", this.gamesHandler::createGameRequest);
 
 		// GET endpoints
-		javalin.get("/game", this.gamesHandler::listGameRequest);
+		// javalin.get("/game", this.gamesHandler::listGameRequest);
 		
 		// DELETE endpoints
-		javalin.delete("/session", this.loginCtlHandler::logoutRequest);
-		javalin.delete("/db", this.databaseHandler::clearDataRequest);
+		// javalin.delete("/session", this.loginCtlHandler::logoutRequest);
+		// javalin.delete("/db", this.databaseHandler::clearDataRequest);
 
 		// PUT endpoints
-		javalin.put("/game/{playerColor}{gameID}", this.gamesHandler::joinGameRequest);
+		// javalin.put("/game", this.gamesHandler::joinGameRequest);
     }
 
     public int run(int desiredPort) {

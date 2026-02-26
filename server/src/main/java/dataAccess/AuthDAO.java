@@ -18,6 +18,13 @@ public interface AuthDAO {
 	public AuthData getAuth(String authToken) throws DataAccessException;
 
 	/**
+	 * Adds a given Authentication data to the database
+	 *
+	 * @param authData The authentication data
+	 */
+	public void createAuth(AuthData authData) throws DataAccessException;
+
+	/**
 	 * Will return a given AuthData object from the database
 	 *
 	 * @param authData The data to remove
