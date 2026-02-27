@@ -8,7 +8,6 @@ import java.util.Map;
 import chess.ChessGame.TeamColor;
 import chess.moveCalculator.BishopMoveCalculator;
 import chess.moveCalculator.ChessPieceMoveCalculator;
-import chess.moveCalculator.ImmobileMoveCalculator;
 import chess.moveCalculator.KingMoveCalculator;
 import chess.moveCalculator.KnightMoveCalculator;
 import chess.moveCalculator.PawnMoveCalculator;
@@ -37,7 +36,6 @@ public class ChessPiece {
         KNIGHT,
         ROOK,
         PAWN,
-		IMMOBILE
     }
 	
 	private static Map<PieceType, Character> typeSymbolMap = Map.of(
@@ -177,9 +175,6 @@ public class ChessPiece {
 				break;
 			case PAWN:
 				this.moveCalculator = PawnMoveCalculator.makeNewPawnMoveCalculator(pieceColor);
-				break;
-			case IMMOBILE:
-				this.moveCalculator = new ImmobileMoveCalculator();
 				break;
 			default:
 				this.moveCalculator = null;
