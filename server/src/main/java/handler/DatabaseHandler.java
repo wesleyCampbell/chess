@@ -34,20 +34,30 @@ public class DatabaseHandler extends Handler {
 	//
 	// =========================== MEMBER METHODS ========================
 	//
-	
-	public String clearDataRequest(String parameters) {
+
+	/**
+	 * Translates an HTTP request to clear the database into one the service can understand
+	 *
+	 * @param ctx The Javalin HTTP context
+	 *
+	 * @return True if successfull, false if otherwise
+	 */
+	public boolean clearDataRequest(Context cxt) {
 		ClearDataRequest request = new ClearDataRequest();
+
+		cxt.contentType("application/json");
+
 		ClearDataResult result;
 		try {
 			result = this.clearDataService.clearData(request);
-		} catch (DataAccessException ex)  {
-				
+		} catch (DataAccessException ex) {
+			cxt.status(HTTP_CODE_ERROR);
+			cxt.result(this.errorHTTPMsg);
+			return false;
 		}
 
-		return this.successHTTPMsg;
-	}
-
-	public void clearDataRequest(Context cxt) {
-
+		cxt.status(HTTP_CODE_OK);
+		cxt.result(this.successHTTPMsg);
+		return true;
 	}
 }

@@ -56,7 +56,7 @@ public class Server {
 		
 		// DELETE endpoints
 		javalin.delete("/session", this.loginCtlHandler::logoutRequest);
-		// javalin.delete("/db", this.databaseHandler::clearDataRequest);
+		javalin.delete("/db", this.databaseHandler::clearDataRequest);
 
 		// PUT endpoints
 		// javalin.put("/game", this.gamesHandler::joinGameRequest);

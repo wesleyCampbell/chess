@@ -27,6 +27,7 @@ public abstract class Handler {
 	//
 
 	protected static final int HTTP_CODE_OK = 200;
+	protected static final int HTTP_CODE_ERROR = 400;
 	protected static final int HTTP_CODE_UNAUTH = 401;
 	protected static final int HTTP_CODE_TAKEN = 403;
 
@@ -36,12 +37,14 @@ public abstract class Handler {
 	
 	protected static final String MSG_REPLY_TOKEN = "msg";
 	protected static final String AUTH_REPLY_TOKEN = "authorization";
+	protected static final String ERROR_REPLY_TOKEN = "error";
 	
 	//
 	// ====================== DEFAULT HTTP MESSAGES ===========================
 	//
 
 	protected final String successHTTPMsg = toJson(Map.of());
+	protected final String errorHTTPMsg = toJson(Map.of(ERROR_REPLY_TOKEN, "Unknown Error"));
 	protected final String unauthorizedHTTPMsg = toJson(Map.of(MSG_REPLY_TOKEN, "Error: unauthorized"));
 	protected final String takenHTTPMsg = toJson(Map.of(MSG_REPLY_TOKEN, "Already taken"));
 	

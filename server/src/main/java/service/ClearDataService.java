@@ -29,7 +29,17 @@ public class ClearDataService {
 	//
 	// =================== MEMBER METHODS =================== 
 	//
+
+	/**
+	 * Clears all data from all databases.
+	 *
+	 * @return A result object storing necessary data
+	 */
 	public ClearDataResult clearData(ClearDataRequest request) throws DataAccessException {
-		throw new DataAccessException("NOT IMPLEMENTED YET");
+		this.authDAO.clearAllAuthData();
+		this.gameDAO.clearAllGameData();
+		this.userDAO.clearAllUserData();
+
+		return new ClearDataResult();
 	}
 }
