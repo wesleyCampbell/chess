@@ -25,6 +25,15 @@ public interface GameDAO {
 	public GameData createGame(String gameName);
 
 	/**
+	 * Updates a game with the given gameID with new GameData
+	 *
+	 * @param gameID The id of the game to update
+	 * @param newGameData The new data
+	 *
+	 * @return An object containing relevant info to JoinGame
+	 */
+	public void updateGame(String gameID, GameData newGameData) throws DataAccessException;
+	/**
 	 * Gets a given game, given its id
 	 *
 	 * @param gameID The identifier of the game

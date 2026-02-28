@@ -12,6 +12,7 @@ import service.ListGameService;
 import service.ListGameService.ListGameRequest;
 import service.ListGameService.ListGameResult;
 
+//import static util.Debugger.debug;
 import static util.Debugger.debug;
 
 import dataAccess.*;
@@ -52,7 +53,7 @@ public class GamesHandler extends Handler {
 		CreateGameRequest request = fromJson(jsonRequest, CreateGameRequest.class);
 
 		ctx.contentType("application/json");
-		debug(String.format("request: %s", request));
+		debug(String.format("request: %s", request), 0);
 
 		CreateGameResult result;
 		try {
@@ -99,8 +100,40 @@ public class GamesHandler extends Handler {
 		return this.successHTTPMsg;
 	}
 
-	public void joinGameRequest(Context ctx) {
+	/**
+	 * Takes a HTTP request to join a game and translates it into a request the JoinGameService can understand
+	 *
+	 * @param ctx: The Javalin HTTP context
+	 *
+	 * @return True if request is succesfull, false otherwise
+	 */
+	public boolean joinGameRequest(Context ctx) {
+		String authToken = ctx.header(HTTP_HEADER_AUTH);
 
+		String jsonRequest = this.addAuthTokenJsonProperty(ctx.body(), authToken);
+
+		JoinGameRequest request = fromJson(jsonRequest, JoinGameRequest.class);
+
+		debug(String.format("request: %s", request), 0);
+
+		ctx.contentType("application/json");
+
+		JoinGameResult result;
+		try {
+			result = this.joinGameService.joinGame(request);
+		} catch (AuthenticationException ex) {
+			ctx.status(HTTP_CODE_UNAUTH);
+			ctx.result(this.unauthorizedHTTPMsg);
+			return false;
+		} catch (DataAccessException ex) {
+			ctx.status(HTTP_CODE_NO_EXIST);
+			ctx.result(this.noExistHTTPMsg);
+			return false;
+		}
+
+		ctx.status(HTTP_CODE_OK);
+		ctx.result(toJson(result));
+		return true;
 	}
 
 	/**

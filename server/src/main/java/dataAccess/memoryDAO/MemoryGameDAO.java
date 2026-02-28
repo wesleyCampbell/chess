@@ -45,6 +45,15 @@ public class MemoryGameDAO implements GameDAO {
 		return data;
 	}
 
+	public void updateGame(String gameID, GameData newGameData) throws DataAccessException {
+		// Will throw an error if the game doesn't exist. 
+		// We'll let it propogate up the stack.
+		GameData data = this.getGame(gameID);	
+		this.removeGame(data);
+
+		this.db.put(gameID, newGameData);
+	}
+
 	public GameData getGame(String gameID) throws DataAccessException {
 		GameData data = this.db.get(gameID);
 

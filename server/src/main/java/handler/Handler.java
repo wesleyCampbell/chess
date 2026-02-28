@@ -30,6 +30,7 @@ public abstract class Handler {
 	protected static final int HTTP_CODE_ERROR = 400;
 	protected static final int HTTP_CODE_UNAUTH = 401;
 	protected static final int HTTP_CODE_TAKEN = 403;
+	protected static final int HTTP_CODE_NO_EXIST = 404;
 
 	//
 	// ======================= HTTP MSG RESULT TOKENS ======================
@@ -47,6 +48,7 @@ public abstract class Handler {
 	protected final String errorHTTPMsg = toJson(Map.of(ERROR_REPLY_TOKEN, "Unknown Error"));
 	protected final String unauthorizedHTTPMsg = toJson(Map.of(MSG_REPLY_TOKEN, "Error: unauthorized"));
 	protected final String takenHTTPMsg = toJson(Map.of(MSG_REPLY_TOKEN, "Already taken"));
+	protected final String noExistHTTPMsg = toJson(Map.of(ERROR_REPLY_TOKEN, "Requested resource doesn't exist"));
 	
 	//
 	// ====================== JSON FORMATING METHODS ===========================

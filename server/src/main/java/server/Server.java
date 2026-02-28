@@ -59,7 +59,7 @@ public class Server {
 		javalin.delete("/db", this.databaseHandler::clearDataRequest);
 
 		// PUT endpoints
-		// javalin.put("/game", this.gamesHandler::joinGameRequest);
+		javalin.put("/game", this.gamesHandler::joinGameRequest);
     }
 
     public int run(int desiredPort) {
