@@ -3,13 +3,13 @@ package util;
 /**
  * A class that stores two related objects together
  */
-public class Pair<typeFirst, typeSecond> {
+public class Pair<A, B> {
 	//
 	// ================= MEMBER METHODS ===============
 	//
 	
-	typeFirst first;
-	typeSecond second;
+	A first;
+	B second;
 	
 	//
 	// ================= CONSTRUCTORS ===============
@@ -18,7 +18,7 @@ public class Pair<typeFirst, typeSecond> {
 	/**
 	 * Constructor that takes two objects and will link them together
 	 */
-	public Pair(typeFirst first, typeSecond second) {
+	public Pair(A first, B second) {
 		this.first = first;
 		this.second = second;
 	}
@@ -27,11 +27,11 @@ public class Pair<typeFirst, typeSecond> {
 	// ================= MEMBER METHODS ===============
 	//
 	
-	public typeFirst getFirst() {
+	public A getFirst() {
 		return this.first;
 	}
 
-	public typeSecond getSecond() {
+	public B getSecond() {
 		return this.second;
 	}
 }

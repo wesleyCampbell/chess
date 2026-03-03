@@ -64,8 +64,8 @@ public abstract class Handler {
 	 *
 	 * @return The deserialized object
 	 */
-	protected <Type> Type fromJson(String json, Class<Type> objType) {
-		Type obj = this.gson.fromJson(json, objType);	
+	protected <T> T fromJson(String json, Class<T> objType) {
+		T obj = this.gson.fromJson(json, objType);	
 
 		return obj;
 	}
@@ -79,22 +79,6 @@ public abstract class Handler {
 	 */
 	protected String toJson(Object obj) {
 		return this.gson.toJson(obj);
-	}
-
-	/**
-	 * Takes an object and serializes it to a json object with a given code attached
-	 *
-	 * @param obj: The object to serialize
-	 * @param code: The HTTP code to serialize into the json
-	 *
-	 * @return The serialized object and HTTP code
-	 */
-	protected String toJsonWithHTTPCode(Object obj, int code) {
-		JsonObject jsonObj = gson.toJsonTree(obj).getAsJsonObject();
-		jsonObj.addProperty("code", code);
-
-		String json = gson.toJson(jsonObj);
-		return json;
 	}
 
 	/**
@@ -122,8 +106,8 @@ public abstract class Handler {
 	 *
 	 * @return true if valid, false otherwise
 	 */
-	protected <Type> Type extractJsonRequest(String jsonBody, Class<Type> requestClass) {
-		Type request = fromJson(jsonBody, requestClass);
+	protected <T> T extractJsonRequest(String jsonBody, Class<T> requestClass) {
+		T request = fromJson(jsonBody, requestClass);
 		Debugger.debug(String.format("request: %s", request), 2);
 
 		// Iterate through each public attribute and make sure it is not null
