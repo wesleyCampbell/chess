@@ -3,8 +3,8 @@ package chess.pieces;
 import chess.ChessPiece;
 import chess.ChessGame.TeamColor;
 import chess.ChessPiece.PieceType;
-import chess.moveCalculator.ChessPieceMoveCalculator;
-import chess.moveCalculator.KingMoveCalculator;
+import chess.movecalculator.ChessPieceMoveCalculator;
+import chess.movecalculator.KingMoveCalculator;
 
 /**
  * Represents a Rook on the board

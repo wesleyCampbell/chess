@@ -1,9 +1,9 @@
 package chess;
 
 import chess.ChessPiece.PieceType;
-import chess.moveCalculator.ChessPieceMoveCalculator;
+import chess.movecalculator.ChessPieceMoveCalculator;
 import static util.Debugger.debug;
-import chess.moveEngine.*;
+import chess.moveengine.*;
 
 import java.util.Collection;
 import java.util.HashSet;

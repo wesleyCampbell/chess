@@ -3,8 +3,8 @@ package chess.pieces;
 import chess.*;
 import chess.ChessGame.TeamColor;
 import chess.ChessPiece.PieceType;
-import chess.moveCalculator.ChessPieceMoveCalculator;
-import chess.moveCalculator.RookMoveCalculator;
+import chess.movecalculator.ChessPieceMoveCalculator;
+import chess.movecalculator.RookMoveCalculator;
 
 /**
  * Represents a Pawn on the board.
