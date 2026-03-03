@@ -71,36 +71,6 @@ public class GamesHandler extends Handler {
 	}
 
 	/**
-	 * Takes a JSON joinGame request and parses it into the data needed by the JoinGameService.
-	 * Then makes the service request and returns a JSON serialization of the result.
-	 *
-	 * @param requestStr The JSON string. It must be in the format '"authToken": "", "playerColor": "", "gameID": ""}'. 
-	 * 		The easiest way to do this is to simply make a JoinGameService.JoinGameRequest object and parse it as GSON.
-	 *
-	 * @return The String JSON result
-	 */
-	public String joinGameRequest(String requestStr) {
-		// Deserializes the request into a format understood by the service
-		JoinGameRequest	request = fromJson(requestStr, JoinGameRequest.class); 
-
-		JoinGameResult result;
-		try {
-			result = this.joinGameService.joinGame(request);
-		} 
-		// In this context, a DataAccessException means that the team color is already taken
-		catch (DataAccessException ex) {
-			HTTPCodeRequest outMsg = new HTTPCodeRequest(HTTP_CODE_TAKEN, "Error: team color already taken");
-			return toJson(outMsg);
-		} 
-		// The user isn't authenticated
-		catch (AuthenticationException ex) {
-			return this.unauthorizedHTTPMsg;
-		}
-
-		return this.successHTTPMsg;
-	}
-
-	/**
 	 * Takes a HTTP request to join a game and translates it into a request the JoinGameService can understand
 	 *
 	 * @param ctx: The Javalin HTTP context
@@ -126,8 +96,8 @@ public class GamesHandler extends Handler {
 			ctx.result(this.unauthorizedHTTPMsg);
 			return false;
 		} catch (DataAccessException ex) {
-			ctx.status(HTTP_CODE_NO_EXIST);
-			ctx.result(this.noExistHTTPMsg);
+			ctx.status(HTTP_CODE_TAKEN);
+			ctx.result(this.takenHTTPMsg);
 			return false;
 		}
 

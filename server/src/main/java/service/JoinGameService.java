@@ -47,22 +47,26 @@ public class JoinGameService extends AuthenticableService {
 		String username = this.authDAO.getAuth(request.authToken()).username();
 
 		Debugger.debug("Found username...", 1);
+		Debugger.debug(String.format("playerColor: %s", playerColor), 2);
 
-		String blackUsername = null;
-		String whiteUsername = null;
+		String blackUsername, whiteUsername;
 		switch (playerColor) {
 			case TeamColor.WHITE:
-				if (game.whiteUsername() != null) {
-					throw new DataAccessException("White is already taken");
+				blackUsername = game.blackUsername();
+				if (!game.whiteUsername().isEmpty()) {
+					throw new DataAccessException("White already taken");
 				}
 				whiteUsername = username;
 				break;
 			case TeamColor.BLACK:
-				if (game.blackUsername() != null) {
-					throw new DataAccessException("Black is already taken");
+				whiteUsername = game.whiteUsername();
+				if (!game.blackUsername().isEmpty()) {
+					throw new DataAccessException("Black already taken");
 				}
 				blackUsername = username;
 				break;
+			default:
+				throw new DataAccessException("Only black and white teams currently supported");
 		}
 
 		GameData newGameData = new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game());
@@ -70,5 +74,5 @@ public class JoinGameService extends AuthenticableService {
 		this.gameDAO.updateGame(game.gameID(), newGameData);
 
 		return new JoinGameResult();
-}
+	}
 }
