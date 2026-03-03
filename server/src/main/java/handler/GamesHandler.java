@@ -15,8 +15,12 @@ import service.ListGameService.ListGameResult;
 //import static util.Debugger.debug;
 import static util.Debugger.debug;
 
+import model.GameData;
+
 import dataAccess.*;
 import io.javalin.http.Context;
+import java.util.Collection;
+import java.util.HashSet;
 
 public class GamesHandler extends Handler {
 
@@ -88,7 +92,13 @@ public class GamesHandler extends Handler {
 
 		String jsonRequest = this.addAuthTokenJsonProperty(ctx.body(), authToken);
 
-		JoinGameRequest request = fromJson(jsonRequest, JoinGameRequest.class);
+		// JoinGameRequest request = fromJson(jsonRequest, JoinGameRequest.class);
+		JoinGameRequest request = extractJsonRequest(jsonRequest, JoinGameRequest.class);
+		if (request == null) {
+			ctx.status(HTTP_CODE_ERROR);
+			ctx.result(this.errorHTTPMsg);
+			return false;
+		}
 
 		debug(String.format("request: %s", request), 0);
 
@@ -110,6 +120,37 @@ public class GamesHandler extends Handler {
 		ctx.status(HTTP_CODE_OK);
 		ctx.result(toJson(result));
 		return true;
+	}
+
+	/** Takes a listGameResult and replaces all empty strings with null.
+	 *
+	 * @param result
+	 */
+	private ListGameResult formatGames(ListGameResult result) {
+		Collection<GameData> newGames = new HashSet<>();
+
+		for (GameData game : result.games()) {
+			String blackUsername = game.blackUsername();
+			String whiteUsername = game.whiteUsername();
+
+			if (blackUsername.isEmpty()) {
+				blackUsername = null;				
+			}
+			if (whiteUsername.isEmpty()) {
+				whiteUsername = null;
+			}
+
+			GameData newGame;
+			if (whiteUsername == null || blackUsername == null) {
+				newGame = new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game());
+			} else {
+				newGame = game;
+			}
+
+			newGames.add(newGame);
+		}
+
+		return new ListGameResult(newGames);	
 	}
 
 	/**
@@ -136,7 +177,7 @@ public class GamesHandler extends Handler {
 		}
 
 		ctx.status(HTTP_CODE_OK);
-		ctx.result(toJson(result));
+		ctx.result(toJson(formatGames(result)));
 		return true;
 	}
 }
