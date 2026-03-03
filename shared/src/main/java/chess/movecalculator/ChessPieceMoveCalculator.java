@@ -1,4 +1,4 @@
-package chess.moveCalculator;
+package chess.movecalculator;
 
 import java.util.HashSet;
 import java.util.Locale.Category;

@@ -78,8 +78,8 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 		}
 
 		// STEP 3: Add special moves, if necessary
-		allMoves.addAll(this.specialMoveRule_Castle(board, startPos));
-		allMoves.addAll(this.specialMoveRule_EmPassant(board, startPos));
+		allMoves.addAll(this.specialMoveRuleCastle(board, startPos));
+		allMoves.addAll(this.specialMoveRuleEmPassant(board, startPos));
 
 		return allMoves;
 	}
@@ -92,7 +92,7 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 	 *
 	 * @return The em passant move
 	 */
-	private HashSet<ChessMove> specialMoveRule_EmPassant(ChessBoard board, ChessPosition startPos) {
+	private HashSet<ChessMove> specialMoveRuleEmPassant(ChessBoard board, ChessPosition startPos) {
 		// The piece has to be a pawn
 		ChessPiece pawn = board.getPiece(startPos);
 		HashSet<ChessMove> emPassantMoves = new HashSet<>();
@@ -161,7 +161,7 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 	 *
 	 * @return true if the move is a castling move, false otherwise
 	 */
-	private boolean specialMoveCheck_EmPassant(ChessBoard board, ChessMove move) {
+	private boolean specialMoveCheckEmPassant(ChessBoard board, ChessMove move) {
 		
 		// move must be on square containint pawn
 		ChessPosition startPos = new ChessPosition(move.getStartPosition());
@@ -212,7 +212,7 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 	 * @param move The em passant move
 	 * @param color The pawn's color
 	 */
-	private void specialMoveMake_EmPassant(ChessBoard board, ChessMove move, TeamColor color) {
+	private void specialMoveMakeEmPassant(ChessBoard board, ChessMove move, TeamColor color) {
 		// STEP 0: get info
 		ChessPosition startPos = move.getStartPosition();
 		ChessPosition endPos = move.getEndPosition();
@@ -239,7 +239,7 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 		board.removePiece(attackPawnPos);
 
 		// STEP 3: Move the em passant pawn
-		this._makeMove(board, move, pawn);
+		this.utilMakeMove(board, move, pawn);
 	}
 
 	/**
@@ -250,7 +250,7 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 	 *
 	 * @return true if the move is a castling move, false otherwise
 	 */
-	private boolean specialMoveCheck_Castle(ChessBoard board, ChessMove move) {
+	private boolean specialMoveCheckCastle(ChessBoard board, ChessMove move) {
 		// Collect relevant info
 		ChessPosition startPos = new ChessPosition(move.getStartPosition());
 		ChessPosition endPos = new ChessPosition(move.getEndPosition());
@@ -280,7 +280,7 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 	 * @param board The current game board
 	 * @param move The castling move that MUST be a valid castling move
 	 */
-	private void specialMoveMake_Castle(ChessBoard board, ChessMove move) {
+	private void specialMoveMakeCastle(ChessBoard board, ChessMove move) {
 		// STEP 1: determine the direction of the castle
 		ChessPosition startPos = new ChessPosition(move.getStartPosition());
 		ChessPosition endPos = new ChessPosition(move.getEndPosition());
@@ -321,8 +321,8 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 		// STEP 4: Make the move
 		ChessMove rookMove = new ChessMove(rookStartSquare, rookEndSquare, null);
 
-		this._makeMove(board, move, board.getPiece(startPos), false);
-		this._makeMove(board, rookMove, piece, true);  // Only update the database after the water is settled
+		this.utilMakeMove(board, move, board.getPiece(startPos), false);
+		this.utilMakeMove(board, rookMove, piece, true);  // Only update the database after the water is settled
 	}
 
 	/**
@@ -333,7 +333,7 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 	 *
 	 * @return HashSet containing all the valid castling moves. Empty, if there are none.
 	 */
-	private HashSet<ChessMove> specialMoveRule_Castle(ChessBoard board, ChessPosition startPos) {
+	private HashSet<ChessMove> specialMoveRuleCastle(ChessBoard board, ChessPosition startPos) {
 		HashSet<ChessMove> castleMoves = new HashSet<>();
 
 		ChessPiece king = board.getPiece(startPos);
@@ -450,8 +450,8 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 	 * @param move The move to make
 	 * @param piece2Move The piece being moved
 	 */
-	private void _makeMove(ChessBoard board, ChessMove move, ChessPiece piece2Move) {
-		this._makeMove(board, move, piece2Move, true);
+	private void utilMakeMove(ChessBoard board, ChessMove move, ChessPiece piece2Move) {
+		this.utilMakeMove(board, move, piece2Move, true);
 	}
 
 	/**
@@ -470,7 +470,7 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 	 * @param piece2Move The piece being moved
 	 * @param updateMoveDatabase If true, will update the database. Won't, otherwise
 	 */
-	private void _makeMove(ChessBoard board, ChessMove move, ChessPiece piece2Move, boolean updateMoveDatabase) {
+	private void utilMakeMove(ChessBoard board, ChessMove move, ChessPiece piece2Move, boolean updateMoveDatabase) {
 		ChessPosition startPos = move.getStartPosition();
 		ChessPosition endPos = move.getEndPosition();
 
@@ -500,7 +500,7 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 		ChessPiece movedPiece = board.getPiece(startPos);
 
 		// Make the move to see if it puts the king in check.
-		this._makeMove(board, move, movedPiece);
+		this.utilMakeMove(board, move, movedPiece);
 
 		// If the king is in check, the move revealed check.
 		if (this.isInCheck(movedPiece.getTeamColor())) {
@@ -533,12 +533,12 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 		}
 
 		// STEP 3: Check to see if move is special:
-		if (specialMoveCheck_Castle(board, move)) {
-			specialMoveMake_Castle(board, move);
-		} else if (specialMoveCheck_EmPassant(board, move)) {
-			specialMoveMake_EmPassant(board, move, activeTeamColor);
+		if (specialMoveCheckCastle(board, move)) {
+			specialMoveMakeCastle(board, move);
+		} else if (specialMoveCheckEmPassant(board, move)) {
+			specialMoveMakeEmPassant(board, move, activeTeamColor);
 		} else {
-			this._makeMove(board, move, piece);
+			this.utilMakeMove(board, move, piece);
 		}
 
 		// STEP 4: Update databases

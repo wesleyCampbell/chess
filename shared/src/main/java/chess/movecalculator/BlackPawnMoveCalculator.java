@@ -1,7 +1,7 @@
-package chess.moveCalculator;
+package chess.movecalculator;
 
 import chess.ChessPosition;
-import chess.moveCalculator.PawnMoveCalculator;
+import chess.movecalculator.PawnMoveCalculator;
 
 public class BlackPawnMoveCalculator extends PawnMoveCalculator {
 	//
