@@ -37,14 +37,6 @@ public class MemoryUserDAO implements UserDAO {
 		this.db.put(userData.username(), userData);
 	}
 
-	/* commented out to pass the stupid autograder tests */
-	//THIS IS TO FOOL THE AUTOGRADER public void removeUser(UserData userData) throws DataAccessException {
-	//THIS IS TO FOOL THE AUTOGRADER 	if (!this.db.containsKey(userData.username())) {
-	//THIS IS TO FOOL THE AUTOGRADER 		throw new DataAccessException("User doesn't exist");
-	//THIS IS TO FOOL THE AUTOGRADER 	}
-	//THIS IS TO FOOL THE AUTOGRADER 	this.db.remove(userData.username());
-	//THIS IS TO FOOL THE AUTOGRADER }
-
 	public void clearAllUserData() throws DataAccessException {
 		this.db.clear();
 	}
