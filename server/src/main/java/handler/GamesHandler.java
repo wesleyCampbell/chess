@@ -154,7 +154,9 @@ public class GamesHandler extends Handler {
 	}
 
 	/**
-	 * Takes a HTTP json request and translates it into a format that the ListGamesService can understand. Makes the request and puts the response in a Javalin context result.
+	 * Takes a HTTP json request and translates it into a format that the 
+	 * ListGamesService can understand. Makes the request and puts the response 
+	 * in a Javalin context result.
 	 *
 	 * @param ctx Javalin HTTP context
 	 *

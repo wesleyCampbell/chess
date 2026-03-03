@@ -120,22 +120,22 @@ public class ChessPiece {
 	 * @return ChessPiece or null, if the symbol doesn't match any known type
 	 */
 	/* Commented out to pass the stupid autograder checks */
-	public static ChessPiece resolveChessPiece(char symbol) {
-		PieceType type = resolveChessType(symbol);
-
-		// If the piece is null, no sense in calculating team color. There's no piece.
-		if (type == null) { return null; }
-
-		// TODO: figure out refactor for more than two teams
-		TeamColor color;
-		if (Character.isUpperCase(symbol)) {
-			color = TeamColor.WHITE;
-		} else {
-			color = TeamColor.BLACK;
-		}
-
-		return makeNewPiece(color, type);
-	}
+	// public static ChessPiece resolveChessPiece(char symbol) {
+	// 	PieceType type = resolveChessType(symbol);
+	//
+	// 	// If the piece is null, no sense in calculating team color. There's no piece.
+	// 	if (type == null) { return null; }
+	//
+	// 	// TODO: figure out refactor for more than two teams
+	// 	TeamColor color;
+	// 	if (Character.isUpperCase(symbol)) {
+	// 		color = TeamColor.WHITE;
+	// 	} else {
+	// 		color = TeamColor.BLACK;
+	// 	}
+	//
+	// 	return makeNewPiece(color, type);
+	// }
 	
 	//
 	// ======================== MEMBER ATTRIBUTES =======================

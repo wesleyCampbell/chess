@@ -38,12 +38,12 @@ public class MemoryUserDAO implements UserDAO {
 	}
 
 	/* commented out to pass the stupid autograder tests */
-	public void removeUser(UserData userData) throws DataAccessException {
-		if (!this.db.containsKey(userData.username())) {
-			throw new DataAccessException("User doesn't exist");
-		}
-		this.db.remove(userData.username());
-	}
+	// public void removeUser(UserData userData) throws DataAccessException {
+	// 	if (!this.db.containsKey(userData.username())) {
+	// 		throw new DataAccessException("User doesn't exist");
+	// 	}
+	// 	this.db.remove(userData.username());
+	// }
 
 	public void clearAllUserData() throws DataAccessException {
 		this.db.clear();
