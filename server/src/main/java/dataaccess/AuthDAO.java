@@ -1,6 +1,6 @@
-package dataAccess;
+package dataaccess;
 
-import dataAccess.DataAccessException;
+import dataaccess.DataAccessException;
 import model.AuthData;
 
 /**

@@ -1,11 +1,11 @@
-package dataAccess.memoryDAO;
+package dataaccess.memoryDAO;
 
 import java.util.Collection;
 import java.util.HashMap;
 
 import chess.ChessGame;
-import dataAccess.GameDAO;
-import dataAccess.DataAccessException;
+import dataaccess.GameDAO;
+import dataaccess.DataAccessException;
 import model.GameData;
 
 public class MemoryGameDAO implements GameDAO {

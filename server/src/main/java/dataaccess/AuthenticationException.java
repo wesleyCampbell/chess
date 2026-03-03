@@ -1,4 +1,4 @@
-package dataAccess;
+package dataaccess;
 
 public class AuthenticationException extends Exception {
 	public AuthenticationException(String msg) {

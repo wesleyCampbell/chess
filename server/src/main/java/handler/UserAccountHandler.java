@@ -8,7 +8,7 @@ import util.Debugger;
 
 import java.util.Map;
 
-import dataAccess.*;
+import dataaccess.*;
 import io.javalin.http.Context;
 
 public class UserAccountHandler extends Handler {

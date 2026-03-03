@@ -2,8 +2,8 @@ package service;
 
 import java.util.UUID;
 
-import dataAccess.AuthDAO;
-import dataAccess.DataAccessException;
+import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import model.AuthData;
 
 public abstract class AuthenticableService {

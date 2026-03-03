@@ -6,7 +6,7 @@ import service.ClearDataService.ClearDataResult;
 
 import com.google.gson.Gson;
 
-import dataAccess.*;
+import dataaccess.*;
 import io.javalin.http.Context;
 
 /**

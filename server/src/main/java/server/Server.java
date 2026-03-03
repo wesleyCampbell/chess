@@ -2,8 +2,8 @@ package server;
 
 import io.javalin.*;
 
-import dataAccess.*;
-import dataAccess.memoryDAO.*;
+import dataaccess.*;
+import dataaccess.memoryDAO.*;
 import handler.*;
 
 public class Server {

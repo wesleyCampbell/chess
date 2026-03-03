@@ -1,7 +1,7 @@
 package service;
 
-import dataAccess.DataAccessException;
-import dataAccess.*;
+import dataaccess.DataAccessException;
+import dataaccess.*;
 
 public class ClearDataService {
 

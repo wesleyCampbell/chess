@@ -1,10 +1,10 @@
-package dataAccess.memoryDAO;
+package dataaccess.memoryDAO;
 
-import dataAccess.UserDAO;
+import dataaccess.UserDAO;
 
 import java.util.HashMap;
 
-import dataAccess.DataAccessException;
+import dataaccess.DataAccessException;
 import model.UserData;
 
 public class MemoryUserDAO implements UserDAO {
