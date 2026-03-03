@@ -123,11 +123,8 @@ public abstract class ChessPieceMoveCalculator {
 					// If captureEnemy is set to true and the piece belongs to an enemy team, we may captureEnemy 
 					// The same if captureAlly is true and the piece is an ally
 					TeamColor pieceColor = blockingPiece.getTeamColor();
-					if (((captureEnemy && pieceColor != color) || 
-						 (captureAlly && pieceColor == color)) &&
-							(captureAlly && pieceColor == color)) {
-						// if (captureAlly && pieceColor ==color) {
-						// }
+					if ((captureEnemy && pieceColor != color) || 
+						 (captureAlly && pieceColor == color)) {
 						ChessMove lastMove = new ChessMove(curPos, movePos, null);
 						validMoves.add(lastMove);
 					}
