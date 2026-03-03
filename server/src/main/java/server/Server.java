@@ -3,7 +3,7 @@ package server;
 import io.javalin.*;
 
 import dataaccess.*;
-import dataaccess.memoryDAO.*;
+import dataaccess.memorydao.*;
 import handler.*;
 
 public class Server {

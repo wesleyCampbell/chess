@@ -1,4 +1,4 @@
-package dataaccess.memoryDAO;
+package dataaccess.memorydao;
 
 import dataaccess.UserDAO;
 
