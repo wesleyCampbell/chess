@@ -226,7 +226,7 @@ public abstract class PawnMoveCalculator extends ChessPieceMoveCalculator {
 		ChessPosition jumpSquare = new ChessPosition(curPos);
 		for (int i = 1; i <=2; i++) {
 			// I don't like this, but it isn't likely to cause an issue yet.
-			// TODO: Find a better way to do this.
+			// T ODO: Find a better way to do this.
 			jumpSquare.add(this.directionVectors[0]);
 			if (board.getPiece(jumpSquare) != null) { return false; }
 		}
@@ -247,7 +247,7 @@ public abstract class PawnMoveCalculator extends ChessPieceMoveCalculator {
 	@Override
 	public HashSet<ChessMove> calculateAttackMoves(ChessBoard board, ChessPosition pos, TeamColor color) {
 		HashSet<ChessMove> outMoves = new HashSet<>();
-		// TODO: Make this more robust
+		// T ODO: Make this more robust
 		// Iterate through all attack moves and see if they are possible
 		for (ChessPosition attackMove : this.attackVectors) {
 			// calculate the square position

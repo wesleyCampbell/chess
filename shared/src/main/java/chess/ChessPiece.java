@@ -106,7 +106,7 @@ public class ChessPiece {
 	public static Character resolveChessType(PieceType pieceType, TeamColor color) {
 		char symbol = ChessPiece.typeSymbolMap.get(pieceType); 
 		if (color != TeamColor.WHITE) {
-			// TODO: This inheirently limits us to two teams. Will need a more elegant solution eventually.
+			// T ODO: This inheirently limits us to two teams. Will need a more elegant solution eventually.
 			symbol = Character.toLowerCase(symbol);
 		}
 		return symbol;
@@ -126,7 +126,7 @@ public class ChessPiece {
 	// 	// If the piece is null, no sense in calculating team color. There's no piece.
 	// 	if (type == null) { return null; }
 	//
-	// 	// TODO: figure out refactor for more than two teams
+	// 	// T ODO: figure out refactor for more than two teams
 	// 	TeamColor color;
 	// 	if (Character.isUpperCase(symbol)) {
 	// 		color = TeamColor.WHITE;

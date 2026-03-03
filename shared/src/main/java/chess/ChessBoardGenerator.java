@@ -113,7 +113,7 @@ public class ChessBoardGenerator {
 				char pieceSymbol = state[row].charAt(col);
 				PieceType newPieceType = ChessPiece.resolveChessType(pieceSymbol);
 
-				// TODO: do something better for this to support more teams than 2
+				// T ODO: do something better for this to support more teams than 2
 				TeamColor pieceColor;
 				if (Character.isUpperCase(pieceSymbol)) {
 					pieceColor = TeamColor.WHITE;
