@@ -50,7 +50,13 @@ public class GamesHandler extends Handler {
 		String authToken = ctx.header(HTTP_HEADER_AUTH);
 		String jsonRequest = this.addAuthTokenJsonProperty(ctx.body(), authToken);
 
-		CreateGameRequest request = fromJson(jsonRequest, CreateGameRequest.class);
+		// CreateGameRequest request = fromJson(jsonRequest, CreateGameRequest.class);
+		CreateGameRequest request = extractJsonRequest(jsonRequest, CreateGameRequest.class);
+		if (request == null) {
+			ctx.status(HTTP_CODE_ERROR);
+			ctx.result(this.errorHTTPMsg);
+			return false;
+		}
 
 		ctx.contentType("application/json");
 		debug(String.format("request: %s", request), 0);
@@ -104,31 +110,6 @@ public class GamesHandler extends Handler {
 		ctx.status(HTTP_CODE_OK);
 		ctx.result(toJson(result));
 		return true;
-	}
-
-	/**
-	 * Takes a JSON listGame request and parses it into the data needed by the ListGamesService.
-	 * Then makes the service request and returns a JSON serialization of the result.
-	 *
-	 * @param requestStr The JSON request string. It must be in the format '{"authToken":""}'.
-	 * 			The easiest way to do this is simply make a ListGameRequest object and parse it as json.
-	 *
-	 * @return The String JSON result
-	 */
-	public String listGameRequest(String requestStr) {
-		ListGameRequest request = fromJson(requestStr, ListGameRequest.class);
-
-		ListGameResult result;
-		try {
-			result = this.listGameService.listGames(request);
-		} 
-		// The user isn't authenticated
-		catch (AuthenticationException ex) {
-			return unauthorizedHTTPMsg;
-		}
-
-		// Return the expected result and HTTP code
-		return toJsonWithHTTPCode(result, HTTP_CODE_OK);
 	}
 
 	/**

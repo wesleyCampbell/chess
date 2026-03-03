@@ -8,7 +8,7 @@ import service.LogoutService;
 import service.LogoutService.LogoutRequest;
 import service.LogoutService.LogoutResult;
 
-import static util.Debugger.debug;
+import util.Debugger;
 
 import java.util.Map;
 
@@ -49,9 +49,17 @@ public class LoginCtlHandler extends Handler {
 	 * @param True if login is successfull, false otherwise
 	 */
 	public boolean loginRequest(Context ctx) {
-		LoginRequest request = fromJson(ctx.body(), LoginRequest.class);
+		// LoginRequest request = fromJson(ctx.body(), LoginRequest.class);
+		Debugger.debug(String.format("body: %s", ctx.body()), 1);
+		LoginRequest request = extractJsonRequest(ctx.body(), LoginRequest.class);
+		if (request == null) {
+			Debugger.debug("Bad HTTP request", 2);
+			ctx.status(HTTP_CODE_ERROR);
+			ctx.result(this.errorHTTPMsg);
+			return false;
+		}
 
-		debug(String.format("request: %s", request));
+		Debugger.debug(String.format("request: %s", request));
 
 		ctx.contentType("application/json");
 
@@ -65,7 +73,7 @@ public class LoginCtlHandler extends Handler {
 		}
 
 		ctx.status(HTTP_CODE_OK);
-		ctx.result(toJson(Map.of(AUTH_REPLY_TOKEN, result.authToken())));
+		ctx.result(toJson(result));
 		return true;
 	}
 
@@ -83,7 +91,7 @@ public class LoginCtlHandler extends Handler {
 		String authToken = ctx.header(HTTP_HEADER_AUTH);
 		LogoutRequest request = new LogoutRequest(authToken);
 
-		debug(String.format("request: %s", request));
+		Debugger.debug(String.format("request: %s", request));
 
 		ctx.contentType("application/json");
 

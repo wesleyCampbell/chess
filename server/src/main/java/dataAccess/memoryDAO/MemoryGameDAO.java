@@ -18,7 +18,7 @@ public class MemoryGameDAO implements GameDAO {
 	
 	public MemoryGameDAO() {
 		this.db = new HashMap<>();
-		this.nextOpenID = 0;
+		this.nextOpenID = 1;
 	}
 
 	//

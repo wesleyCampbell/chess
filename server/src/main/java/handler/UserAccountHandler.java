@@ -4,7 +4,7 @@ import service.RegisterService;
 import service.RegisterService.RegisterRequest;
 import service.RegisterService.RegisterResult;
 
-import static util.Debugger.debug;
+import util.Debugger;
 
 import java.util.Map;
 
@@ -35,8 +35,14 @@ public class UserAccountHandler extends Handler {
 	 * @return True if registration successfull, false otherwise
 	 */
 	public boolean registerRequest(Context ctx) {
-		RegisterRequest request = fromJson(ctx.body(), RegisterRequest.class);
-		debug(String.format("request: %s", request));
+		// RegisterRequest request = fromJson(ctx.body(), RegisterRequest.class);
+		RegisterRequest request = extractJsonRequest(ctx.body(), RegisterRequest.class);
+		if (request == null) {
+			ctx.status(HTTP_CODE_ERROR);
+			ctx.result(this.errorHTTPMsg);
+			return false;
+		}
+		Debugger.debug(String.format("request: %s", request));
 
 		ctx.contentType("application/json");
 
@@ -50,7 +56,8 @@ public class UserAccountHandler extends Handler {
 		}
 
 		ctx.status(HTTP_CODE_OK);
-		ctx.result(toJson(Map.of(AUTH_REPLY_TOKEN, result.authToken())));
+		// ctx.result(toJson(Map.of(AUTH_REPLY_TOKEN, result.authToken())));
+		ctx.result(toJson(result));
 		return true;
 	}
 }

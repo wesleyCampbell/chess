@@ -1,6 +1,8 @@
 package handler;
 
+import util.Debugger;
 import java.util.Map;
+import java.lang.reflect.Field;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -36,7 +38,7 @@ public abstract class Handler {
 	// ======================= HTTP MSG RESULT TOKENS ======================
 	//
 	
-	protected static final String MSG_REPLY_TOKEN = "msg";
+	protected static final String MSG_REPLY_TOKEN = "message";
 	protected static final String AUTH_REPLY_TOKEN = "authorization";
 	protected static final String ERROR_REPLY_TOKEN = "error";
 	
@@ -45,10 +47,10 @@ public abstract class Handler {
 	//
 
 	protected final String successHTTPMsg = toJson(Map.of());
-	protected final String errorHTTPMsg = toJson(Map.of(ERROR_REPLY_TOKEN, "Unknown Error"));
+	protected final String errorHTTPMsg = toJson(Map.of(MSG_REPLY_TOKEN, "Unknown Error"));
 	protected final String unauthorizedHTTPMsg = toJson(Map.of(MSG_REPLY_TOKEN, "Error: unauthorized"));
-	protected final String takenHTTPMsg = toJson(Map.of(MSG_REPLY_TOKEN, "Already taken"));
-	protected final String noExistHTTPMsg = toJson(Map.of(ERROR_REPLY_TOKEN, "Requested resource doesn't exist"));
+	protected final String takenHTTPMsg = toJson(Map.of(MSG_REPLY_TOKEN, "Error: Already taken"));
+	protected final String noExistHTTPMsg = toJson(Map.of(MSG_REPLY_TOKEN, "Error: Requested resource doesn't exist"));
 	
 	//
 	// ====================== JSON FORMATING METHODS ===========================
@@ -108,5 +110,41 @@ public abstract class Handler {
 		obj.addProperty("authToken", authToken);
 
 		return obj.toString();
+	}
+
+	/**
+	 * Extracts a json request into a given class template.
+	 * Will return a new instance of the class if the request is correctly
+	 * formated, or null, otherwise
+	 *
+	 * @param jsonBody The json request
+	 * @param requestClass The request type to return
+	 *
+	 * @return true if valid, false otherwise
+	 */
+	protected <Type> Type extractJsonRequest(String jsonBody, Class<Type> requestClass) {
+		Type request = fromJson(jsonBody, requestClass);
+		Debugger.debug(String.format("request: %s", request), 2);
+
+		// Iterate through each public attribute and make sure it is not null
+		Field[] attributes = requestClass.getDeclaredFields();
+		for (Field field : attributes) {
+			field.setAccessible(true);
+			Debugger.debug(String.format("attr: %s", field), 3);
+            try {
+                Object value = field.get(request); 
+				// Verifies that the attribute is not null
+                if (value == null) {
+                    System.out.println("Field " + field.getName() + " is null.");
+                    return null; 
+                }
+            } catch (IllegalAccessException e) {
+                // This shouldn't happen for public fields
+                return null;
+            }
+        }
+
+		// all is good, return the request
+		return request;
 	}
 }

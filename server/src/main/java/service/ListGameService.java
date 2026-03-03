@@ -16,7 +16,7 @@ public class ListGameService extends AuthenticableService {
 	
 	public static record ListGameRequest(String authToken) {}
 
-	public static record ListGameResult(Collection<GameData> gameData) {}
+	public static record ListGameResult(Collection<GameData> games) {}
 	
 	//
 	// ================= CONSTRUCTORS ==================
