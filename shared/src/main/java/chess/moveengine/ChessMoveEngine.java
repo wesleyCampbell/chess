@@ -1,4 +1,4 @@
-package chess.moveEngine;
+package chess.moveengine;
 
 import java.util.Collection;
 import java.util.Map;
