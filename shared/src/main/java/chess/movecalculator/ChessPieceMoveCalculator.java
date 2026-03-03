@@ -91,7 +91,7 @@ public abstract class ChessPieceMoveCalculator {
 	 *
 	 * @return A Hashset of all the valid moves.
 	 */
-	private HashSet<ChessMove> calculateMoves(TeamColor color, ChessPosition curPos, ChessBoard board, boolean captureEnemy, boolean captureAlly) {
+	private HashSet<ChessMove> calculateMoves(TeamColor color, ChessPosition curPos,ChessBoard board, boolean captureEnemy, boolean captureAlly) {
 		HashSet<ChessMove> validMoves = new HashSet<>();
 
 		// iterate through each of the object's direction vectors;
