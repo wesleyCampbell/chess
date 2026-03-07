@@ -1,6 +1,5 @@
 package chess.moveengine;
 
-
 import chess.*;
 import chess.ChessGame.TeamColor;
 import chess.ChessPiece.PieceType;
