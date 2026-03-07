@@ -4,12 +4,16 @@ package chess.moveengine;
 import chess.*;
 import chess.ChessGame.TeamColor;
 import chess.ChessPiece.PieceType;
+import chess.moveengine.specialmoves.CastlingMove;
+import chess.moveengine.specialmoves.EmPassantMove;
+import chess.moveengine.specialmoves.SpecialMove;
 
 import static util.Debugger.debug;
 import util.Pair;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
 
 public class StandardChessMoveEngine implements ChessMoveEngine {
@@ -17,12 +21,6 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 	// ================================ MEMBER ATTRIBUTES =============================
 	//
 	
-	private static final ChessPosition[] SPECIAL_MOVE_RULE_CASTLING_DIR_VECTORS = {
-		new ChessPosition(0, -1),
-		new ChessPosition(0, 1)
-	};
-	private static final ChessPosition SPECIAL_MOVE_RULE_CASTLING_KING_MOVE = new ChessPosition(0, 2);
-	private static final ChessPosition SPECIAL_MOVE_RULE_CASTLING_ROOK_OFFSET = new ChessPosition(0, -1);
 
 	private static final ChessPosition SPECIAL_MOVE_RULE_EM_PASSANT_PAWN_OFFSET = new ChessPosition(0, 1);
 	private static final ChessPosition SPECIAL_MOVE_RULE_EM_PASSANT_PAWN_ATTACK = new ChessPosition(1, 1);
@@ -35,6 +33,7 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 	
 
 	private Map<TeamColor, ChessTeamDatabase> chessTeamData;
+	private Map<String, SpecialMove> specialMoveCalculators;
 
 	//
 	// ================================ CONSTRUCTORS ==================================
@@ -42,6 +41,18 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 	
 	public StandardChessMoveEngine(ChessBoard board) {
 		this.chessTeamData = ChessGame.generateTeamDatabase(board);
+		this.specialMoveCalculators = new HashMap<>();
+
+		this.generateSpecialMoves();
+	}
+
+	/**
+	 * Helper generation function that creates the objects
+	 * necessary to calculate special moves.
+	 */
+	private void generateSpecialMoves() {
+		this.specialMoveCalculators.put("castle", new CastlingMove(this));
+		this.specialMoveCalculators.put("emPassant", new EmPassantMove(this));
 	}
 	
 	//
@@ -52,6 +63,10 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 		for (ChessTeamDatabase db : this.chessTeamData.values()) {
 			db.update(board);
 		}
+	}
+
+	public ChessTeamDatabase getTeamData(TeamColor color) {
+		return this.chessTeamData.get(color);
 	}
 	
 	public Collection<ChessMove> validMoves(ChessBoard board, ChessPosition startPos) {
@@ -251,27 +266,7 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 	 * @return true if the move is a castling move, false otherwise
 	 */
 	private boolean specialMoveCheckCastle(ChessBoard board, ChessMove move) {
-		// Collect relevant info
-		ChessPosition startPos = new ChessPosition(move.getStartPosition());
-		ChessPosition endPos = new ChessPosition(move.getEndPosition());
-
-
-		ChessPiece piece = board.getPiece(startPos);
-
-		// piece must exist in order to castle it
-		if (piece == null) { return false; }
-
-		// Piece must be a KING in order to castle
-		if (piece.getPieceType() != PieceType.KING) { return false; }
-
-		// Figure out the distance between the two points
-		startPos.multiply(new ChessPosition(-1, -1));
-		endPos.add(startPos);
-		endPos.absValue();
-
-		// If the absolute value of the difference vector is equal to the special castle move,
-		// then the king can castle
-		return endPos.equals(StandardChessMoveEngine.SPECIAL_MOVE_RULE_CASTLING_KING_MOVE);
+		return this.specialMoveCalculators.get("castle").checkMove(board, move);
 	}
 
 	/**
@@ -281,48 +276,7 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 	 * @param move The castling move that MUST be a valid castling move
 	 */
 	private void specialMoveMakeCastle(ChessBoard board, ChessMove move) {
-		// STEP 1: determine the direction of the castle
-		ChessPosition startPos = new ChessPosition(move.getStartPosition());
-		ChessPosition endPos = new ChessPosition(move.getEndPosition());
-		startPos.multiply(new ChessPosition(-1, -1));
-		endPos.add(startPos);
-		startPos.multiply(new ChessPosition(-1, -1));
-
-		// dir = -1 if king moved left or down. 1 otherwise
-		ChessPosition dirVector = new ChessPosition(StandardChessMoveEngine.SPECIAL_MOVE_RULE_CASTLING_KING_MOVE);
-		dirVector.normalize();
-		// if king moved left
-		if (endPos.getColumn() < 0) {
-			dirVector.multiply(new ChessPosition(1, -1));
-		} 
-		// if king moved down
-		if (endPos.getRow() < 0) {
-			dirVector.multiply(new ChessPosition(-1, 1));
-		}
-
-		// STEP 2: Go and fetch the rook piece
-		ChessPosition rookStartSquare = new ChessPosition(startPos);
-		ChessPiece piece = null;
-		// assumes that there will be a rook in route
-		while (piece == null || piece.getPieceType() != PieceType.ROOK) {
-			rookStartSquare.add(dirVector);
-			piece = board.getPiece(rookStartSquare);
-		}
-
-		// STEP 3: Figure out where the rook is going to sit
-		ChessPosition rookEndSquare = new ChessPosition(StandardChessMoveEngine.SPECIAL_MOVE_RULE_CASTLING_ROOK_OFFSET);
-		// if the king is moving left or down, the rook has gotta move the other way
-		if (dirVector.getColumn() < 0 || dirVector.getRow() < 0) {
-			rookEndSquare.multiply(new ChessPosition(-1, -1));
-		} 
-		rookEndSquare.add(move.getEndPosition());
-
-
-		// STEP 4: Make the move
-		ChessMove rookMove = new ChessMove(rookStartSquare, rookEndSquare, null);
-
-		this.utilMakeMove(board, move, board.getPiece(startPos), false);
-		this.utilMakeMove(board, rookMove, piece, true);  // Only update the database after the water is settled
+		this.specialMoveCalculators.get("castle").makeMove(board, move);
 	}
 
 	/**
@@ -333,95 +287,10 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 	 *
 	 * @return HashSet containing all the valid castling moves. Empty, if there are none.
 	 */
-	private HashSet<ChessMove> specialMoveRuleCastle(ChessBoard board, ChessPosition startPos) {
-		HashSet<ChessMove> castleMoves = new HashSet<>();
-
-		ChessPiece king = board.getPiece(startPos);
-
-		// If there is no piece and the piece isn't a king, we can't castle
-		if (king == null || king.getPieceType() != PieceType.KING) {
-			return castleMoves;	
-		}
-
-		// get all the necessary information
-		TeamColor kingColor = king.getTeamColor();
-		ChessTeamDatabase db = this.chessTeamData.get(kingColor);
-		Collection<ChessPosition> attackSquares = ChessMove.extractEndPositions(this.generateTeamAttacks(kingColor));
-		
-		// If the king has moved, it cannot castle.
-		if (db.getMovedPieces().contains(king)) {
-			return castleMoves;
-		}
-		
-		// If the king is in check, it cannot castle
-		if (attackSquares.contains(startPos)) {
-			return castleMoves;
-		}
-
-		// Go in all of the valid directions to see if a castling move can work.
-		for (ChessPosition checkDir : StandardChessMoveEngine.SPECIAL_MOVE_RULE_CASTLING_DIR_VECTORS) {
-
-			ChessPosition pointer = new ChessPosition(startPos);
-			pointer.add(checkDir);
-
-			// Follow the direction vector until we hit the edge of the board
-			while (board.isInBounds(pointer)) {
-				// Check to see if there is a piece blocking the path
-				ChessPiece piece = board.getPiece(pointer);
-				if (piece == null) {
-					// Check to see if the square is under attack
-					// if there is, it is impossible to castle
-					if (attackSquares.contains(pointer)) {  
-						break;
-					}
-
-					// if there is no piece, we just gotta keep going
-					pointer.add(checkDir);
-				
-					continue;
-				}
-
-				// if we hit a blocking piece that isn't a rook, castling isn't possible in
-				// this direction.
-				if (piece.getPieceType() != PieceType.ROOK) {
-					break;
-				}
-
-				// Check to see if the rook has already moved
-				if (db.pieceHasMoved(piece)) {
-					break;
-				}
-
-				// There is a castling move here!
-				castleMoves.addAll(this.generateCastleMoves(startPos, pointer));
-
-				break;
-			}
-		}
-
-		return castleMoves;
+	private Collection<ChessMove> specialMoveRuleCastle(ChessBoard board, ChessPosition startPos) {
+		return this.specialMoveCalculators.get("castle").calculateMoves(board, startPos);
 	}
 
-	private HashSet<ChessMove> generateCastleMoves(ChessPosition kingPos, ChessPosition rookPos) {
-		HashSet<ChessMove> castlingMoves = new HashSet<>();
-
-		// Figure out what direction we need to castle in
-		int colDirection = (kingPos.getColumn() < rookPos.getColumn()) ? 1 : -1;
-		ChessPosition modDir = new ChessPosition(1, colDirection);
-
-		// Calculate the movement vectors for each piece
-		ChessPosition kingDir = new ChessPosition(StandardChessMoveEngine.SPECIAL_MOVE_RULE_CASTLING_KING_MOVE);
-		kingDir.multiply(modDir);
-
-		// Calculate the new king position
-		ChessPosition newKingPos = new ChessPosition(kingPos);
-		newKingPos.add(kingDir);
-
-		// Add the new moves;
-		castlingMoves.add(new ChessMove(kingPos, newKingPos, null));
-
-		return castlingMoves;
-	}
 
 	public boolean isMoveValid(ChessBoard board, ChessMove move) {
 		ChessPosition startPos = move.getStartPosition();
@@ -470,7 +339,7 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 	 * @param piece2Move The piece being moved
 	 * @param updateMoveDatabase If true, will update the database. Won't, otherwise
 	 */
-	private void utilMakeMove(ChessBoard board, ChessMove move, ChessPiece piece2Move, boolean updateMoveDatabase) {
+	public void utilMakeMove(ChessBoard board, ChessMove move, ChessPiece piece2Move, boolean updateMoveDatabase) {
 		ChessPosition startPos = move.getStartPosition();
 		ChessPosition endPos = move.getEndPosition();
 
@@ -558,7 +427,7 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 	 *
 	 * @return A set of all attack moves from all teams except the one provided
 	 */
-	private HashSet<ChessMove> generateTeamAttacks(TeamColor teamColor) {
+	public HashSet<ChessMove> generateTeamAttacks(TeamColor teamColor) {
 		HashSet<ChessMove> attackMoves = new HashSet<>();
 
 		for (ChessTeamDatabase db : this.chessTeamData.values()) {
