@@ -9,7 +9,6 @@ import chess.moveengine.specialmoves.EmPassantMove;
 import chess.moveengine.specialmoves.SpecialMove;
 
 import static util.Debugger.debug;
-import util.Pair;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -17,16 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class StandardChessMoveEngine implements ChessMoveEngine {
-	//
-	// ================================ MEMBER ATTRIBUTES =============================
-	//
-	
-
-	private static final ChessPosition SPECIAL_MOVE_RULE_EM_PASSANT_PAWN_OFFSET = new ChessPosition(0, 1);
-	private static final ChessPosition SPECIAL_MOVE_RULE_EM_PASSANT_PAWN_ATTACK = new ChessPosition(1, 1);
-	private static final ChessPosition SPECIAL_MOVE_RULE_EM_PASSANT_TRIGGER_MOVE = new ChessPosition(2, 0);
-
-
 	//
 	// ================================ MEMBER ATTRIBUTES =============================
 	//
@@ -68,6 +57,10 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 	public ChessTeamDatabase getTeamData(TeamColor color) {
 		return this.chessTeamData.get(color);
 	}
+
+	public Map<TeamColor, ChessTeamDatabase> getTeamDatabase() {
+		return this.chessTeamData;
+	}
 	
 	public Collection<ChessMove> validMoves(ChessBoard board, ChessPosition startPos) {
 		HashSet<ChessMove> allMoves = new HashSet<>();
@@ -93,204 +86,12 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 		}
 
 		// STEP 3: Add special moves, if necessary
-		allMoves.addAll(this.specialMoveRuleCastle(board, startPos));
-		allMoves.addAll(this.specialMoveRuleEmPassant(board, startPos));
+		for (SpecialMove specialMove : this.specialMoveCalculators.values()) {
+			allMoves.addAll(specialMove.calculateMoves(board, startPos));
+		}
 
 		return allMoves;
 	}
-
-	/**
-	 * Calculates the special em passant rule for a piece on a square, if applicable
-	 *
-	 * @param board The current game board
-	 * @param startPos The starting position of the piece
-	 *
-	 * @return The em passant move
-	 */
-	private HashSet<ChessMove> specialMoveRuleEmPassant(ChessBoard board, ChessPosition startPos) {
-		// The piece has to be a pawn
-		ChessPiece pawn = board.getPiece(startPos);
-		HashSet<ChessMove> emPassantMoves = new HashSet<>();
-
-		if (pawn == null || pawn.getPieceType() != PieceType.PAWN) {
-			return emPassantMoves;
-		}
-
-		// Check all enemy team databases to see if there was a pawn that performed
-		// double jump that is next to the current pawn
-		for (ChessTeamDatabase db : this.chessTeamData.values()) {
-			if (db.getTeamColor() == pawn.getTeamColor()) {
-				continue;
-			}
-
-			Pair<ChessPiece, ChessMove> lastMovedPiece = db.getLastMovedPiece();
-
-			// STEP 1: verify that the piece is a pawn
-
-			if (lastMovedPiece == null || 
-					lastMovedPiece.getFirst().getPieceType() != PieceType.PAWN) {
-				continue;
-			}
-
-			// STEP 2: Verify that the move vector from the last moved piece matches
-			// the trigger move
-			ChessMove lastMove = lastMovedPiece.getSecond();
-			ChessPosition lastMoveVec = new ChessPosition(lastMove.getEndPosition());
-			lastMoveVec.subtract(lastMove.getStartPosition());
-
-
-			if (!lastMoveVec.absValueCopy().equals(StandardChessMoveEngine.SPECIAL_MOVE_RULE_EM_PASSANT_TRIGGER_MOVE)) {
-				continue;
-			}
-
-			// STEP 3: Check to see if the last moved pawn is the requisite distance to perform em passant
-			ChessPosition distance = new ChessPosition(startPos);
-			distance.subtract(lastMovedPiece.getSecond().getEndPosition());
-			
-
-			if (!distance.absValueCopy().equals(StandardChessMoveEngine.SPECIAL_MOVE_RULE_EM_PASSANT_PAWN_OFFSET)) {
-				continue;
-			}
-
-			// STEP 4: Make the em passant rule as all conditions are met
-			ChessPosition pawnEndPos = new ChessPosition(lastMove.getEndPosition());
-			lastMoveVec.normalize();
-			lastMoveVec.multiply(new ChessPosition(-1, -1));
-
-			pawnEndPos.add(lastMoveVec);
-
-			ChessMove emPassantMove = new ChessMove(startPos, pawnEndPos, null);
-
-
-			emPassantMoves.add(emPassantMove);
-		}
-
-		return emPassantMoves;
-	}
-
-	/**
-	 * Checks to see if a move is a special em passant move
-	 *
-	 * @param board The current game board
-	 * @param move The move to check
-	 *
-	 * @return true if the move is a castling move, false otherwise
-	 */
-	private boolean specialMoveCheckEmPassant(ChessBoard board, ChessMove move) {
-		
-		// move must be on square containint pawn
-		ChessPosition startPos = new ChessPosition(move.getStartPosition());
-		ChessPiece pawn = board.getPiece(startPos);
-
-		if (pawn == null || pawn.getPieceType() != PieceType.PAWN) {
-			return false;
-		}
-
-		// Caluclate the generalized move vector from the move
-		ChessPosition moveVec = new ChessPosition(move.getEndPosition());
-		moveVec.subtract(move.getStartPosition());
-
-		// If the move vector does not match the em passant attack move, it cannot be em passant
-		if (!moveVec.absValueCopy().equals(StandardChessMoveEngine.SPECIAL_MOVE_RULE_EM_PASSANT_PAWN_ATTACK)) {
-			return false;
-		}
-
-		// Else, double check that there is a pawn adjacent that just moved
-		// necessary because the em passant rule is default equal to a standard attack move
-		for (ChessTeamDatabase db: this.chessTeamData.values()) {
-			Pair<ChessPiece, ChessMove> lastMovedPiece = db.getLastMovedPiece();
-
-			// Must be a pawn
-			if (lastMovedPiece == null || lastMovedPiece.getFirst().getPieceType() != PieceType.PAWN) {
-				continue;
-			}
-
-			// must be adjacent in the direction of the move
-			ChessPosition enemyPos = new ChessPosition(lastMovedPiece.getSecond().getEndPosition());
-			enemyPos.subtract(startPos);
-			enemyPos.absValue();
-			if (!enemyPos.equals(StandardChessMoveEngine.SPECIAL_MOVE_RULE_EM_PASSANT_PAWN_OFFSET)) {
-				continue;
-			}
-
-			// all qualifications met, must be a em passant rule
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Makes an em passant rule. This assumes that it is valid, so use at your own risk.
-	 *
-	 * @param board The current chess board
-	 * @param move The em passant move
-	 * @param color The pawn's color
-	 */
-	private void specialMoveMakeEmPassant(ChessBoard board, ChessMove move, TeamColor color) {
-		// STEP 0: get info
-		ChessPosition startPos = move.getStartPosition();
-		ChessPosition endPos = move.getEndPosition();
-		
-		ChessPiece pawn = board.getPiece(startPos);
-
-		// STEP 1: Find the pawn to remove
-		ChessPosition modDir; 
-		if (endPos.getColumn() - startPos.getColumn() < 0) {
-			modDir = new ChessPosition(-1, -1);
-		} else {
-			modDir = new ChessPosition(1, 1);
-		}
-
-		ChessPosition attackPawnPos = new ChessPosition(StandardChessMoveEngine.SPECIAL_MOVE_RULE_EM_PASSANT_PAWN_OFFSET);
-		attackPawnPos.multiply(modDir);
-
-		attackPawnPos.add(startPos);
-
-		ChessPiece attackPawn = board.getPiece(attackPawnPos);
-
-		// STEP 2: Remove the attacked attackPawn
-		this.chessTeamData.get(pawn.getTeamColor()).addCapturedPiece(attackPawn);
-		board.removePiece(attackPawnPos);
-
-		// STEP 3: Move the em passant pawn
-		this.utilMakeMove(board, move, pawn);
-	}
-
-	/**
-	 * Checks to see if a move is a special castling move
-	 *
-	 * @param board The current game baord
-	 * @param move The move to check
-	 *
-	 * @return true if the move is a castling move, false otherwise
-	 */
-	private boolean specialMoveCheckCastle(ChessBoard board, ChessMove move) {
-		return this.specialMoveCalculators.get("castle").checkMove(board, move);
-	}
-
-	/**
-	 * Effectuates a special castling move
-	 *
-	 * @param board The current game board
-	 * @param move The castling move that MUST be a valid castling move
-	 */
-	private void specialMoveMakeCastle(ChessBoard board, ChessMove move) {
-		this.specialMoveCalculators.get("castle").makeMove(board, move);
-	}
-
-	/**
-	 * The rules for determining whether a king can castle or not
-	 *
-	 * @param board The current game board
-	 * @param startPos the position to check
-	 *
-	 * @return HashSet containing all the valid castling moves. Empty, if there are none.
-	 */
-	private Collection<ChessMove> specialMoveRuleCastle(ChessBoard board, ChessPosition startPos) {
-		return this.specialMoveCalculators.get("castle").calculateMoves(board, startPos);
-	}
-
 
 	public boolean isMoveValid(ChessBoard board, ChessMove move) {
 		ChessPosition startPos = move.getStartPosition();
@@ -401,12 +202,20 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 			throw new InvalidMoveException(err);
 		}
 
-		// STEP 3: Check to see if move is special:
-		if (specialMoveCheckCastle(board, move)) {
-			specialMoveMakeCastle(board, move);
-		} else if (specialMoveCheckEmPassant(board, move)) {
-			specialMoveMakeEmPassant(board, move, activeTeamColor);
-		} else {
+		// STEP 3: Make move
+
+		// Check to see if move qualifies for a special move 
+		boolean specialMoveMade = false;
+		for (SpecialMove specialMove : this.specialMoveCalculators.values()) {
+			if (specialMove.checkMove(board, move)) {
+				specialMove.makeMove(board, move);
+				specialMoveMade = true;
+				break;  // Only one special move allowed to be made at a time
+			}
+		}
+
+		// If the move wasn't special, default to the normal move
+		if (!specialMoveMade) {
 			this.utilMakeMove(board, move, piece);
 		}
 

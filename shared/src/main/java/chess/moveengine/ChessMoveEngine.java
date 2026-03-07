@@ -28,6 +28,13 @@ public interface ChessMoveEngine {
 	 * @return The database of the requested team.
 	 */
 	public ChessTeamDatabase getTeamData(TeamColor color);
+
+	/**
+	 * Returns the database storing all team data
+	 *
+	 * @return The database
+	 */
+	public Map<TeamColor, ChessTeamDatabase> getTeamDatabase();
 	
 	/**
 	 * Returns a collection of valid chess moves from a start position
