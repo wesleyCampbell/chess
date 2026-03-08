@@ -6,13 +6,8 @@ import dataaccess.memorydao.*;
 import service.RegisterService.RegisterRequest;
 import service.RegisterService.RegisterResult;
 
-import service.LogoutService.LogoutRequest;
-import service.LogoutService.LogoutResult;
 import service.CreateGameService.CreateGameRequest;
 import service.JoinGameService.JoinGameRequest;
-import service.ListGameService.GameDataAPI;
-import service.ListGameService.ListGameRequest;
-import service.ListGameService.ListGameResult;
 
 import org.junit.jupiter.api.*;
 
@@ -62,7 +57,7 @@ public class JoinGameServiceTests {
 	//
 	
 	@Test
-	@DisplayName("Correct Logout User Tests")
+	@DisplayName("Correct Join Game User Tests")
 	public void logoutUserCorect() {
 		JoinGameService service = new JoinGameService(authDAO, gameDAO);
 		JoinGameRequest request = new JoinGameRequest(authToken, TeamColor.WHITE, "1");
@@ -71,7 +66,7 @@ public class JoinGameServiceTests {
 	}
 
 	@Test
-	@DisplayName("Incorrect Logout User Tests")
+	@DisplayName("Incorrect Join Game User Tests")
 	public void logoutUserIncorrect() {
 		JoinGameService service = new JoinGameService(authDAO, gameDAO);
 		String badAuthToken = "BAD AUTH TOKEN";
