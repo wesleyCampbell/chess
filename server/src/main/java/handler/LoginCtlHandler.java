@@ -50,16 +50,12 @@ public class LoginCtlHandler extends Handler {
 	 */
 	public boolean loginRequest(Context ctx) {
 		// LoginRequest request = fromJson(ctx.body(), LoginRequest.class);
-		Debugger.debug(String.format("body: %s", ctx.body()), 1);
 		LoginRequest request = extractJsonRequest(ctx.body(), LoginRequest.class);
 		if (request == null) {
-			Debugger.debug("Bad HTTP request", 2);
 			ctx.status(HTTP_CODE_ERROR);
 			ctx.result(this.errorHTTPMsg);
 			return false;
 		}
-
-		Debugger.debug(String.format("request: %s", request));
 
 		ctx.contentType("application/json");
 
@@ -90,8 +86,6 @@ public class LoginCtlHandler extends Handler {
 		// LogoutRequest request = fromJson(ctx.body(), LogoutRequest.class);
 		String authToken = ctx.header(HTTP_HEADER_AUTH);
 		LogoutRequest request = new LogoutRequest(authToken);
-
-		Debugger.debug(String.format("request: %s", request));
 
 		ctx.contentType("application/json");
 

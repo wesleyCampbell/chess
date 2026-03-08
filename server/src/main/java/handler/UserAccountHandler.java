@@ -42,7 +42,6 @@ public class UserAccountHandler extends Handler {
 			ctx.result(this.errorHTTPMsg);
 			return false;
 		}
-		Debugger.debug(String.format("request: %s", request));
 
 		ctx.contentType("application/json");
 

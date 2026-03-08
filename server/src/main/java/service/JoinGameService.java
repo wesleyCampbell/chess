@@ -5,8 +5,6 @@ import dataaccess.*;
 
 import model.GameData;
 
-import util.Debugger;
-
 public class JoinGameService extends AuthenticableService {
 
 	//
@@ -41,13 +39,8 @@ public class JoinGameService extends AuthenticableService {
 		// We will let it propogate up.
 		GameData game = this.gameDAO.getGame(request.gameID);
 
-		Debugger.debug("Found game...", 1);
-
 		TeamColor playerColor = request.playerColor();
 		String username = this.authDAO.getAuth(request.authToken()).username();
-
-		Debugger.debug("Found username...", 1);
-		Debugger.debug(String.format("playerColor: %s", playerColor), 2);
 
 		String blackUsername, whiteUsername;
 		switch (playerColor) {

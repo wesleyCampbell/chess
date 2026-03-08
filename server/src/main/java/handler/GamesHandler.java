@@ -10,10 +10,10 @@ import service.JoinGameService.JoinGameResult;
 
 import service.ListGameService;
 import service.ListGameService.ListGameRequest;
+import service.ListGameService.GameDataAPI;
 import service.ListGameService.ListGameResult;
 
-//import static util.Debugger.debug;
-import static util.Debugger.debug;
+import util.Debugger;
 
 import model.GameData;
 
@@ -63,7 +63,6 @@ public class GamesHandler extends Handler {
 		}
 
 		ctx.contentType("application/json");
-		debug(String.format("request: %s", request), 0);
 
 		CreateGameResult result;
 		try {
@@ -100,8 +99,6 @@ public class GamesHandler extends Handler {
 			return false;
 		}
 
-		debug(String.format("request: %s", request), 0);
-
 		ctx.contentType("application/json");
 
 		JoinGameResult result;
@@ -127,29 +124,40 @@ public class GamesHandler extends Handler {
 	 * @param result
 	 */
 	private ListGameResult formatGames(ListGameResult result) {
-		Collection<GameData> newGames = new HashSet<>();
+		Debugger.debug("Entered formatGames()...", 2);
+		Collection<GameDataAPI> newGames = new HashSet<>();
 
-		for (GameData game : result.games()) {
+		if (result.games() == null) {
+			return result;
+		}
+
+		Debugger.debug("games() not null...", 2);
+		for (GameDataAPI game : result.games()) {
 			String blackUsername = game.blackUsername();
 			String whiteUsername = game.whiteUsername();
 
-			if (blackUsername.isEmpty()) {
+			if (blackUsername == null || blackUsername.isEmpty()) {
 				blackUsername = null;				
 			}
-			if (whiteUsername.isEmpty()) {
+			if (whiteUsername == null || whiteUsername.isEmpty()) {
 				whiteUsername = null;
 			}
 
-			GameData newGame;
+			Debugger.debug("Passed the username null assignment block...", 2);
+
+			Debugger.debug("Making new game...", 2);
+			GameDataAPI newGame;
 			if (whiteUsername == null || blackUsername == null) {
-				newGame = new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game());
+				newGame = new GameDataAPI(game.gameID(), whiteUsername, blackUsername, game.gameName());
 			} else {
 				newGame = game;
 			}
 
+			Debugger.debug("Adding new game...", 2);
 			newGames.add(newGame);
 		}
 
+		Debugger.debug(String.format("newGames: %s", newGames), 2);
 		return new ListGameResult(newGames);	
 	}
 
@@ -163,15 +171,18 @@ public class GamesHandler extends Handler {
 	 * @return True if listGame request successfull, false otherwise
 	 */
 	public boolean listGameRequest(Context ctx) {
+		Debugger.debug("Inside listGameRequest", 1);
 		String authToken = ctx.header(HTTP_HEADER_AUTH);
 		ListGameRequest request = new ListGameRequest(authToken);
 
 		ctx.contentType("application/json");
-		debug(String.format("request: %s", request));
 
+		Debugger.debug(String.format("listGame request: %s", request), 1);
+		Debugger.debug("Information collected, getting result...");
 		ListGameResult result;
 		try {
 			result = this.listGameService.listGames(request);
+			Debugger.debug(String.format("listGame result: %s", result), 1);
 		} catch (AuthenticationException ex) {
 			ctx.status(HTTP_CODE_UNAUTH);
 			ctx.result(this.unauthorizedHTTPMsg);
@@ -179,7 +190,11 @@ public class GamesHandler extends Handler {
 		}
 
 		ctx.status(HTTP_CODE_OK);
-		ctx.result(toJson(formatGames(result)));
+		result = formatGames(result);
+		Debugger.debug(String.format("listGame result: %s", result), 1);
+
+		ctx.result(toJson(result));
+		Debugger.debug("exited formatGames()... returning listGAmeRequest()...", 1);
 		return true;
 	}
 }

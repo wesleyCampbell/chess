@@ -108,13 +108,11 @@ public abstract class Handler {
 	 */
 	protected <T> T extractJsonRequest(String jsonBody, Class<T> requestClass) {
 		T request = fromJson(jsonBody, requestClass);
-		Debugger.debug(String.format("request: %s", request), 2);
 
 		// Iterate through each public attribute and make sure it is not null
 		Field[] attributes = requestClass.getDeclaredFields();
 		for (Field field : attributes) {
 			field.setAccessible(true);
-			Debugger.debug(String.format("attr: %s", field), 3);
             try {
                 Object value = field.get(request); 
 				// Verifies that the attribute is not null
