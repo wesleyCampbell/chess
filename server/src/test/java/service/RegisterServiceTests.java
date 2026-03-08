@@ -2,33 +2,11 @@ package service;
 
 import dataaccess.*;
 import dataaccess.memorydao.*;
-import service.*;
 
 import service.RegisterService.RegisterRequest;
 import service.RegisterService.RegisterResult;
 
-import service.LogoutService.LogoutRequest;
-import service.LogoutService.LogoutResult;
-
-import service.LoginService.LoginRequest;
-import service.LoginService.LoginResult;
-
-import service.ListGameService.ListGameRequest;
-import service.ListGameService.ListGameResult;
-
-import service.JoinGameService.JoinGameRequest;
-import service.JoinGameService.JoinGameResult;
-
-import service.CreateGameService.CreateGameRequest;
-import service.CreateGameService.CreateGameResult;
-
-import service.ClearDataService.ClearDataRequest;
-import service.ClearDataService.ClearDataResult;
-
 import org.junit.jupiter.api.*;
-
-import java.util.Collection;
-import java.util.HashSet;
 
 public class RegisterServiceTests {
 
