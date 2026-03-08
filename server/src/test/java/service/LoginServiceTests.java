@@ -12,7 +12,7 @@ import service.LogoutService.LogoutResult;
 
 import org.junit.jupiter.api.*;
 
-public class LoginServiceTests extends WithData {
+public class LoginServiceTests extends WithDataTests {
 	//
 	// ======================= TEST SETUP/CLEANUP ======================= 
 	//

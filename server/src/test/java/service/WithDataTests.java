@@ -9,7 +9,7 @@ import service.RegisterService.RegisterResult;
 import org.junit.jupiter.api.*;
 
 
-public abstract class WithData {
+public abstract class WithDataTests {
 	protected static AuthDAO authDAO;
 	protected static UserDAO userDAO;
 	protected static GameDAO gameDAO;

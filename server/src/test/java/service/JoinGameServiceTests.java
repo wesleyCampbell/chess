@@ -13,7 +13,7 @@ import org.junit.jupiter.api.*;
 
 import chess.ChessGame.TeamColor;
 
-public class JoinGameServiceTests extends WithAllData {
+public class JoinGameServiceTests extends WithAllDataTests {
 	//
 	// ======================= TEST CASES ======================= 
 	//

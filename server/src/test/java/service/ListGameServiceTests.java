@@ -7,7 +7,7 @@ import service.ListGameService.ListGameResult;
 
 import org.junit.jupiter.api.*;
 
-public class ListGameServiceTests extends WithAllData {
+public class ListGameServiceTests extends WithAllDataTests {
 	//
 	// ======================= TEST CASES ======================= 
 	//

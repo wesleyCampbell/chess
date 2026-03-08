@@ -7,7 +7,7 @@ import service.CreateGameService.CreateGameResult;
 
 import org.junit.jupiter.api.*;
 
-public class CreateGameServiceTests extends WithData {
+public class CreateGameServiceTests extends WithDataTests {
 	
 	//
 	// ======================= TEST CASES ======================= 

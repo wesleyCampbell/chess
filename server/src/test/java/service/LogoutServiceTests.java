@@ -11,7 +11,7 @@ import service.LogoutService.LogoutResult;
 
 import org.junit.jupiter.api.*;
 
-public class LogoutServiceTests extends WithData {
+public class LogoutServiceTests extends WithDataTests {
 	//
 	// ======================= TEST CASES ======================= 
 	//

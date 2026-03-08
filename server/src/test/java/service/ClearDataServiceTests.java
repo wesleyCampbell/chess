@@ -4,7 +4,7 @@ import service.ClearDataService.ClearDataRequest;
 
 import org.junit.jupiter.api.*;
 
-public class ClearDataServiceTests extends WithAllData {
+public class ClearDataServiceTests extends WithAllDataTests {
 	//
 	// ======================= TEST CASES ======================= 
 	//

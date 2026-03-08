@@ -4,7 +4,7 @@ import service.CreateGameService.CreateGameRequest;
 
 import org.junit.jupiter.api.*;
 
-public abstract class WithAllData extends WithData {
+public abstract class WithAllDataTests extends WithDataTests {
 	@Order(1)
 	@BeforeEach
 	public void makeGames() {
