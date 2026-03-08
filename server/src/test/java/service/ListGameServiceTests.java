@@ -20,7 +20,7 @@ public class ListGameServiceTests {
 	private static UserDAO userDAO;
 	private static GameDAO gameDAO;
 
-	private final static int createGamesNum = 4;
+	private final static int CREATE_GAMES_NUM = 4;
 
 	private static String authToken;
 
@@ -47,7 +47,7 @@ public class ListGameServiceTests {
 
 		authToken = regResult.authToken();
 
-		for (int i = 0; i < createGamesNum; i++) {
+		for (int i = 0; i < CREATE_GAMES_NUM; i++) {
 			String gameName = String.format("game%d", i + 1);
 			CreateGameRequest request = new CreateGameRequest(authToken, gameName);
 			Assertions.assertDoesNotThrow(() -> gamesService.createGame(request));
@@ -67,7 +67,7 @@ public class ListGameServiceTests {
 		ListGameResult result;
 		result = Assertions.assertDoesNotThrow(() -> service.listGames(request));
 		
-		Assertions.assertEquals(result.games().size(), createGamesNum);
+		Assertions.assertEquals(result.games().size(), CREATE_GAMES_NUM);
 	}
 
 	@Test
