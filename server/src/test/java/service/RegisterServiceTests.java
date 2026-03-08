@@ -12,7 +12,6 @@ public class RegisterServiceTests {
 
 	private static AuthDAO authDAO;
 	private static UserDAO userDAO;
-	private static GameDAO gameDAO;
 
 	//
 	// ======================= TEST SETUP/CLEANUP ======================= 
@@ -22,7 +21,6 @@ public class RegisterServiceTests {
 	public void init() {
 		authDAO = new MemoryAuthDAO();
 		userDAO = new MemoryUserDAO();
-		gameDAO = new MemoryGameDAO();
 	}
 
 	//

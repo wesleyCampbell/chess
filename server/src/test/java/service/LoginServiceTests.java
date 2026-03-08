@@ -12,39 +12,16 @@ import service.LogoutService.LogoutResult;
 
 import org.junit.jupiter.api.*;
 
-public class LoginServiceTests {
-	private static AuthDAO authDAO;
-	private static UserDAO userDAO;
-	private static GameDAO gameDAO;
-
-	private static String authToken;
-
-	private static String username;
-	private static String password;
-
+public class LoginServiceTests extends WithData {
 	//
 	// ======================= TEST SETUP/CLEANUP ======================= 
 	//
-	
+
+	@Order(1)
 	@BeforeEach
-	public void init() {
-		authDAO = new MemoryAuthDAO();
-		userDAO = new MemoryUserDAO();
-		gameDAO = new MemoryGameDAO();
-
-		RegisterService registerService = new RegisterService(authDAO, userDAO);
+	public void logout() {
 		LogoutService logoutService = new LogoutService(authDAO);
-
-		username = "Samwise Fooman";
-		password = "p@sw@ord";
-		String email = "thisisanemail@email.com";
-		RegisterRequest regRequest = new RegisterRequest(username, password, email);
-		RegisterResult regResult;
-
-		regResult = Assertions.assertDoesNotThrow(() -> registerService.register(regRequest));
-
-		authToken = regResult.authToken();
-
+		
 		Assertions.assertDoesNotThrow(() -> logoutService.logout(new LogoutRequest(authToken)));
 	}
 
