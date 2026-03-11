@@ -8,10 +8,6 @@ import service.LogoutService;
 import service.LogoutService.LogoutRequest;
 import service.LogoutService.LogoutResult;
 
-import util.Debugger;
-
-import java.util.Map;
-
 import dataaccess.*;
 import io.javalin.http.Context;
 

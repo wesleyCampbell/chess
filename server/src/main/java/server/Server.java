@@ -4,6 +4,7 @@ import io.javalin.*;
 
 import dataaccess.*;
 import dataaccess.memorydao.*;
+import dataaccess.sqldao.*;
 import handler.*;
 
 public class Server {
@@ -38,7 +39,13 @@ public class Server {
 		// Universal data access interfaces
 		this.authDAO = new MemoryAuthDAO();
 		this.gameDAO = new MemoryGameDAO();
-		this.userDAO = new MemoryUserDAO();
+		// this.userDAO = new MemoryUserDAO();
+		try {
+			this.userDAO = new SQLUserDAO();
+		} catch (DataAccessException ex) {
+			String msg = String.format("UserDAO failed to load the database...: %s", ex.getMessage());
+			throw new RuntimeException(msg);
+		}
 
 		// Request handler initialization
 		this.databaseHandler = new DatabaseHandler(authDAO, gameDAO, userDAO);

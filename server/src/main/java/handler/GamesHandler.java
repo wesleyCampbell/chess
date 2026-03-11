@@ -124,14 +124,12 @@ public class GamesHandler extends Handler {
 	 * @param result
 	 */
 	private ListGameResult formatGames(ListGameResult result) {
-		Debugger.debug("Entered formatGames()...", 2);
 		Collection<GameDataAPI> newGames = new HashSet<>();
 
 		if (result.games() == null) {
 			return result;
 		}
 
-		Debugger.debug("games() not null...", 2);
 		for (GameDataAPI game : result.games()) {
 			String blackUsername = game.blackUsername();
 			String whiteUsername = game.whiteUsername();
@@ -143,9 +141,6 @@ public class GamesHandler extends Handler {
 				whiteUsername = null;
 			}
 
-			Debugger.debug("Passed the username null assignment block...", 2);
-
-			Debugger.debug("Making new game...", 2);
 			GameDataAPI newGame;
 			if (whiteUsername == null || blackUsername == null) {
 				newGame = new GameDataAPI(game.gameID(), whiteUsername, blackUsername, game.gameName());
@@ -153,11 +148,9 @@ public class GamesHandler extends Handler {
 				newGame = game;
 			}
 
-			Debugger.debug("Adding new game...", 2);
 			newGames.add(newGame);
 		}
 
-		Debugger.debug(String.format("newGames: %s", newGames), 2);
 		return new ListGameResult(newGames);	
 	}
 
@@ -171,18 +164,14 @@ public class GamesHandler extends Handler {
 	 * @return True if listGame request successfull, false otherwise
 	 */
 	public boolean listGameRequest(Context ctx) {
-		Debugger.debug("Inside listGameRequest", 1);
 		String authToken = ctx.header(HTTP_HEADER_AUTH);
 		ListGameRequest request = new ListGameRequest(authToken);
 
 		ctx.contentType("application/json");
 
-		Debugger.debug(String.format("listGame request: %s", request), 1);
-		Debugger.debug("Information collected, getting result...");
 		ListGameResult result;
 		try {
 			result = this.listGameService.listGames(request);
-			Debugger.debug(String.format("listGame result: %s", result), 1);
 		} catch (AuthenticationException ex) {
 			ctx.status(HTTP_CODE_UNAUTH);
 			ctx.result(this.unauthorizedHTTPMsg);
@@ -191,10 +180,8 @@ public class GamesHandler extends Handler {
 
 		ctx.status(HTTP_CODE_OK);
 		result = formatGames(result);
-		Debugger.debug(String.format("listGame result: %s", result), 1);
 
 		ctx.result(toJson(result));
-		Debugger.debug("exited formatGames()... returning listGAmeRequest()...", 1);
 		return true;
 	}
 }

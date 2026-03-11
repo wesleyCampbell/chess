@@ -1,10 +1,10 @@
 package service;
 
-import static util.Debugger.debug;
-
 import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
 import dataaccess.DataAccessException;
+
+import util.Debugger;
 
 import model.UserData;
 import model.AuthData;
@@ -44,9 +44,7 @@ public class LoginService extends AuthenticableService {
 
 		AuthData authData = this.createNewAuthData(this.authDAO, userData.username());
 
-		debug(String.format("UserData: %s", userData), 2);
 		LoginResult result = new LoginResult(userData.username(), authData.authToken());
-		debug(String.format("result: %s", result), 2);
 		return result;
 	}
 }

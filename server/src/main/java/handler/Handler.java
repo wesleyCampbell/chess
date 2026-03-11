@@ -117,7 +117,6 @@ public abstract class Handler {
                 Object value = field.get(request); 
 				// Verifies that the attribute is not null
                 if (value == null) {
-                    System.out.println("Field " + field.getName() + " is null.");
                     return null; 
                 }
             } catch (IllegalAccessException e) {
