@@ -37,7 +37,14 @@ public class Server {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
 		// Universal data access interfaces
-		this.authDAO = new MemoryAuthDAO();
+		// this.authDAO = new MemoryAuthDAO();
+		try {
+			this.authDAO = new SQLAuthDAO();
+		} catch (DataAccessException ex) {
+			String msg = String.format("AuthDAO failed to load the database...: %s", ex.getMessage());
+			throw new RuntimeException(msg);
+		}
+
 		this.gameDAO = new MemoryGameDAO();
 		// this.userDAO = new MemoryUserDAO();
 		try {
