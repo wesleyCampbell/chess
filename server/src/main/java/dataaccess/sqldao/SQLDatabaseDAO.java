@@ -11,49 +11,53 @@ public abstract class SQLDatabaseDAO {
 	//
 	// =========================== CONSTRUCTORS =========================== 
 	// 
-	public SQLDatabaseDAO() throws DataAccessException {
-		this.initializeDatabase();
+	public SQLDatabaseDAO(String initStatement) throws DataAccessException {
+		this.initializeDatabase(initStatement);
 	}
 
 	//
 	// =========================== DATABASE MANIPULATION =========================== 
 	// 
 	
-	private final String[] initStatements = {
-		"""
-		CREATE TABLE IF NOT EXISTS user (
-			`id` int NOT NULL AUTO_INCREMENT,
-			`username` varchar NOT NULL,
-			`password` varchar NOT NULL,
-			`email` varchar NOT NULL,
-			PRIMARY KEY (`username`)
-		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-		"""
-	};
-	
-	private void initializeDatabase() throws DataAccessException {
-			
+	/**
+	 * Will take a block string containing statements to init a database
+	 * 
+	 * @param initStatement The db create statements.
+	 */
+	private void initializeDatabase(String initStatement) throws DataAccessException {
+		try (Connection conn = SQLDatabaseManager.getConnection()) {
+			try (PreparedStatement ps = conn.prepareStatement(initStatement)) {
+				ps.executeUpdate();
+			}
+		} catch (SQLException ex) {
+			throw new DataAccessException(ex.getMessage());
+		}
+
 	}
 
+	/**
+	 * Will take a SQL statement and a set of object parameters and will format the statement and 
+	 * submit it to the SQL database. 
+	 *
+	 * @param statement The SQL statement
+	 * @params params Arbitrary objects to pass into the statement. Recognized data tyes include
+	 * Strings, Integers, and ChessGames
+	 *
+	 * @return int status code
+	 */
 	private int executeUpdate(String statement, Object... params) throws DataAccessException {
 		try (Connection conn = SQLDatabaseManager.getConnection()) {
-			try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+			try (PreparedStatement ps = conn.prepareStatement(statement)) {
 				for (int i = 0; i < params.length; i++) {
 					Object param = params[i];
 					switch (param) {
 						case String s -> ps.setString(i + 1, s);
 						case Integer n -> ps.setInt(i + 1, n);
 						case ChessGame g -> ps.setString(i + 1, g.toString());
-						default -> throw new DataAccessException(
-								"Unsupported database type: " + param.getClass());
+						default -> throw new DataAccessException("Unsupported database type: " + param.getClass());
 					}
 				}
 				ps.executeUpdate();
-
-				ResultSet rs = ps.getGeneratedKeys();
-				if (rs.next()) {
-					return rs.getInt(1);
-				}
 
 				return 0;
 			}
