@@ -49,10 +49,10 @@ public class ChessGame {
 	// ============================ MEMBER ATTRIBUTES =======================
 	//
 	
-	private transient ChessBoard gameBoard;
+	private ChessBoard gameBoard;
 	private TeamColor activeTeam;
 	private transient ChessMoveEngine moveEngine;
-	private transient Map<TeamColor, ChessTeamDatabase> chessTeamData;
+	private Map<TeamColor, ChessTeamDatabase> chessTeamData;
 
 	
 	//

@@ -15,9 +15,9 @@ public class ChessTeamDatabase {
 	//
 	
 	private TeamColor teamColor;
-	private HashSet<ChessPosition> kingPositions;
-	private HashSet<ChessMove> attackMoveSet;
-	private HashSet<ChessMove> moveSet;
+	private transient HashSet<ChessPosition> kingPositions;
+	private transient HashSet<ChessMove> attackMoveSet;
+	private transient HashSet<ChessMove> moveSet;
 	private ArrayList<ChessPiece> capturedPieces;
 	private ArrayList<ChessPiece> movedPieces;
 	private Pair<ChessPiece, ChessMove> lastMovedPiece;

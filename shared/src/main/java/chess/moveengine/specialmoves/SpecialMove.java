@@ -6,7 +6,7 @@ public abstract class SpecialMove implements SpecialMoveInterface {
 	//
 	// ========================== CONSTRUCTORS ==============
 	//
-	private ChessMoveEngine moveEngine;
+	private transient ChessMoveEngine moveEngine;
 
 	protected SpecialMove(ChessMoveEngine moveEngine) {
 		this.moveEngine = moveEngine;

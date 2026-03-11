@@ -118,7 +118,7 @@ public class ChessPiece {
 	
 	protected TeamColor color;
 	protected PieceType type;
-	protected ChessPieceMoveCalculator moveCalculator;
+	protected transient ChessPieceMoveCalculator moveCalculator;
 
 	//
 	// ======================== CONSTRUCTORS =======================
