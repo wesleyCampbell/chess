@@ -68,7 +68,7 @@ public class ListGameService extends AuthenticableService {
 	 *
 	 * @return The response containing revelant data
 	 */
-	public ListGameResult listGames(ListGameRequest request) throws AuthenticationException {
+	public ListGameResult listGames(ListGameRequest request) throws AuthenticationException, DataAccessException {
 		if (!this.isAuthenticated(this.authDAO, request.authToken())) {
 			throw new AuthenticationException("User is not authenticated");
 		}

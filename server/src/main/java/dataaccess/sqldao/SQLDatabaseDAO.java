@@ -8,6 +8,8 @@ import java.sql.*;
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import java.util.ArrayList;
 
+import com.google.gson.Gson;
+
 public abstract class SQLDatabaseDAO {
 	//
 	// =========================== CONSTRUCTORS =========================== 
@@ -124,17 +126,23 @@ public abstract class SQLDatabaseDAO {
 	 */
 	protected int executeUpdate(final String statement, Object... params) throws DataAccessException {
 		try (Connection conn = SQLDatabaseManager.getConnection()) {
-			try (PreparedStatement ps = conn.prepareStatement(statement)) {
+			try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
 				for (int i = 0; i < params.length; i++) {
 					Object param = params[i];
 					switch (param) {
 						case String s -> ps.setString(i + 1, s);
 						case Integer n -> ps.setInt(i + 1, n);
-						case ChessGame g -> ps.setString(i + 1, g.toString());
+						case ChessGame g -> ps.setString(i + 1, new Gson().toJson(g));
 						default -> throwUnsupportedDBType(param.getClass());
 					}
 				}
 				ps.executeUpdate();
+
+				try (ResultSet rs = ps.getGeneratedKeys()) {
+					if (rs.next()) {
+						return rs.getInt(1);
+					}
+				} 
 
 				return 0;
 			}

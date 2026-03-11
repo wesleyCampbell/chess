@@ -31,7 +31,7 @@ public class CreateGameService extends AuthenticableService {
 	// ================== MEMBER METHODS ====================
 	//
 	
-	public CreateGameResult createGame(CreateGameRequest request) throws AuthenticationException {
+	public CreateGameResult createGame(CreateGameRequest request) throws AuthenticationException, DataAccessException{
 		if (this.isAuthenticated(authDAO, request.authToken())) {
 			GameData data = this.gameDAO.createGame(request.gameName());
 

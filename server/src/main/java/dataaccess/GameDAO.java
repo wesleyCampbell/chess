@@ -13,7 +13,7 @@ public interface GameDAO {
 	 *
 	 * @return A Collection containing all data from games.
 	 */
-	public Collection<GameData> getAllGames();	
+	public Collection<GameData> getAllGames() throws DataAccessException;	
 
 	/**
 	 * Creates a game with given data.
@@ -22,7 +22,7 @@ public interface GameDAO {
 	 *
 	 * @return The data object for the game
 	 */
-	public GameData createGame(String gameName);
+	public GameData createGame(String gameName) throws DataAccessException;
 
 	/**
 	 * Updates a game with the given gameID with new GameData

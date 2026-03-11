@@ -13,9 +13,7 @@ import service.ListGameService.ListGameRequest;
 import service.ListGameService.GameDataAPI;
 import service.ListGameService.ListGameResult;
 
-import util.Debugger;
-
-import model.GameData;
+import dataaccess.DataAccessException;
 
 import dataaccess.*;
 import io.javalin.http.Context;
@@ -72,7 +70,11 @@ public class GamesHandler extends Handler {
 			ctx.status(HTTP_CODE_UNAUTH);
 			ctx.result(this.unauthorizedHTTPMsg);
 			return false;
-		} 
+		} catch (DataAccessException ex) {
+			ctx.status(HTTP_CODE_NO_EXIST);
+			ctx.result(this.noExistHTTPMsg);
+			return false;
+		}
 
 		ctx.status(HTTP_CODE_OK);
 		ctx.result(toJson(result));
@@ -175,6 +177,10 @@ public class GamesHandler extends Handler {
 		} catch (AuthenticationException ex) {
 			ctx.status(HTTP_CODE_UNAUTH);
 			ctx.result(this.unauthorizedHTTPMsg);
+			return false;
+		} catch (DataAccessException ex) {
+			ctx.status(HTTP_CODE_NO_EXIST);
+			ctx.result(this.noExistHTTPMsg);
 			return false;
 		}
 

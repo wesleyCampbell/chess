@@ -45,7 +45,13 @@ public class Server {
 			throw new RuntimeException(msg);
 		}
 
-		this.gameDAO = new MemoryGameDAO();
+		try {
+			this.gameDAO = new SQLGameDAO();
+		} catch (DataAccessException ex) {
+			String msg = String.format("GameDAO failed to load the database...: %s", ex.getMessage());
+			throw new RuntimeException(msg);
+		}
+		// this.gameDAO = new MemoryGameDAO();
 		// this.userDAO = new MemoryUserDAO();
 		try {
 			this.userDAO = new SQLUserDAO();

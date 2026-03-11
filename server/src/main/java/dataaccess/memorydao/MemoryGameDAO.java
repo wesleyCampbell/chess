@@ -25,7 +25,7 @@ public class MemoryGameDAO implements GameDAO {
 	// ======================== DATA ACCESS ===============================
 	//
 	
-	public Collection<GameData> getAllGames() {
+	public Collection<GameData> getAllGames() throws DataAccessException {
 		return this.db.values();
 	}
 
@@ -34,7 +34,7 @@ public class MemoryGameDAO implements GameDAO {
 		return String.valueOf(this.nextOpenID - 1);
 	}
 
-	public GameData createGame(String gameName) {
+	public GameData createGame(String gameName) throws DataAccessException {
 		String gameID = this.getNextGameID();
 		ChessGame game = new ChessGame();
 
