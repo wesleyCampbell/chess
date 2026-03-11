@@ -5,27 +5,94 @@ import dataaccess.UserDAO;
 
 import model.UserData;
 
-public class SQLUserDAO implements UserDAO {
-	//
-	// =========================== CONSTRUCTORS =========================== 
+import java.sql.*;
+import java.util.ArrayList;
+
+public class SQLUserDAO extends SQLDatabaseDAO implements UserDAO {
 	// 
-	public SQLUserDAO() {
+	// =========================== GLOBALS ============================
+	//
+	
+	private static final String DB_NAME = "user";
 
+	private static final String DB_INIT_STATEMENT = String.format("""
+		CREATE TABLE IF NOT EXISTS %s (
+			`username` varchar(256) NOT NULL,
+			`password` varchar(256) NOT NULL,
+			`email` varchar(256) NOT NULL,
+			PRIMARY KEY (`username`),
+			INDEX(username)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+		""", DB_NAME);
+
+	private static final String DB_INSERT_USER_STATEMENT = String.format("""
+			INSERT INTO %s (username, password, email) VALUES (?, ?, ?)
+			""", DB_NAME);
+
+	private static final String DB_SELECT_USER_STATEMENT = String.format("""
+			SELECT username, password, email FROM %s WHERE username=?
+			""", DB_NAME);
+
+	private static final String DB_CLEAR_DATA_STATEMENT = String.format("""
+			TRUNCATE TABLE %s
+			""", DB_NAME);
+
+	//
+	// ========================== CONSTRUCTORS ==========================
+	//
+	
+	public SQLUserDAO() throws DataAccessException {
+		super(DB_INIT_STATEMENT);
 	}
-
+	
 	//
 	// =========================== DATA ACCESS =========================== 
 	// 
 	
+	/**
+	 * Reads the UserData stored in a SQL ResultSet and returns it in its
+	 * correct data representation.
+	 *
+	 * @param rs The SQL ResultSet returned from executing a query
+	 *
+	 * @return The UserData object represented
+	 */
+	private UserData readUser(ResultSet rs) throws SQLException {
+		String username = rs.getString("username");
+		String password = rs.getString("password");
+		String email = rs.getString("email");
+
+		return new UserData(username, password, email);
+	}
+	
+	/**
+	 * Fetches a UserData Object from the database
+	 * Note that it will return null if the user doesn't exist
+	 * and will throw a DataAccessException if the query is bad
+	 *
+	 * @param username The username of the user to fetch
+	 *
+	 * @return The requested UserData object
+	 */
 	public UserData getUser(String username) throws DataAccessException {
-		throw new DataAccessException("NOT IMPLEMENTED YET!");
+		ArrayList<UserData> users = this.executeQuery(DB_SELECT_USER_STATEMENT, rs -> this.readUser(rs), "username");
+
+		// There should only ever be one user with a given user
+		if (users.size() != 1) {
+			throw new DataAccessException("More than one user with given username!");
+		}
+
+		return users.get(0);
 	}
 
 	public void createUser(UserData userData) throws DataAccessException {
-		throw new DataAccessException("NOT IMPLEMENTED YET!");
+		this.executeUpdate(DB_INSERT_USER_STATEMENT,
+					userData.username(),
+					userData.password(),
+					userData.email());
 	}
 
 	public void clearAllUserData() throws DataAccessException {
-		throw new DataAccessException("NOT IMPLEMENTED YET!");
+		this.executeStatement(DB_CLEAR_DATA_STATEMENT);
 	}
 }
