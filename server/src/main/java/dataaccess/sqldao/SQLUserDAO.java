@@ -66,8 +66,6 @@ public class SQLUserDAO extends SQLDatabaseDAO implements UserDAO {
 	
 	/**
 	 * Fetches a UserData Object from the database
-	 * Note that it will return null if the user doesn't exist
-	 * and will throw a DataAccessException if the query is bad
 	 *
 	 * @param username The username of the user to fetch
 	 *
@@ -76,7 +74,7 @@ public class SQLUserDAO extends SQLDatabaseDAO implements UserDAO {
 	public UserData getUser(String username) throws DataAccessException {
 		ArrayList<UserData> users = this.executeQuery(DB_SELECT_USER_STATEMENT, rs -> this.readUser(rs), username);
 
-		// There should only ever be one user with a given user
+		// There should only ever be one user with a given username
 		if (users.size() != 1) {
 			throw new DataAccessException("More than one user with given username!");
 		}
@@ -84,6 +82,11 @@ public class SQLUserDAO extends SQLDatabaseDAO implements UserDAO {
 		return users.get(0);
 	}
 
+	/**
+	 * Inserts the data from a UserData object into the database
+	 *
+	 * @param userData The UserData object to store
+	 */
 	public void createUser(UserData userData) throws DataAccessException {
 		this.executeUpdate(DB_INSERT_USER_STATEMENT,
 					userData.username(),
@@ -91,6 +94,9 @@ public class SQLUserDAO extends SQLDatabaseDAO implements UserDAO {
 					userData.email());
 	}
 
+	/**
+	 * Clears all user data from the database.
+	 */
 	public void clearAllUserData() throws DataAccessException {
 		this.executeStatement(DB_CLEAR_DATA_STATEMENT);
 	}
