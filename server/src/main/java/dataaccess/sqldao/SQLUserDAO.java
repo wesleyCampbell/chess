@@ -13,15 +13,14 @@ public class SQLUserDAO extends SQLDatabaseDAO implements UserDAO {
 	// =========================== GLOBALS ============================
 	//
 	
-	private static final String DB_NAME = "user";
+	private static final String DB_NAME = "users";
 
 	private static final String DB_INIT_STATEMENT = String.format("""
 		CREATE TABLE IF NOT EXISTS %s (
 			`username` varchar(256) NOT NULL,
 			`password` varchar(256) NOT NULL,
 			`email` varchar(256) NOT NULL,
-			PRIMARY KEY (`username`),
-			INDEX(username)
+			PRIMARY KEY (`username`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 		""", DB_NAME);
 
@@ -75,7 +74,7 @@ public class SQLUserDAO extends SQLDatabaseDAO implements UserDAO {
 	 * @return The requested UserData object
 	 */
 	public UserData getUser(String username) throws DataAccessException {
-		ArrayList<UserData> users = this.executeQuery(DB_SELECT_USER_STATEMENT, rs -> this.readUser(rs), "username");
+		ArrayList<UserData> users = this.executeQuery(DB_SELECT_USER_STATEMENT, rs -> this.readUser(rs), username);
 
 		// There should only ever be one user with a given user
 		if (users.size() != 1) {

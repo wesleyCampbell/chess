@@ -1,6 +1,7 @@
 package dataaccess.sqldao;
 
 import dataaccess.DataAccessException;
+import util.Debugger;
 
 import java.io.InputStream;
 import java.sql.*;
@@ -29,23 +30,24 @@ public class SQLDatabaseManager {
 			password = properties.getProperty("db.password");
 
 			String host = properties.getProperty("db.host");
-			String port = properties.getProperty("db.port");
-			//var port = Integer.parseInt(properties.getProperty("db.port"));
-			connectionURL = String.format("jdbc:mysql://%s:%s", host, port);
+			// String port = properties.getProperty("db.port");
+			var port = Integer.parseInt(properties.getProperty("db.port"));
+			connectionURL = String.format("jdbc:mysql://%s:%d/", host, port);
 		}
 		catch (Exception ex) {
 			throw new RuntimeException("Unable to read db.properties: " + ex.getMessage());
 		}
 	}
 
+	private static final String CREATE_DB_STATEMENT = "CREATE DATABASE IF NOT EXISTS " + databaseName;
+
 	/*
 	 * Creates a database if it does not exist already
 	 */
 	public static void createDatabase() throws DataAccessException {
 		try {
-			String statement = "CREATE DATABASE IF NOT EXISTS " + databaseName;
 			Connection conn = DriverManager.getConnection(connectionURL, user, password);
-			try (PreparedStatement preparedStatement = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+			try (PreparedStatement preparedStatement = conn.prepareStatement(CREATE_DB_STATEMENT)) {
 				preparedStatement.executeUpdate();
 			}
 		} catch (SQLException ex) {
@@ -59,7 +61,13 @@ public class SQLDatabaseManager {
 	public static Connection getConnection() throws DataAccessException {
 		try {
 			Connection conn = DriverManager.getConnection(connectionURL, user, password);
-			conn.setCatalog(databaseName);
+			try {
+				conn.setCatalog(databaseName);
+			} catch (SQLException ex) {
+				try (PreparedStatement ps = conn.prepareStatement(CREATE_DB_STATEMENT)) {
+					ps.executeUpdate();
+				}
+			}
 			return conn;
 		} catch (SQLException ex) {
 			throw new DataAccessException(ex.getMessage()); 

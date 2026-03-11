@@ -43,4 +43,8 @@ public class SQLGameDAO implements GameDAO {
 	public void clearAllGameData() throws DataAccessException {
 		throw new DataAccessException("NOT IMPLEMENTED YET!");
 	}
+
+	public void removeGame() throws DataAccessException {
+		throw new DataAccessException("NOT IMPLEMENTED YET");
+	}
 }
