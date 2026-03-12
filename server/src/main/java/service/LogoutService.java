@@ -28,16 +28,12 @@ public class LogoutService extends AuthenticableService {
 	// ======================= MEMBER METHODS ========================
 	//
 	
-	public LogoutResult logout(LogoutRequest request) throws AuthenticationException {
+	public LogoutResult logout(LogoutRequest request) throws AuthenticationException, DataAccessException {
 		AuthData data;
-		try {
-			data = this.authDAO.getAuth(request.authToken());
-			this.authDAO.removeAuth(data);
+		data = this.authDAO.getAuth(request.authToken());
+		this.authDAO.removeAuth(data);
 
-			return new LogoutResult();
-		} catch (DataAccessException ex) {
-			throw new AuthenticationException("User not authenticated");
-		}
+		return new LogoutResult();
 	}
 
 

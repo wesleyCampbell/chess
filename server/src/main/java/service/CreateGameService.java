@@ -35,14 +35,16 @@ public class CreateGameService extends AuthenticableService {
 	//
 	
 	public CreateGameResult createGame(CreateGameRequest request) throws AuthenticationException, DataAccessException{
-		if (this.isAuthenticated(authDAO, request.authToken())) {
-			GameData data = this.gameDAO.createGame(request.gameName());
-
-			CreateGameResult result = new CreateGameResult(data.gameID());
-
-			return result;
+		if (!this.isAuthenticated(authDAO, request.authToken())) {
+			throw new AuthenticationException("User is not authenticated");
 		}
+
+		// If this throws a DataAccessException, it will propotate
+		GameData data = this.gameDAO.createGame(request.gameName());
+
+		CreateGameResult result = new CreateGameResult(data.gameID());
+
+		return result;
 		
-		throw new AuthenticationException("User is not authenticated");
 	}
 }

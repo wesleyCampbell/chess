@@ -4,6 +4,7 @@ import chess.ChessGame;
 import org.junit.jupiter.api.*;
 import passoff.model.*;
 import server.Server;
+import util.Debugger;
 
 import java.lang.reflect.Method;
 import java.sql.*;
@@ -126,6 +127,7 @@ public class DatabaseTests {
         try {
             for (Map.Entry<String, Supplier<TestResult>> operationEntry : operations.entrySet()) {
                 String operationName = operationEntry.getKey();
+				Debugger.debug(String.format("operationName: %s", operationName), 1);
                 Supplier<TestResult> operation = operationEntry.getValue();
                 TestResult result = operation.get();
                 Assertions.assertEquals(500, serverFacade.getStatusCode(),

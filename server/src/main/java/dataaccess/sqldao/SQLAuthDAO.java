@@ -2,12 +2,14 @@ package dataaccess.sqldao;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+
 import java.sql.*;
 
 import util.Debugger;
-
+import dataaccess.AlreadyTakenException;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
+import dataaccess.AuthenticationException;
 import model.AuthData;
 
 public class SQLAuthDAO extends SQLDatabaseDAO implements AuthDAO {
@@ -76,13 +78,16 @@ public class SQLAuthDAO extends SQLDatabaseDAO implements AuthDAO {
 	 *
 	 * @return The requested AuthData object
 	 */
-	public AuthData getAuth(String authToken) throws DataAccessException {
+	public AuthData getAuth(String authToken) throws DataAccessException, AuthenticationException {
 		ArrayList<AuthData> authData = this.executeQuery(
 												DB_SELECT_AUTH_STATEMENT,
 												rs -> this.readAuth(rs),
 												authToken);
 
 		// There should only ever be one user with a given authToken
+		if (authData.size() == 0) {
+			throw new AuthenticationException("No auth data");
+		}
 		if (authData.size() != 1) {
 			throw new DataAccessException("More than one user with given authToken!");
 		}
@@ -95,10 +100,15 @@ public class SQLAuthDAO extends SQLDatabaseDAO implements AuthDAO {
 	 *
 	 * @param authData The AuthData to store
 	 */
-	public void createAuth(AuthData authData) throws DataAccessException {
-		this.executeUpdate(DB_INSERT_AUTH_STATEMENT,
+	public void createAuth(AuthData authData) throws DataAccessException, AlreadyTakenException {
+		int rowsAffected;
+		rowsAffected = this.executeUpdate(DB_INSERT_AUTH_STATEMENT,
 				authData.authToken(),
 				authData.username());
+
+		if (rowsAffected == 0) {
+			throw new AlreadyTakenException("already taken");
+		}
 	}
 
 	/**
@@ -114,6 +124,7 @@ public class SQLAuthDAO extends SQLDatabaseDAO implements AuthDAO {
 	 * Clears all authentication data from the database.
 	 */
 	public void clearAllAuthData() throws DataAccessException {
+		Debugger.debug("Inside of clearAllAuthData()", 1);
 		this.executeStatement(DB_CLEAR_DATA_STATEMENT);
 	}
 }

@@ -51,8 +51,8 @@ public class DatabaseHandler extends Handler {
 		try {
 			result = this.clearDataService.clearData(request);
 		} catch (DataAccessException ex) {
-			cxt.status(HTTP_CODE_ERROR);
-			cxt.result(this.errorHTTPMsg);
+			cxt.status(HTTP_CODE_INT_ERROR);
+			cxt.result(this.intErrorHTTPMsg);
 			return false;
 		}
 

@@ -20,7 +20,7 @@ public interface UserDAO {
 	 *
 	 * @param userData The user data object to store
 	 */
-	public void createUser(UserData userData) throws DataAccessException;
+	public void createUser(UserData userData) throws AlreadyTakenException, DataAccessException;
 
 	/**
 	 * Runs a hashing method on a password.

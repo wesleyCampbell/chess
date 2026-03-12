@@ -38,7 +38,6 @@ public class ChessBoardGenerator {
 	//
 	
 	private String[] standardState;
-	private String[] currentState;
 
 	//
 	// ======================== CONSTRUCTORS =======================
@@ -61,7 +60,6 @@ public class ChessBoardGenerator {
 	 */
 	public ChessBoardGenerator(String[] standardState) {
 		this.standardState = standardState;
-		this.currentState = ChessBoardGenerator.STANDARD_EMPTY_STATE; 
 	}
 
 	/**
@@ -72,7 +70,6 @@ public class ChessBoardGenerator {
 	 */
 	public ChessBoardGenerator(String[] standardState, String[] currentState) {
 		this.standardState = standardState;
-		this.currentState = currentState;
 	}
 
 	//
@@ -88,7 +85,6 @@ public class ChessBoardGenerator {
 	 * @return A 2D array of ChessPieces, all initialized to null.
 	 */
 	public ChessPiece[][] generateEmptyBoard(int rowNum, int colNum) {
-		this.currentState = ChessBoardGenerator.STANDARD_EMPTY_STATE;
 		return new ChessPiece[rowNum][colNum];
 	}
 
@@ -131,7 +127,6 @@ public class ChessBoardGenerator {
 			}
 		}
 
-		this.currentState = state;
 		return newBoard;
 	}
 

@@ -3,6 +3,7 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
 import dataaccess.DataAccessException;
+import dataaccess.AlreadyTakenException;
 
 import model.UserData;
 import model.AuthData;
@@ -32,7 +33,7 @@ public class RegisterService extends AuthenticableService {
 	// ====================== MEMBER METHODS ============================
 	//
 	
-	public RegisterResult register(RegisterRequest request) throws DataAccessException {
+	public RegisterResult register(RegisterRequest request) throws AlreadyTakenException, DataAccessException {
 		String encrPasword = this.userDAO.encryptPassword(request.password());
 		UserData userData = new UserData(request.username(), encrPasword, request.email());
 

@@ -1,6 +1,5 @@
 package dataaccess;
 
-import dataaccess.DataAccessException;
 import model.AuthData;
 
 /**
@@ -15,14 +14,14 @@ public interface AuthDAO {
 	 *
 	 * @return The AuthData if exists, null otherwise
 	 */
-	public AuthData getAuth(String authToken) throws DataAccessException;
+	public AuthData getAuth(String authToken) throws DataAccessException, AuthenticationException;
 
 	/**
 	 * Adds a given Authentication data to the database
 	 *
 	 * @param authData The authentication data
 	 */
-	public void createAuth(AuthData authData) throws DataAccessException;
+	public void createAuth(AuthData authData) throws DataAccessException, AlreadyTakenException;
 
 	/**
 	 * Will return a given AuthData object from the database

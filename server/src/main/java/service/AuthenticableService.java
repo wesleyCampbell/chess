@@ -3,7 +3,9 @@ package service;
 import java.util.UUID;
 
 import dataaccess.AuthDAO;
+import dataaccess.AuthenticationException;
 import dataaccess.DataAccessException;
+import dataaccess.AlreadyTakenException;
 import model.AuthData;
 
 public abstract class AuthenticableService {
@@ -41,7 +43,7 @@ public abstract class AuthenticableService {
 				dao.createAuth(data);
 				return data;
 			} 
-			catch (DataAccessException ex) {
+			catch (AlreadyTakenException ex) {
 				attemptNum++;
 				continue;
 			}
@@ -58,14 +60,14 @@ public abstract class AuthenticableService {
 	 *
 	 * @return true if valid, false otherwise
 	 */
-	public boolean isAuthenticated(AuthDAO dao, String authToken) {
+	public boolean isAuthenticated(AuthDAO dao, String authToken) throws DataAccessException {
 		// If successfull, it means that the auth token is in the database
 		// it is not if an error thrown.
 		try {
 			dao.getAuth(authToken);
 			return true;
-		} catch (DataAccessException ex) {
+		} catch (AuthenticationException ex) {
 			return false;
-		}
+		} 
 	}
 }

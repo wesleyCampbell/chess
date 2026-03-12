@@ -30,7 +30,7 @@ public class JoinGameService extends AuthenticableService {
 	// ================== CONSTRUCTORS =====================
 	//
 	
-	public JoinGameResult joinGame(JoinGameRequest request) throws DataAccessException, AuthenticationException {
+	public JoinGameResult joinGame(JoinGameRequest request) throws DataAccessException, AuthenticationException, AlreadyTakenException {
 		if (!this.isAuthenticated(this.authDAO, request.authToken())) {
 			throw new AuthenticationException("User is not authenticated");
 		}
@@ -47,19 +47,19 @@ public class JoinGameService extends AuthenticableService {
 			case TeamColor.WHITE:
 				blackUsername = game.blackUsername();
 				if (!game.whiteUsername().isEmpty()) {
-					throw new DataAccessException("White already taken");
+					throw new AlreadyTakenException("White already taken");
 				}
 				whiteUsername = username;
 				break;
 			case TeamColor.BLACK:
 				whiteUsername = game.whiteUsername();
 				if (!game.blackUsername().isEmpty()) {
-					throw new DataAccessException("Black already taken");
+					throw new AlreadyTakenException("Black already taken");
 				}
 				blackUsername = username;
 				break;
 			default:
-				throw new DataAccessException("Only black and white teams currently supported");
+				throw new AlreadyTakenException("Only black and white teams currently supported");
 		}
 
 		GameData newGameData = new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game());

@@ -58,9 +58,13 @@ public class LoginCtlHandler extends Handler {
 		LoginResult result;
 		try {
 			result = this.loginService.login(request);
-		} catch (DataAccessException ex) {
+		} catch (AuthenticationException ex) {
 			ctx.status(HTTP_CODE_UNAUTH);
 			ctx.result(this.unauthorizedHTTPMsg);
+			return false;
+		} catch (DataAccessException ex) {
+			ctx.status(HTTP_CODE_INT_ERROR);
+			ctx.result(this.intErrorHTTPMsg);
 			return false;
 		}
 
@@ -91,6 +95,10 @@ public class LoginCtlHandler extends Handler {
 		} catch (AuthenticationException ex) {
 			ctx.status(HTTP_CODE_UNAUTH);
 			ctx.result(this.unauthorizedHTTPMsg);
+			return false;
+		} catch (DataAccessException ex) {
+			ctx.status(HTTP_CODE_INT_ERROR);
+			ctx.result(this.intErrorHTTPMsg);
 			return false;
 		}
 

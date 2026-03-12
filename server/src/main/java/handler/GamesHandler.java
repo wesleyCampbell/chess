@@ -71,8 +71,8 @@ public class GamesHandler extends Handler {
 			ctx.result(this.unauthorizedHTTPMsg);
 			return false;
 		} catch (DataAccessException ex) {
-			ctx.status(HTTP_CODE_NO_EXIST);
-			ctx.result(this.noExistHTTPMsg);
+			ctx.status(HTTP_CODE_INT_ERROR);
+			ctx.result(this.intErrorHTTPMsg);
 			return false;
 		}
 
@@ -110,9 +110,13 @@ public class GamesHandler extends Handler {
 			ctx.status(HTTP_CODE_UNAUTH);
 			ctx.result(this.unauthorizedHTTPMsg);
 			return false;
-		} catch (DataAccessException ex) {
+		} catch (AlreadyTakenException ex) {
 			ctx.status(HTTP_CODE_TAKEN);
 			ctx.result(this.takenHTTPMsg);
+			return false;
+		} catch (DataAccessException ex) {
+			ctx.status(HTTP_CODE_INT_ERROR);
+			ctx.result(this.intErrorHTTPMsg);
 			return false;
 		}
 
@@ -179,8 +183,8 @@ public class GamesHandler extends Handler {
 			ctx.result(this.unauthorizedHTTPMsg);
 			return false;
 		} catch (DataAccessException ex) {
-			ctx.status(HTTP_CODE_NO_EXIST);
-			ctx.result(this.noExistHTTPMsg);
+			ctx.status(HTTP_CODE_INT_ERROR);
+			ctx.result(this.intErrorHTTPMsg);
 			return false;
 		}
 

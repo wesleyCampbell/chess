@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.AuthDAO;
+import dataaccess.AuthenticationException;
 import dataaccess.UserDAO;
 import dataaccess.DataAccessException;
 
@@ -33,7 +34,7 @@ public class LoginService extends AuthenticableService {
 	// ====================== MEMBER METHODS ====================== 
 	//
 
-	public LoginResult login(LoginRequest request) throws DataAccessException {
+	public LoginResult login(LoginRequest request) throws DataAccessException, AuthenticationException {
 		// Will throw error if username is invalid
 		UserData userData = this.userDAO.getUser(request.username());
 
@@ -47,7 +48,7 @@ public class LoginService extends AuthenticableService {
 
 		// Compare passwords
 		if (!this.userDAO.checkEncryptPassword(clearPassword, hashPassword)) {
-			throw new DataAccessException("User or Password incorrect");
+			throw new AuthenticationException("User or Password incorrect");
 		}
 
 		AuthData authData = this.createNewAuthData(this.authDAO, userData.username());

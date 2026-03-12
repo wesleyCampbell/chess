@@ -40,10 +40,10 @@ public class JoinGameServiceTests extends WithAllDataTests {
 		JoinGameRequest request1 = new JoinGameRequest(authToken, TeamColor.WHITE, "1");
 		Assertions.assertDoesNotThrow(() -> service.joinGame(request1));
 
-		Assertions.assertThrows(DataAccessException.class, () -> service.joinGame(request1));
+		Assertions.assertThrows(AlreadyTakenException.class, () -> service.joinGame(request1));
 
 		JoinGameRequest request2 = new JoinGameRequest(authToken, TeamColor.BLACK, "1");
 		Assertions.assertDoesNotThrow(() -> service.joinGame(request2));
-		Assertions.assertThrows(DataAccessException.class, () -> service.joinGame(request2));
+		Assertions.assertThrows(AlreadyTakenException.class, () -> service.joinGame(request2));
 	}
 }

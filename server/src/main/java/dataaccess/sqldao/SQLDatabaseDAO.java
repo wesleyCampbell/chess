@@ -4,6 +4,8 @@ import dataaccess.DataAccessException;
 import util.Debugger;
 import chess.ChessGame;
 
+import dataaccess.DatabaseManager;
+
 import java.sql.*;
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import java.util.ArrayList;
@@ -30,12 +32,12 @@ public abstract class SQLDatabaseDAO {
 	 */
 	protected void initializeDatabase(final String initStatement) throws DataAccessException {
 		// Opens the SQL connection
-		try (Connection conn = SQLDatabaseManager.getConnection()) {
+		try (Connection conn = DatabaseManager.getConnection()) {
 			// Formats the SQL statement
 			try (PreparedStatement ps = conn.prepareStatement(initStatement)) {
 				ps.executeUpdate();
 			}
-		} catch (SQLException ex) {
+		} catch (Exception ex) {
 			throw new DataAccessException(ex.getMessage());
 		}
 
@@ -48,12 +50,16 @@ public abstract class SQLDatabaseDAO {
 	 */
 	protected void executeStatement(final String statement) throws DataAccessException {
 		// Opens the SQL connection
-		try (Connection conn = SQLDatabaseManager.getConnection()) {
+		Debugger.debug("Inside executeStatement()", 1);
+		try (Connection conn = DatabaseManager.getConnection()) {
+			Debugger.debug(String.format("Connection object: ", conn), 2);
+			Debugger.debug(String.format("Database user: ", conn.getMetaData().getUserName()), 2);
+
 			// Formats the SQL statement
 			try (PreparedStatement ps = conn.prepareStatement(statement)) {
 				ps.execute();
 			}
-		} catch (SQLException ex) {
+		} catch (Exception ex) {
 			throw new DataAccessException(ex.getMessage());
 		}
 	}
@@ -88,7 +94,7 @@ public abstract class SQLDatabaseDAO {
 	protected <T> ArrayList<T> executeQuery(final String statement, RowMapper<T> mapper, Object... params) throws DataAccessException {
 		ArrayList<T> results = new ArrayList<>();
 		// Open the SQL connection
-		try (Connection conn = SQLDatabaseManager.getConnection()) {
+		try (Connection conn = DatabaseManager.getConnection()) {
 			// Format the SQL statement
 			try (PreparedStatement ps = conn.prepareStatement(statement)) {
 				for (int i = 0; i < params.length; i++) {
@@ -125,7 +131,12 @@ public abstract class SQLDatabaseDAO {
 	 * @return int status code
 	 */
 	protected int executeUpdate(final String statement, Object... params) throws DataAccessException {
-		try (Connection conn = SQLDatabaseManager.getConnection()) {
+		try (Connection conn = DatabaseManager.getConnection()) {
+			if (conn == null) {
+				throw new DataAccessException("Connection failed");
+			}
+			Debugger.debug("Connected to: " + conn.getMetaData().getURL(), 1);
+			Debugger.debug("User: " + conn.getMetaData().getUserName(), 1);
 			try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
 				for (int i = 0; i < params.length; i++) {
 					Object param = params[i];
@@ -146,7 +157,7 @@ public abstract class SQLDatabaseDAO {
 
 				return 0;
 			}
-		} catch (SQLException ex) {
+		} catch (Exception ex) {
 			throw new DataAccessException(ex.getMessage());
 		}
 	}

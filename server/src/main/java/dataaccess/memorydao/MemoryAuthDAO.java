@@ -3,7 +3,9 @@ package dataaccess.memorydao;
 import java.util.HashMap;
 
 import dataaccess.AuthDAO;
+import dataaccess.AuthenticationException;
 import dataaccess.DataAccessException;
+import dataaccess.AlreadyTakenException;
 import model.AuthData;
 
 public class MemoryAuthDAO implements AuthDAO {
@@ -22,7 +24,7 @@ public class MemoryAuthDAO implements AuthDAO {
 	// ====================== DATA ACCESS =====================
 	//
 
-	public AuthData getAuth(String authToken) throws DataAccessException{
+	public AuthData getAuth(String authToken) throws DataAccessException, AuthenticationException {
 		AuthData data = this.db.get(authToken);
 
 		// If the data doesn't exist, throw an error
@@ -33,10 +35,10 @@ public class MemoryAuthDAO implements AuthDAO {
 		return data;
 	}
 
-	public void createAuth(AuthData authData) throws DataAccessException {
+	public void createAuth(AuthData authData) throws AlreadyTakenException, DataAccessException {
 		// Check to see if the data already exists
 		if (this.db.containsKey(authData.authToken())) {
-			throw new DataAccessException("Authentication data already exists");
+			throw new AlreadyTakenException("Authentication data already exists");
 		}
 
 		this.db.put(authData.authToken(), authData);

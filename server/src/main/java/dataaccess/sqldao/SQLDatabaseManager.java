@@ -10,21 +10,16 @@ import java.util.Properties;
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 public class SQLDatabaseManager {
-	private static final String databaseName;
-	private static final String user;
-	private static final String password;
-	private static final String connectionURL;
+	private static String databaseName;
+	private static String user;
+	private static String password;
+	private static String connectionURL;
 
-	/*
-	 * Loads the database information from db.properties, which it will find
-	 * somewhere in the classpath
-	 */
-	static {
+
+	private static Properties loadProperties() {
 		try (InputStream in = SQLDatabaseManager.class.getClassLoader().getResourceAsStream("db.properties")) {
-			// Load the properties from the config file
-			Properties properties = new Properties();	
+			Properties properties = new Properties();
 			properties.load(in);
-
 			databaseName = properties.getProperty("db.name");
 			user = properties.getProperty("db.user");
 			password = properties.getProperty("db.password");
@@ -33,11 +28,22 @@ public class SQLDatabaseManager {
 			// String port = properties.getProperty("db.port");
 			var port = Integer.parseInt(properties.getProperty("db.port"));
 			connectionURL = String.format("jdbc:mysql://%s:%d/", host, port);
-		}
-		catch (Exception ex) {
+
+			return properties;
+
+		} catch (Exception ex) {
 			throw new RuntimeException("Unable to read db.properties: " + ex.getMessage());
 		}
 	}
+
+	/*
+	 * Loads the database information from db.properties, which it will find
+	 * somewhere in the classpath
+	 */
+	static {
+		loadProperties();
+	}
+
 
 	private static final String CREATE_DB_STATEMENT = "CREATE DATABASE IF NOT EXISTS " + databaseName;
 
@@ -56,11 +62,40 @@ public class SQLDatabaseManager {
 	}
 
 	/**
+	 * Tests to see if a connection is valid and alive
+	 * 
+	 * @param conn The Connection
+	 *
+	 * @return true if valid, false otherwise
+	 */
+	public static boolean validateConnection(Connection conn) {
+		if (conn == null) {
+			return false;
+		}
+
+		try {
+
+			Debugger.debug(String.format("Connection object: %s", conn.getMetaData()), 1);
+			Debugger.debug(String.format("URL: %s", conn.getMetaData().getURL()), 1);
+		} catch (Exception ex) {
+			return false;
+		}
+
+		Debugger.debug("conn valid!", 1);
+		return true;
+	}
+
+	/**
 	 * Will make and return a connection to a database.
 	 */
 	public static Connection getConnection() throws DataAccessException {
 		try {
 			Connection conn = DriverManager.getConnection(connectionURL, user, password);
+			
+			if (!validateConnection(conn)) {
+				throw new DataAccessException("Failed to validate database connection");
+			}
+
 			try {
 				conn.setCatalog(databaseName);
 			} catch (SQLException ex) {

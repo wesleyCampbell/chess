@@ -1,5 +1,6 @@
 package dataaccess.sqldao;
 
+import dataaccess.AlreadyTakenException;
 import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 
@@ -113,11 +114,16 @@ public class SQLUserDAO extends SQLDatabaseDAO implements UserDAO {
 	 *
 	 * @param userData The UserData object to store
 	 */
-	public void createUser(UserData userData) throws DataAccessException {
-		this.executeUpdate(DB_INSERT_USER_STATEMENT,
+	public void createUser(UserData userData) throws AlreadyTakenException, DataAccessException {
+		int rowsAffected;
+		rowsAffected = this.executeUpdate(DB_INSERT_USER_STATEMENT,
 					userData.username(),
 					userData.password(),
 					userData.email());
+
+		// if (rowsAffected == 0) {
+		// 	throw new AlreadyTakenException("");
+		// }
 	}
 
 	/**

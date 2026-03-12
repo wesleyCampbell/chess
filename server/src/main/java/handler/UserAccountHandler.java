@@ -49,6 +49,10 @@ public class UserAccountHandler extends Handler {
 		try {
 			result = this.registerService.register(request);
 		} catch (DataAccessException ex) {
+			ctx.status(HTTP_CODE_INT_ERROR);
+			ctx.result(this.intErrorHTTPMsg);
+			return false;
+		} catch (AlreadyTakenException ex) {
 			ctx.status(HTTP_CODE_TAKEN);
 			ctx.result(this.takenHTTPMsg);
 			return false;
