@@ -20,11 +20,11 @@ public class SQLGameDAO extends SQLDatabaseDAO implements GameDAO {
 
 	private static final String DB_INIT_STATEMENT = String.format("""
 			CREATE TABLE IF NOT EXISTS %s (
-				`gameId` int NOT NULL AUTO_INCREMENT,
+				`gameID` int NOT NULL AUTO_INCREMENT,
 				`whiteUsername` varchar(256) NOT NULL,
 				`blackUsername` varchar(256) NOT NULL,
 				`gameName` varchar(256) NOT NULL,
-				`game` varchar(1024) NOT NULL,
+				`game` LONGTEXT NOT NULL,
 				PRIMARY KEY (`gameID`),
 				INDEX(whiteUsername),
 				INDEX(blackUsername)

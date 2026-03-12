@@ -1,11 +1,14 @@
 package service;
 
+import com.google.gson.Gson;
+
 import dataaccess.AuthDAO;
 import dataaccess.AuthenticationException;
 import dataaccess.GameDAO;
 import dataaccess.DataAccessException;
 
 import model.GameData;
+import util.Debugger;
 
 public class CreateGameService extends AuthenticableService {
 	//
@@ -32,8 +35,12 @@ public class CreateGameService extends AuthenticableService {
 	//
 	
 	public CreateGameResult createGame(CreateGameRequest request) throws AuthenticationException, DataAccessException{
+		Debugger.debug("In createGame()...", 0);
 		if (this.isAuthenticated(authDAO, request.authToken())) {
 			GameData data = this.gameDAO.createGame(request.gameName());
+
+			Debugger.debug(String.format("gameData: %s", data), 1);
+			Debugger.debug(String.format("gameJson: %s", new Gson().toJson(data)), 2);
 
 			CreateGameResult result = new CreateGameResult(data.gameID());
 

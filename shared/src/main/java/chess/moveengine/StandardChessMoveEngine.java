@@ -20,7 +20,7 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 	//
 	
 
-	private transient Map<TeamColor, ChessTeamDatabase> chessTeamData;
+	private Map<TeamColor, ChessTeamDatabase> chessTeamData;
 	private transient Map<String, SpecialMove> specialMoveCalculators;
 
 	//
