@@ -42,6 +42,11 @@ public abstract class DatabaseDAoTests {
 			throw new RuntimeException("Couldn't connect to DAOS: " + ex.getMessage(), ex);
 		}
 
+		// Clear old data
+		Assertions.assertDoesNotThrow(() -> authDAO.clearAllAuthData());
+		Assertions.assertDoesNotThrow(() -> userDAO.clearAllUserData());
+		Assertions.assertDoesNotThrow(() -> gameDAO.clearAllGameData());
+
 		// Create users
 		username1 = "joe";
 		username2 = "samwise gamgee";
