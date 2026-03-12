@@ -25,7 +25,7 @@ public class AuthDAoTests extends DatabaseDAoTests {
 	public void authDataPersistance() {
 		AuthData data = Assertions.assertDoesNotThrow(() -> authDAO.getAuth(authToken1));
 
-		Assertions.assertEquals(data.username(), username1);
+		Assertions.assertEquals(username1, data.username());
 	}
 
 	@Test
@@ -44,7 +44,7 @@ public class AuthDAoTests extends DatabaseDAoTests {
 		AuthData data = Assertions.assertDoesNotThrow(() -> authDAO.getAuth(authToken1));
 
 		Assertions.assertEquals(data.authToken(), authToken1);
-		Assertions.assertEquals(data.username(), username1);
+		Assertions.assertEquals(username1, data.username());
 	}
 
 	@Test
