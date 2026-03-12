@@ -33,7 +33,8 @@ public class RegisterService extends AuthenticableService {
 	//
 	
 	public RegisterResult register(RegisterRequest request) throws DataAccessException {
-		UserData userData = new UserData(request.username(), request.password(), request.email());
+		String encrPasword = this.userDAO.encryptPassword(request.password());
+		UserData userData = new UserData(request.username(), encrPasword, request.email());
 
 		// this will throw an error if the username is already taken
 		this.userDAO.createUser(userData);

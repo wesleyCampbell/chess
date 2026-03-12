@@ -37,6 +37,14 @@ public class MemoryUserDAO implements UserDAO {
 		this.db.put(userData.username(), userData);
 	}
 
+	public String encryptPassword(String password) {
+		return password;
+	}
+
+	public boolean checkEncryptPassword(String clearPassword, String encryptPassword) {
+		return clearPassword.equals(encryptPassword);
+	}
+
 	public void clearAllUserData() throws DataAccessException {
 		this.db.clear();
 	}

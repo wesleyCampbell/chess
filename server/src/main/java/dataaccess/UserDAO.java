@@ -23,6 +23,25 @@ public interface UserDAO {
 	public void createUser(UserData userData) throws DataAccessException;
 
 	/**
+	 * Runs a hashing method on a password.
+	 *
+	 * @param password The password to encrypt
+	 *
+	 * @return The encrypted password
+	 */
+	public String encryptPassword(String password);
+
+	/** 
+	 * Checks to see if a given plain text password matches a hashed one
+	 *
+	 * @param clearPassword The plain text password
+	 * @param encryptPassword The hashed password
+	 *
+	 * @return true if equal, false otherwise
+	 */
+	public boolean checkEncryptPassword(String clearPassword, String encryptPassword);
+
+	/**
 	 * Removes a given user given its data
 	 *
 	 * @param userData The user data to remove

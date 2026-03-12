@@ -37,8 +37,16 @@ public class LoginService extends AuthenticableService {
 		// Will throw error if username is invalid
 		UserData userData = this.userDAO.getUser(request.username());
 
+		String clearPassword = request.password();
+		String hashPassword = userData.password();
+
+
+		String password = "password";
+		String newPass = this.userDAO.encryptPassword(password);
+
+
 		// Compare passwords
-		if (!request.password().equals(userData.password())) {
+		if (!this.userDAO.checkEncryptPassword(clearPassword, hashPassword)) {
 			throw new DataAccessException("User or Password incorrect");
 		}
 

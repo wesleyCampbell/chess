@@ -3,7 +3,10 @@ package dataaccess.sqldao;
 import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import model.UserData;
+import util.Debugger;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -80,6 +83,29 @@ public class SQLUserDAO extends SQLDatabaseDAO implements UserDAO {
 		}
 
 		return users.get(0);
+	}
+
+	/**
+	 * Runs a hashing method on a password.
+	 *
+	 * @param password The password to encrypt
+	 *
+	 * @return The encrypted password
+	 */
+	public String encryptPassword(String password) {
+		return BCrypt.hashpw(password, BCrypt.gensalt());
+	}
+
+	/** 
+	 * Checks to see if a given plain text password matches a hashed one
+	 *
+	 * @param clearPassword The plain text password
+	 * @param encryptPassword The hashed password
+	 *
+	 * @return true if equal, false otherwise
+	 */
+	public boolean checkEncryptPassword(String clearPassword, String encryptPassword) {
+		   return BCrypt.checkpw(clearPassword, encryptPassword);
 	}
 
 	/**
