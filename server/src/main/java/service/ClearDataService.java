@@ -37,7 +37,6 @@ public class ClearDataService {
 	 * @return A result object storing necessary data
 	 */
 	public ClearDataResult clearData(ClearDataRequest request) throws DataAccessException {
-		Debugger.debug("Inside clearData()", 1);
 		this.authDAO.clearAllAuthData();
 		this.gameDAO.clearAllGameData();
 		this.userDAO.clearAllUserData();

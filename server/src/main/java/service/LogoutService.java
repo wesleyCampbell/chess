@@ -5,6 +5,7 @@ import dataaccess.AuthenticationException;
 import dataaccess.DataAccessException;
 
 import model.AuthData;
+import util.Debugger;
 
 public class LogoutService extends AuthenticableService {
 	//

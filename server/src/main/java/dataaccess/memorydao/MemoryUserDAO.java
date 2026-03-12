@@ -4,6 +4,7 @@ import dataaccess.UserDAO;
 
 import java.util.HashMap;
 
+import dataaccess.AuthenticationException;
 import dataaccess.DataAccessException;
 import model.UserData;
 
@@ -22,9 +23,9 @@ public class MemoryUserDAO implements UserDAO {
 	// =========================== DATA ACCESS =========================== 
 	// 
 
-	public UserData getUser(String username) throws DataAccessException {
+	public UserData getUser(String username) throws DataAccessException, AuthenticationException {
 		if (!this.db.containsKey(username)) {
-			throw new DataAccessException("User doesn't exist");
+			throw new AuthenticationException("User doesn't exist");
 		}
 		return this.db.get(username);
 	}

@@ -9,6 +9,7 @@ import util.Debugger;
 import dataaccess.AlreadyTakenException;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
+import dataaccess.DatabaseManager;
 import dataaccess.AuthenticationException;
 import model.AuthData;
 
@@ -42,6 +43,10 @@ public class SQLAuthDAO extends SQLDatabaseDAO implements AuthDAO {
 	private static final String DB_CLEAR_AUTH_STATEMENT = String.format("""
 			DELETE FROM %s WHERE authToken=?
 			""", DB_NAME);
+
+	private static final String DB_CHECK_AUTH_STATEMENTS = String.format("""
+			SELECT 1 FROM %s WHERE authToken=?
+			""", DB_NAME);
 	
 	//
 	// ======================= CONSTRUCTORS ======================
@@ -55,6 +60,17 @@ public class SQLAuthDAO extends SQLDatabaseDAO implements AuthDAO {
 	//
 	// ======================= DATA ACCESS ========================
 	//
+	
+	/**
+	 * Checks to see if a AuthData exists.
+	 *
+	 * @param authToken The token to check
+	 *
+	 * @return true if exists, false otherwise
+	 */
+	public boolean authExists(String authToken) throws DataAccessException {
+		return this.checkExists(DB_CHECK_AUTH_STATEMENTS, authToken);
+	}
 
 	/**
 	 * Reads the AuthData stored in a SQL ResultSet and returns it in its
@@ -79,19 +95,16 @@ public class SQLAuthDAO extends SQLDatabaseDAO implements AuthDAO {
 	 * @return The requested AuthData object
 	 */
 	public AuthData getAuth(String authToken) throws DataAccessException, AuthenticationException {
+		if (!this.authExists(authToken)) {
+			throw new AuthenticationException("Auth token doesn't exist");
+		}
+
 		ArrayList<AuthData> authData = this.executeQuery(
 												DB_SELECT_AUTH_STATEMENT,
 												rs -> this.readAuth(rs),
 												authToken);
 
 		// There should only ever be one user with a given authToken
-		if (authData.size() == 0) {
-			throw new AuthenticationException("No auth data");
-		}
-		if (authData.size() != 1) {
-			throw new DataAccessException("More than one user with given authToken!");
-		}
-
 		return authData.get(0);
 	}
 
@@ -101,14 +114,12 @@ public class SQLAuthDAO extends SQLDatabaseDAO implements AuthDAO {
 	 * @param authData The AuthData to store
 	 */
 	public void createAuth(AuthData authData) throws DataAccessException, AlreadyTakenException {
-		int rowsAffected;
-		rowsAffected = this.executeUpdate(DB_INSERT_AUTH_STATEMENT,
+		if (this.authExists(authData.authToken())) {
+			throw new AlreadyTakenException("Auth Token already exists");
+		}
+		this.executeUpdate(DB_INSERT_AUTH_STATEMENT,
 				authData.authToken(),
 				authData.username());
-
-		if (rowsAffected == 0) {
-			throw new AlreadyTakenException("already taken");
-		}
 	}
 
 	/**
@@ -124,7 +135,6 @@ public class SQLAuthDAO extends SQLDatabaseDAO implements AuthDAO {
 	 * Clears all authentication data from the database.
 	 */
 	public void clearAllAuthData() throws DataAccessException {
-		Debugger.debug("Inside of clearAllAuthData()", 1);
 		this.executeStatement(DB_CLEAR_DATA_STATEMENT);
 	}
 }

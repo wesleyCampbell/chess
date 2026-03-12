@@ -6,6 +6,7 @@ import dataaccess.DataAccessException;
 import dataaccess.AlreadyTakenException;
 
 import model.UserData;
+import util.Debugger;
 import model.AuthData;
 
 public class RegisterService extends AuthenticableService {

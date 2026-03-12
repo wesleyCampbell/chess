@@ -29,10 +29,14 @@ public class MemoryAuthDAO implements AuthDAO {
 
 		// If the data doesn't exist, throw an error
 		if (data == null) {
-			throw new DataAccessException("Auth data doesn't exist");
+			throw new AuthenticationException("Auth data doesn't exist");
 		}
 		
 		return data;
+	}
+
+	public boolean authExists(String authToken) throws DataAccessException {
+		return this.db.containsKey(authToken);
 	}
 
 	public void createAuth(AuthData authData) throws AlreadyTakenException, DataAccessException {

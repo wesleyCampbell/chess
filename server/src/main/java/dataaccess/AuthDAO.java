@@ -17,6 +17,11 @@ public interface AuthDAO {
 	public AuthData getAuth(String authToken) throws DataAccessException, AuthenticationException;
 
 	/**
+	 * Cehcks to see if an auth exists
+	 */
+	public boolean authExists(String authToken) throws DataAccessException;
+
+	/**
 	 * Adds a given Authentication data to the database
 	 *
 	 * @param authData The authentication data

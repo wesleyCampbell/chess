@@ -2,7 +2,6 @@ package chess;
 
 import chess.ChessGame.TeamColor;
 import chess.ChessPiece.PieceType;
-import static util.Debugger.debug;
 import util.Pair;
 
 import java.util.HashSet;

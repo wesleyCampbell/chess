@@ -7,7 +7,7 @@ import service.LoginService.LoginResult;
 import service.LogoutService;
 import service.LogoutService.LogoutRequest;
 import service.LogoutService.LogoutResult;
-
+import util.Debugger;
 import dataaccess.*;
 import io.javalin.http.Context;
 
@@ -64,7 +64,7 @@ public class LoginCtlHandler extends Handler {
 			return false;
 		} catch (DataAccessException ex) {
 			ctx.status(HTTP_CODE_INT_ERROR);
-			ctx.result(this.intErrorHTTPMsg);
+			ctx.result(this.errorHTTPMsg);
 			return false;
 		}
 

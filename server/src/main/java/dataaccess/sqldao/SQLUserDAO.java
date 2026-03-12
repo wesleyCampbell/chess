@@ -1,6 +1,7 @@
 package dataaccess.sqldao;
 
 import dataaccess.AlreadyTakenException;
+import dataaccess.AuthenticationException;
 import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 
@@ -40,6 +41,10 @@ public class SQLUserDAO extends SQLDatabaseDAO implements UserDAO {
 			TRUNCATE TABLE %s
 			""", DB_NAME);
 
+	private static final String DB_CHECK_USER_STATEMENT = String.format("""
+			SELECT 1 FROM %s WHERE username=?
+			""", DB_NAME);
+
 	//
 	// ========================== CONSTRUCTORS ==========================
 	//
@@ -51,6 +56,17 @@ public class SQLUserDAO extends SQLDatabaseDAO implements UserDAO {
 	//
 	// =========================== DATA ACCESS =========================== 
 	// 
+	
+	/**
+	 * Checks to see if a given username is already in the database
+	 *
+	 * @param username The username to check
+	 *
+	 * @return true if it exists, false otherwise
+	 */
+	public boolean checkUser(String username) throws DataAccessException {
+		return this.checkExists(DB_CHECK_USER_STATEMENT, username);
+	}
 	
 	/**
 	 * Reads the UserData stored in a SQL ResultSet and returns it in its
@@ -75,13 +91,12 @@ public class SQLUserDAO extends SQLDatabaseDAO implements UserDAO {
 	 *
 	 * @return The requested UserData object
 	 */
-	public UserData getUser(String username) throws DataAccessException {
-		ArrayList<UserData> users = this.executeQuery(DB_SELECT_USER_STATEMENT, rs -> this.readUser(rs), username);
-
-		// There should only ever be one user with a given username
-		if (users.size() != 1) {
-			throw new DataAccessException("More than one user with given username!");
+	public UserData getUser(String username) throws DataAccessException, AuthenticationException {
+		if (!this.checkUser(username)) {
+			throw new AuthenticationException("User does not exist!");
 		}
+
+		ArrayList<UserData> users = this.executeQuery(DB_SELECT_USER_STATEMENT, rs -> this.readUser(rs), username);
 
 		return users.get(0);
 	}
@@ -115,15 +130,13 @@ public class SQLUserDAO extends SQLDatabaseDAO implements UserDAO {
 	 * @param userData The UserData object to store
 	 */
 	public void createUser(UserData userData) throws AlreadyTakenException, DataAccessException {
-		int rowsAffected;
-		rowsAffected = this.executeUpdate(DB_INSERT_USER_STATEMENT,
+		if (this.checkUser(userData.username())) {
+			throw new AlreadyTakenException("Username already taken");
+		}
+		this.executeUpdate(DB_INSERT_USER_STATEMENT,
 					userData.username(),
 					userData.password(),
 					userData.email());
-
-		// if (rowsAffected == 0) {
-		// 	throw new AlreadyTakenException("");
-		// }
 	}
 
 	/**

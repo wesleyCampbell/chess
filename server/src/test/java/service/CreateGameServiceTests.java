@@ -15,7 +15,7 @@ public class CreateGameServiceTests extends WithDataTests {
 
 	@Test
 	@DisplayName("Correct Create Game User Tests")
-	public void logoutUserCorect() {
+	public void createGameCorrect() {
 		CreateGameService gamesService = new CreateGameService(authDAO, gameDAO);
 
 		for (int i = 0; i < CREATE_GAMES_NUM; i++) {
@@ -29,7 +29,7 @@ public class CreateGameServiceTests extends WithDataTests {
 
 	@Test
 	@DisplayName("Incorrect Create Game User Tests")
-	public void logoutUserIncorrect() {
+	public void createGameIncorrect() {
 		CreateGameService gamesService = new CreateGameService(authDAO, gameDAO);
 		CreateGameRequest request = new CreateGameRequest("BAD AUTH TOKEN", "game");
 

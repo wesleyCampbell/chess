@@ -63,11 +63,9 @@ public abstract class AuthenticableService {
 	public boolean isAuthenticated(AuthDAO dao, String authToken) throws DataAccessException {
 		// If successfull, it means that the auth token is in the database
 		// it is not if an error thrown.
-		try {
-			dao.getAuth(authToken);
+		if (dao.authExists(authToken)) {
 			return true;
-		} catch (AuthenticationException ex) {
-			return false;
-		} 
+		}
+		return false;
 	}
 }

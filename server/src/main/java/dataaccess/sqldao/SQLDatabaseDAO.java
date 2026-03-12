@@ -40,7 +40,31 @@ public abstract class SQLDatabaseDAO {
 		} catch (Exception ex) {
 			throw new DataAccessException(ex.getMessage());
 		}
+	}
 
+	protected boolean checkExists(String checkStatement, Object... params) throws DataAccessException {
+		try (Connection conn = DatabaseManager.getConnection()) {
+			try (PreparedStatement ps = conn.prepareStatement(checkStatement)) {
+				// Iterates through all of the necessary SQL statement parameters
+				for (int i = 0; i < params.length; i++) {
+					Object param = params[i];
+					switch (param) {
+						case String s -> ps.setString(i + 1, s);
+						case Integer n -> ps.setInt(i + 1, n);
+						default -> throwUnsupportedDBType(param.getClass());
+					}
+				}
+
+				// Try to execute it. If there is something returned, then it exists.
+				try (ResultSet rs = ps.executeQuery()) {
+					boolean exists = rs.next();
+					return exists;
+				}
+
+			}
+		} catch (SQLException ex) {
+			return false;
+		}
 	}
 
 	/**
@@ -50,11 +74,7 @@ public abstract class SQLDatabaseDAO {
 	 */
 	protected void executeStatement(final String statement) throws DataAccessException {
 		// Opens the SQL connection
-		Debugger.debug("Inside executeStatement()", 1);
 		try (Connection conn = DatabaseManager.getConnection()) {
-			Debugger.debug(String.format("Connection object: ", conn), 2);
-			Debugger.debug(String.format("Database user: ", conn.getMetaData().getUserName()), 2);
-
 			// Formats the SQL statement
 			try (PreparedStatement ps = conn.prepareStatement(statement)) {
 				ps.execute();
@@ -135,8 +155,6 @@ public abstract class SQLDatabaseDAO {
 			if (conn == null) {
 				throw new DataAccessException("Connection failed");
 			}
-			Debugger.debug("Connected to: " + conn.getMetaData().getURL(), 1);
-			Debugger.debug("User: " + conn.getMetaData().getUserName(), 1);
 			try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
 				for (int i = 0; i < params.length; i++) {
 					Object param = params[i];

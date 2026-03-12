@@ -1,6 +1,5 @@
 package chess;
 
-import static util.Debugger.debug;
 
 import java.util.Collection;
 import java.util.HashSet;

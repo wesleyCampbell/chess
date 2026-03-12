@@ -47,11 +47,11 @@ public class LoginServiceTests extends WithDataTests {
 		String wrongUsername = "THIS IS NOT THE USERNAME";
 		LoginRequest loginRequest1 = new LoginRequest(wrongUsername, password);
 
-		Assertions.assertThrows(DataAccessException.class, () -> loginService.login(loginRequest1));
+		Assertions.assertThrows(AuthenticationException.class, () -> loginService.login(loginRequest1));
 
 		String wrongPassword = "THIS IS NOT THE PASSWORD";
 		LoginRequest loginRequest2 = new LoginRequest(username, wrongPassword);
-		Assertions.assertThrows(DataAccessException.class, () -> loginService.login(loginRequest1));
+		Assertions.assertThrows(AuthenticationException.class, () -> loginService.login(loginRequest1));
 
 	}
 }

@@ -75,13 +75,10 @@ public class SQLDatabaseManager {
 
 		try {
 
-			Debugger.debug(String.format("Connection object: %s", conn.getMetaData()), 1);
-			Debugger.debug(String.format("URL: %s", conn.getMetaData().getURL()), 1);
 		} catch (Exception ex) {
 			return false;
 		}
 
-		Debugger.debug("conn valid!", 1);
 		return true;
 	}
 

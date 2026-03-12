@@ -127,7 +127,6 @@ public class DatabaseTests {
         try {
             for (Map.Entry<String, Supplier<TestResult>> operationEntry : operations.entrySet()) {
                 String operationName = operationEntry.getKey();
-				Debugger.debug(String.format("operationName: %s", operationName), 1);
                 Supplier<TestResult> operation = operationEntry.getValue();
                 TestResult result = operation.get();
                 Assertions.assertEquals(500, serverFacade.getStatusCode(),

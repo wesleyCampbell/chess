@@ -35,7 +35,6 @@ public class UserAccountHandler extends Handler {
 	 * @return True if registration successfull, false otherwise
 	 */
 	public boolean registerRequest(Context ctx) {
-		// RegisterRequest request = fromJson(ctx.body(), RegisterRequest.class);
 		RegisterRequest request = extractJsonRequest(ctx.body(), RegisterRequest.class);
 		if (request == null) {
 			ctx.status(HTTP_CODE_ERROR);

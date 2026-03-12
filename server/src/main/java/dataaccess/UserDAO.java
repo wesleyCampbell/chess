@@ -13,7 +13,7 @@ public interface UserDAO {
 	 *
 	 * @return The data object of the user
 	 */
-	public UserData getUser(String username) throws DataAccessException;
+	public UserData getUser(String username) throws DataAccessException, AuthenticationException;
 
 	/**
 	 * Creates a user given its data

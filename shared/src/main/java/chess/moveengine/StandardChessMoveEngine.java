@@ -7,7 +7,6 @@ import chess.moveengine.specialmoves.CastlingMove;
 import chess.moveengine.specialmoves.EmPassantMove;
 import chess.moveengine.specialmoves.SpecialMove;
 
-import static util.Debugger.debug;
 
 import java.util.Collection;
 import java.util.HashSet;
