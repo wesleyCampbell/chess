@@ -48,7 +48,7 @@ public class DatabaseManager {
             conn.setCatalog(databaseName);
             return conn;
         } catch (SQLException ex) {
-			String msg = String.format("Failed to get connection to %s from %s using password %s", connectionUrl, dbUsername, dbPassword);
+			String msg = String.format("Failed to get connection to %s", connectionUrl);
             throw new DataAccessException(msg, ex);
         }
     }
