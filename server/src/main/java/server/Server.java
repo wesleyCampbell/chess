@@ -38,6 +38,13 @@ public class Server {
 
 		// Universal data access interfaces
 		// this.authDAO = new MemoryAuthDAO();
+		// Initialize the database
+		try {
+			DatabaseManager.createDatabase();
+		} catch (DataAccessException ex) {
+			throw new RuntimeException("Database failed to load: " + ex.getMessage(), ex);
+		}
+
 		try {
 			this.authDAO = new SQLAuthDAO();
 		} catch (DataAccessException ex) {
