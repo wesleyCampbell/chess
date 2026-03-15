@@ -70,8 +70,10 @@ public abstract class DatabaseDAoTests {
 		Assertions.assertDoesNotThrow(() -> authDAO.createAuth(authData2));
 
 		// Create game data
-		String gameName = "myFunGame";
+		gameName = "myFunGame";
 
 		gameData = Assertions.assertDoesNotThrow(() -> gameDAO.createGame(gameName));
+
+		gameID = gameData.gameID();
 	}
 }
