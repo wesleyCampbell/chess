@@ -1,9 +1,13 @@
 package chess;
 
 
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
+
+import com.google.gson.*;
+
 import chess.ChessGame.TeamColor;
 import chess.movecalculator.BishopMoveCalculator;
 import chess.movecalculator.ChessPieceMoveCalculator;
@@ -24,6 +28,21 @@ public class ChessPiece {
 	//
 	// ======================== STATIC ATTRIBUTES =======================
 	//
+	
+	public static class ChessPieceDeserializer implements JsonDeserializer<ChessPiece> {
+		@Override
+		public ChessPiece deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext ctx) {
+			JsonObject obj = json.getAsJsonObject();
+
+			// Get relevant attributes
+			PieceType type = ctx.deserialize(obj.get("type"), PieceType.class);
+			TeamColor color = ctx.deserialize(obj.get("color"), TeamColor.class);
+
+			ChessPiece piece = makeNewPiece(color, type);
+
+			return piece;
+		}
+	}
 	
     /**
      * The various different chess piece options

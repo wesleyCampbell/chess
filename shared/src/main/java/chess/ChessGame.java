@@ -3,11 +3,16 @@ package chess;
 import chess.moveengine.ChessMoveEngine;
 import chess.moveengine.StandardChessMoveEngine;
 
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.HashMap;
 import java.util.Map;
+import java.lang.Object;
+
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -19,6 +24,24 @@ public class ChessGame {
 	//
 	// ============================ STATIC ATTRIBUTES =======================
 	//
+
+	public static class ChessGameDeserializer implements JsonDeserializer<ChessGame> {
+		@Override
+		public ChessGame deserialize(JsonElement json, Type type, JsonDeserializationContext ctx) {
+			JsonObject obj = json.getAsJsonObject();
+
+			// Extract relevant data attributes
+			ChessBoard board = ctx.deserialize(obj.get("gameBoard"), ChessBoard.class);
+			TeamColor activeTeam = ctx.deserialize(obj.get("activeTeam"), TeamColor.class);
+			Map<TeamColor, ChessTeamDatabase> chessTeamData = ctx.deserialize(
+					obj.get("chessTeamData"), new TypeToken<Map<TeamColor, ChessTeamDatabase>>(){}.getType());
+
+			// Put them into a game.
+			ChessGame game = new ChessGame(board, activeTeam, chessTeamData);
+
+			return game;
+		}
+	}
 	
 	private static final TeamColor DEFAULT_START_COLOR = TeamColor.WHITE;
 
@@ -69,6 +92,13 @@ public class ChessGame {
 
 		this.chessTeamData = this.moveEngine.getChessTeamDatabase();
     }
+
+	public ChessGame(ChessBoard board, TeamColor activeColor, Map<TeamColor, ChessTeamDatabase> chessTeamData) {
+		this.gameBoard = board;
+		this.activeTeam = activeColor;
+		this.moveEngine = new StandardChessMoveEngine(this.gameBoard);
+		this.chessTeamData = chessTeamData;
+	}
 
 	//
 	// ============================ MEMBER METHODS =======================
@@ -239,5 +269,35 @@ public class ChessGame {
 		hash += this.activeTeam.hashCode();
 
 		return hash * 31;
+	}
+
+	/**
+	 * Overrides the toString method.
+	 *
+	 * Returns a string representation of the chess game.
+	 *
+	 * @return the string representation
+	 */
+	public String toString() {
+		StringBuilder outStr = new StringBuilder();
+
+		outStr.append("ChessBoard: \n");
+		outStr.append(this.gameBoard.toString());
+		outStr.append("\n");
+
+		outStr.append("Active Team: \n");
+		outStr.append(this.activeTeam);
+		outStr.append("\n\n");
+
+		outStr.append("Move Engine: \n");
+		outStr.append(this.moveEngine.toString());
+		outStr.append("\n\n");
+
+		outStr.append("Team Data: \n");
+		outStr.append(this.chessTeamData.toString());
+		outStr.append("\n\n");
+
+
+		return outStr.toString();
 	}
 }

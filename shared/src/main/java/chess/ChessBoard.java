@@ -5,7 +5,10 @@ import chess.ChessGame.TeamColor;
 
 import java.util.Iterator;
 import java.lang.Iterable;
+import java.lang.reflect.Type;
 import java.util.NoSuchElementException;
+
+import com.google.gson.*;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.

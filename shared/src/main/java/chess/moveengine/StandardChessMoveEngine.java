@@ -7,11 +7,12 @@ import chess.moveengine.specialmoves.CastlingMove;
 import chess.moveengine.specialmoves.EmPassantMove;
 import chess.moveengine.specialmoves.SpecialMove;
 
-
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class StandardChessMoveEngine implements ChessMoveEngine {
 	//
@@ -349,5 +350,23 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 
 	public Map<TeamColor, ChessTeamDatabase> getChessTeamDatabase() {
 		return this.chessTeamData;
+	}
+
+	/**
+	 * overrides the toString method.
+	 *
+	 * @return String representation of the MoveEngine
+	 */
+	@Override
+	public String toString() {
+		StringBuilder outStr = new StringBuilder();
+
+		outStr.append("Team colors represented: ");
+		outStr.append(this.chessTeamData.keySet() + "\n");
+
+		outStr.append("Special moves represented: ");
+		outStr.append(this.specialMoveCalculators.keySet() + "\n");
+
+		return outStr.toString();
 	}
 }

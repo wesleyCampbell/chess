@@ -45,6 +45,19 @@ public class ChessTeamDatabase {
 		this.lastMovedPiece = null;
 	}
 
+	public ChessTeamDatabase(TeamColor teamColor, ArrayList<ChessPiece> capturedPieces,
+			ArrayList<ChessPiece> movedPieces, Pair<ChessPiece, ChessMove> lastMovedPiece,
+			ChessBoard currentBoard) {
+		this.teamColor = teamColor;
+		this.capturedPieces = capturedPieces;
+		this.movedPieces = movedPieces;
+		this.lastMovedPiece = lastMovedPiece;
+
+		this.kingPositions = this.findKingPos(currentBoard);
+		this.attackMoveSet = this.generateAttackMoveSet(currentBoard);
+		this.moveSet = this.generateMoveSet(currentBoard);
+	}
+
 	//
 	// ============================== MEMBER METHODS ============================== 
 	//
@@ -273,5 +286,26 @@ public class ChessTeamDatabase {
 	 */
 	public Pair<ChessPiece, ChessMove> getLastMovedPiece() {
 		return this.lastMovedPiece;
+	}
+
+	/**
+	 * Overrides the toString method.
+	 *
+	 * @return A string representation of the chess database.
+	 */
+	@Override
+	public String toString() {
+		StringBuilder outStr = new StringBuilder();
+
+		outStr.append("Team Color: ");
+		outStr.append(this.teamColor.toString() + "\n");
+		
+		outStr.append("Captured Pieces: ");
+		outStr.append(this.capturedPieces.toString() + "\n");
+
+		outStr.append("Moved Pieces: ");
+		outStr.append(this.movedPieces.toString() + "\n");
+
+		return outStr.toString();
 	}
 }
