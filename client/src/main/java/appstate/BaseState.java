@@ -1,11 +1,11 @@
 package appstate;
 
-import client.ClientMain;
+import client.Client;
 
 public abstract class BaseState implements AppState {
-	private ClientMain app;
+	private Client app;
 
-	protected BaseState(ClientMain app) {
+	protected BaseState(Client app) {
 		this.app = app;
 	}
 }

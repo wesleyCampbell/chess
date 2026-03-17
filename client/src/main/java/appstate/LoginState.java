@@ -1,9 +1,9 @@
 package appstate;
 
-import client.ClientMain;
+import client.Client;
 
 public class LoginState extends BaseState {
-	public LoginState(ClientMain app) {
+	public LoginState(Client app) {
 		super(app);
 	}
 }
