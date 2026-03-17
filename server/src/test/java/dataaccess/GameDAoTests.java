@@ -90,8 +90,6 @@ public class GameDAoTests extends DatabaseDAoTests {
 
 		// Test uploading the new game state
 
-		Debugger.debug("new Board before serialization: ");
-		Debugger.debug(data.toString());
 
 		Assertions.assertDoesNotThrow(() -> gameDAO.updateGame(gameID, data));
 
@@ -101,8 +99,6 @@ public class GameDAoTests extends DatabaseDAoTests {
 
 		Assertions.assertEquals(newGame, updatedData.game());
 
-		Debugger.debug("new game state after serialization: ");
-		Debugger.debug(updatedData.toString());
 	}
 
 	@Test
@@ -121,5 +117,18 @@ public class GameDAoTests extends DatabaseDAoTests {
 		GameData oldData = Assertions.assertDoesNotThrow(() -> gameDAO.getGame(gameID));
 		Assertions.assertDoesNotThrow(() -> gameDAO.clearAllGameData());
 		Assertions.assertThrows(DataAccessException.class, () -> gameDAO.getGame(gameID));
+	}
+
+	@Test
+	@Order(7)
+	public void gameDataGetIncorrect() {
+		Assertions.assertThrows(DataAccessException.class, () -> gameDAO.getGame(gameID));
+	}
+
+	@Test
+	@Order(8)
+	public void gameDataRemoveIncorrect() {
+		GameData spoofedData = new GameData("39", "", "", "foo", new ChessGame());
+		Assertions.assertDoesNotThrow(() -> gameDAO.removeGame(spoofedData));
 	}
 }
