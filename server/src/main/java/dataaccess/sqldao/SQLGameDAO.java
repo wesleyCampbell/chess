@@ -4,8 +4,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import com.google.gson.Gson;
-
 import chess.ChessGame;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
@@ -86,7 +84,7 @@ public class SQLGameDAO extends SQLDatabaseDAO implements GameDAO {
 		String blackUsername = rs.getString("blackUsername");
 		String gameName = rs.getString("gameName");
 		String gameJson = rs.getString("game");
-		ChessGame game = new Gson().fromJson(gameJson, ChessGame.class);
+		ChessGame game = this.gson.fromJson(gameJson, ChessGame.class);
 
 		return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
 	}
@@ -144,7 +142,7 @@ public class SQLGameDAO extends SQLDatabaseDAO implements GameDAO {
 						"",
 						"",
 						gameName,
-						new Gson().toJson(new ChessGame())
+						this.gson.toJson(new ChessGame())
 						);
 
 		GameData outData = this.getGame(gameID);
@@ -161,7 +159,7 @@ public class SQLGameDAO extends SQLDatabaseDAO implements GameDAO {
 		String whiteUsername = newGameData.whiteUsername();
 		String blackUsername = newGameData.blackUsername();
 		String gameName = newGameData.gameName();
-		String gameJSON = new Gson().toJson(newGameData.game());
+		String gameJSON = this.gson.toJson(newGameData.game());
 
 		this.executeUpdate(DB_UPDATE_GAME_STATEMENT,
 				whiteUsername,

@@ -2,6 +2,7 @@ package dataaccess.sqldao;
 
 import dataaccess.DataAccessException;
 import util.Debugger;
+import chess.ChessPiece;
 import chess.ChessGame;
 
 import dataaccess.DatabaseManager;
@@ -10,12 +11,17 @@ import java.sql.*;
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import java.util.ArrayList;
 
-import com.google.gson.Gson;
+import com.google.gson.*;
 
 public abstract class SQLDatabaseDAO {
 	//
 	// =========================== CONSTRUCTORS =========================== 
 	// 
+	
+	protected Gson gson = new GsonBuilder()
+		.registerTypeAdapter(ChessGame.class, new ChessGame.ChessGameDeserializer())
+		.registerTypeAdapter(ChessPiece.class, new ChessPiece.ChessPieceDeserializer())
+		.create();
 
 	protected SQLDatabaseDAO(final String initStatement) throws DataAccessException {
 		this.initializeDatabase(initStatement);
