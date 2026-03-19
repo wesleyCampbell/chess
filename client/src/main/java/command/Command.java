@@ -9,6 +9,13 @@ public interface Command {
 	public String getCommandStr();
 
 	/**
+	 * Returns a string description of the command
+	 *
+	 * @return String
+	 */
+	public String getDescription();
+
+	/**
 	 * Executes the command on a given application
 	 *
 	 * @param app The application on which to run the command
