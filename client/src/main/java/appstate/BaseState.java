@@ -17,17 +17,17 @@ import static ui.EscapeSequences.*;
 import client.Client;
 
 public abstract class BaseState implements AppState {
-	private static final String HELP_MSG = """
+	protected static final String HELP_MSG = """
 		List of available commands: """;
 
-	private static final String PROMPT_MSG = """
+	protected static final String PROMPT_MSG = """
 		Enter Command Here:\s""";
 
-	private static final String HELP_PROMPT = """
+	protected static final String HELP_PROMPT = """
 		Enter `help` for list of available commands. """;
 
-	private static final String INVALID_CMD_MSG = """
-		Invalid command `%s`. """ + HELP_PROMPT;
+	protected static final String INVALID_CMD_MSG = """
+		\tInvalid command `%s`. """ + HELP_PROMPT;
 
 	protected Client app;
 	protected HashMap<String, Command> commands;

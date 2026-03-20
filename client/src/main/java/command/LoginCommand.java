@@ -1,5 +1,7 @@
 package command;
 
+import appstate.*;
+
 import client.Client;
 
 public class LoginCommand extends CommandBase {
@@ -21,6 +23,9 @@ public class LoginCommand extends CommandBase {
 		String password = this.app.getAppState().getPassword();
 
 		System.out.println(String.format("Logging in as %s with password %s", username, password));
+
+		this.app.setUsername(username);
+		this.app.changeAppState(new LoginState(this.app));
 
 		return true;
 	}

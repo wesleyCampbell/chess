@@ -8,10 +8,12 @@ public class Client {
 
 	private BaseState appState;
 	private boolean running;
+	private String username;
 	
 	public Client() {
 		appState = new PreLoginState(this);	
 		this.running = true;
+		this.username = null;
 	}
 
 	public void run() {
@@ -30,5 +32,18 @@ public class Client {
 
 	public BaseState getAppState() {
 		return this.appState;
+	}
+
+	public void changeAppState(BaseState appState) {
+		this.appState = appState;
+		appState.displayWelcomeScreen();
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getUsername() {
+		return this.username;
 	}
 }
