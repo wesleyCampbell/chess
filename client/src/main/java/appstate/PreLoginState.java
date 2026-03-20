@@ -15,7 +15,9 @@ public class PreLoginState extends BaseState {
 		""";
 
 	private static final List<Function<Client, Command>> COMMAND_LIST = List.of(
-		LoginCommand::new
+		LoginCommand::new,
+		ExitCommand::new,
+		HelpCommand::new
 	);
 	
 	public PreLoginState(Client app) {

@@ -5,23 +5,23 @@ import client.Client;
 public class LoginCommand extends CommandBase {
 	private static final String COMMAND_STR = "login";
 	private static final String DESC_STR = """
-		Login to your account to access full features
-		""";
+		Login to your account to access full features.""";
 
+	private static final String USERNAME_PROMPT = "\tUsername:\s";
+	private static final String PASSWORD_PROMPT = "\tPassword:\s";
 
 	public LoginCommand(Client app) {
 		super(COMMAND_STR, DESC_STR, app);
 	}
 
-	public String getCommandStr() {
-		return this.commandStr;
-	}
-
-	public String getDescription() {
-		return this.description;
-	}
-
 	public boolean executeCommand() {
-		return false;
+		System.out.print(USERNAME_PROMPT);
+		String username = this.app.getAppState().getUserInput();
+		System.out.print(PASSWORD_PROMPT);
+		String password = this.app.getAppState().getPassword();
+
+		System.out.println(String.format("Logging in as %s with password %s", username, password));
+
+		return true;
 	}
 }

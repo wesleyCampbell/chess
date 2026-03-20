@@ -12,4 +12,12 @@ public abstract class CommandBase implements Command {
 		this.description = description;
 		this.app = app;
 	}
+
+	public String getCommandStr() {
+		return this.commandStr;
+	}
+
+	public String getDescription() {
+		return this.description;
+	}
 }
