@@ -126,10 +126,18 @@ public class ServerFacade {
 
 		readHttpResponse(response, null);
 	}
-	//
-	// public String createGame(String authToken, String gameName) {
-	//
-	// }
+	
+	public String createGame(String authToken, String gameName) throws DataAccessException {
+		String urlStr = SERVER_ADDR + GAME_END_PNT;
+		String gameData = gson.toJson(new GameData(null, null, null, gameName, null));
+
+		HttpResponse<String> response = this.sendHttpRequest(urlStr, POST, gameData, authToken);
+		GameData game = this.readHttpResponse(response, GameData.class);
+
+		System.out.println(game);
+
+		return game.gameID();
+	}
 	//
 	// public Collection<GameData> listGames(String authToken) {
 	//

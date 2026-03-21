@@ -3,6 +3,8 @@ package command;
 import java.util.List;
 
 import client.Client;
+import client.exception.AuthenticationException;
+import client.exception.DataAccessException;
 
 public class CreateGameCommand extends CommandBase {
 	private static final String COMMAND_STR = "create";
@@ -25,6 +27,19 @@ public class CreateGameCommand extends CommandBase {
 		String gameName = parameters.get(0);
 
 		System.out.println(String.format("Creating game %s...", gameName));
+
+		String gameID;
+		try {
+			gameID = this.app.getServer().createGame(this.app.getAuthToken(), gameName);
+		} catch (AuthenticationException ex) {
+			System.out.println(NOT_AUTH_MSG);
+			return false;
+		} catch (DataAccessException ex) {
+			System.out.println(SERVER_ERROR_MSG);
+			return false;
+		}
+
+		System.out.println(String.format("Game %s successfully created!", gameName));
 
 		return true;
 	}
