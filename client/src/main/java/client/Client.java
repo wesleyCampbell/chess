@@ -25,6 +25,7 @@ public class Client {
 	}
 
 	public void run() {
+		appState.clearScreen();
 		appState.displayWelcomeScreen();
 		while (this.running) {
 			appState.commandPrompt();

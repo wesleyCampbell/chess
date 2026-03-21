@@ -5,11 +5,18 @@ import java.util.List;
 import appstate.*;
 
 import client.Client;
+import client.exception.AuthenticationException;
+import client.exception.DataAccessException;
+
+import model.*;
 
 public class LoginCommand extends CommandBase {
 	private static final String COMMAND_STR = "login";
 	private static final String DESC_STR = """
 		Login to your account to access full features.""";
+	private static final String PASSWORD_INCORRECT_MSG = """
+		Incorrect password. Please try again.""";
+
 	private static final String[] PARAMETERS = {
 		"username",
 		"password"
@@ -29,8 +36,19 @@ public class LoginCommand extends CommandBase {
 
 		System.out.println(String.format("Logging in as %s with password %s", username, password));
 
-		this.app.setUserData(username, "THIS IS A VALID AUTH TOKEN HEHE");
-		this.app.changeAppState(new LoginState(this.app));
+		AuthData authData;
+		try {
+			authData = this.app.getServer().login(username, password);
+		} catch (AuthenticationException ex) {
+			System.out.println(PASSWORD_INCORRECT_MSG);
+			return false;
+		} catch (DataAccessException ex) {
+			System.out.println(SERVER_ERROR_MSG);
+			return false;
+		}
+
+		this.app.setUserData(username, authData.authToken());
+		this.app.changeAppState(new LoginState(app));
 
 		return true;
 	}

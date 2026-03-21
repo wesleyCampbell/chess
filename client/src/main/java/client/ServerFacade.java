@@ -98,9 +98,17 @@ public class ServerFacade {
 		return authData;
 	}
 
-	// public AuthData login(String username, String password) {
-	//
-	// }
+	public AuthData login(String username, String password) throws DataAccessException {
+		String urlStr = SERVER_ADDR + SESSION_END_PNT;
+		String userData = gson.toJson(new UserData(username, password, ""));
+
+		HttpResponse<String> response = this.sendHttpRequest(urlStr, POST, userData);
+
+		AuthData authData = readHttpResponse(response, AuthData.class);
+
+		return authData;
+
+	}
 	//
 	// public boolean logout(String authToken) {
 	//

@@ -49,8 +49,8 @@ public abstract class BaseState implements AppState {
 	}
 
 	public void displayWelcomeScreen() {
-		System.out.println(this.welcome_msg);
-		System.out.println(HELP_PROMPT);
+		System.out.println("\n" + this.welcome_msg + "\n");
+		System.out.println(HELP_PROMPT + "\n");
 	}
 
 	public void printCommandHelp() {

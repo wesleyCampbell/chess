@@ -5,6 +5,8 @@ import client.Client;
 public abstract class CommandBase implements Command {
 	private static final String USAGE_STR = "\tUsage: %s ";
 
+	protected static final String SERVER_ERROR_MSG = """
+		Internal server error. Please try again later.""";
 	
 	protected String commandStr;
 	protected Client app;
