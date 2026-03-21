@@ -12,19 +12,22 @@ public class Client {
 	private boolean running;
 
 	private AuthData userData;
+
+	private ServerFacade server;
 	
 	public Client() {
 		appState = new PreLoginState(this);	
 		this.running = true;
 
 		this.userData = null;
+
+		this.server = new ServerFacade();
 	}
 
 	public void run() {
 		appState.displayWelcomeScreen();
-		String input = "";
 		while (this.running) {
-			input = appState.commandPrompt();
+			appState.commandPrompt();
 		}
 
 		System.out.println(EXIT_MSG);
@@ -56,5 +59,9 @@ public class Client {
 			return this.userData.username();
 		} 
 		return "";
+	}
+
+	public ServerFacade getServer() {
+		return this.server;
 	}
 }

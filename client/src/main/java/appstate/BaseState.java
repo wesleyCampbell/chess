@@ -29,6 +29,8 @@ public abstract class BaseState implements AppState {
 	protected static final String INVALID_CMD_MSG = """
 		\tInvalid command `%s`.\s""" + HELP_PROMPT;
 
+	protected static final String ERROR_MSG = "Command failed!";
+
 	protected Client app;
 	protected HashMap<String, Command> commands;
 	protected final String welcome_msg;
@@ -47,7 +49,6 @@ public abstract class BaseState implements AppState {
 	}
 
 	public void displayWelcomeScreen() {
-		this.clearScreen();
 		System.out.println(this.welcome_msg);
 		System.out.println(HELP_PROMPT);
 	}
@@ -99,7 +100,9 @@ public abstract class BaseState implements AppState {
 		if (command == null) {
 			System.out.println(String.format(INVALID_CMD_MSG, cmd.get(0)));
 		} else {
-			command.executeCommand(cmd.subList(1, cmd.size()));
+			boolean success = command.executeCommand(cmd.subList(1, cmd.size()));
+			if (!success) {
+			}	
 		}
 
 		return cmd.toString();

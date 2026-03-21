@@ -5,6 +5,11 @@ import appstate.*;
 import java.util.List;
 
 import client.Client;
+import util.Debugger;
+
+import client.exception.*;
+
+import model.*;
 
 public class RegisterCommand extends CommandBase {
 	private static final String COMMAND_STR = "register";
@@ -31,9 +36,22 @@ public class RegisterCommand extends CommandBase {
 		String password = parameters.get(1);
 		String email = parameters.get(2);
 
-		System.out.println(String.format(
-					"Registering %s with password: %s, email %s",
-					username, password, email));
+		AuthData authData;
+		try {
+			authData = this.app.getServer().register(username, password, email);
+		} catch(ConnectionException ex) {
+			System.out.println("Server is offline... please try again later.");
+			return false;
+		} catch(AlreadyTakenException ex) {
+			System.out.println("Username is already taken.... please try a new one.");
+			return false;
+		} catch (DataAccessException ex) {
+			System.out.println("Internal Server error... Please try again later.");
+			return false;
+		}
+
+		this.app.setUserData(authData.username(), authData.authToken());
+		this.app.changeAppState(new LoginState(app));
 
 		return true;
 	}
