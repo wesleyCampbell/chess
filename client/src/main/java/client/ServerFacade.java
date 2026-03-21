@@ -39,6 +39,7 @@ public class ServerFacade {
 	private static final String POST = "POST";
 	private static final String GET = "GET";
 	private static final String PUT = "PUT";
+	private static final String DELETE = "DELETE";
 
 	private static final String USER_END_PNT = "/user";
 	private static final String GAME_END_PNT = "/game";
@@ -52,10 +53,11 @@ public class ServerFacade {
 		}
 	}
 
-	private HttpResponse<String> sendHttpRequest(String url, String method, String body) throws DataAccessException {
+	private HttpResponse<String> sendHttpRequest(String url, String method, String body, String authToken) throws DataAccessException {
 		try {
 			HttpRequest request = HttpRequest.newBuilder(URI.create(url))
 				.method(method, requestBodyPublisher(body))
+				.header("Authorization", authToken)
 				.build();
 
 			return httpClient.send(request, BodyHandlers.ofString());
@@ -64,6 +66,10 @@ public class ServerFacade {
 		} catch (InterruptedException ex) {
 			throw new ConnectionException("Server connection error");
 		}
+	}
+
+	private HttpResponse<String> sendHttpRequest(String url, String method, String body) throws DataAccessException {
+		return this.sendHttpRequest(url, method, body, "");
 	}
 
 	private <T> T readHttpResponse(HttpResponse<String> response, Class<T> type) throws DataAccessException {
@@ -80,6 +86,8 @@ public class ServerFacade {
 			case HTTP_CODE_INT_ERROR:
 				throw new ConnectionException("Server connection error");
 		}
+
+		if (type == null) return null;
 
 		T body = gson.fromJson(response.body(), type);
 		return body;
@@ -109,10 +117,15 @@ public class ServerFacade {
 		return authData;
 
 	}
-	//
-	// public boolean logout(String authToken) {
-	//
-	// }
+	
+	public void logout(String authToken) throws DataAccessException {
+		String urlStr = SERVER_ADDR + SESSION_END_PNT;
+		String body = gson.toJson("");
+
+		HttpResponse<String> response = this.sendHttpRequest(urlStr, DELETE, body, authToken);
+
+		readHttpResponse(response, null);
+	}
 	//
 	// public String createGame(String authToken, String gameName) {
 	//

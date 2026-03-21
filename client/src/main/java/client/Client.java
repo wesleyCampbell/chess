@@ -62,6 +62,13 @@ public class Client {
 		return "";
 	}
 
+	public String getAuthToken() {
+		if (this.userData != null) {
+			return this.userData.authToken();
+		} 
+		return "";
+	}
+
 	public ServerFacade getServer() {
 		return this.server;
 	}

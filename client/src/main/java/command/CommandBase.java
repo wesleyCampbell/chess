@@ -7,6 +7,9 @@ public abstract class CommandBase implements Command {
 
 	protected static final String SERVER_ERROR_MSG = """
 		Internal server error. Please try again later.""";
+
+	protected static final String NOT_AUTH_MSG = """
+		Not authorized to access this command!""";
 	
 	protected String commandStr;
 	protected Client app;
