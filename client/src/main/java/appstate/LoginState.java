@@ -11,6 +11,7 @@ import client.Client;
 public class LoginState extends BaseState {
 	private static final String WELCOME_MSG = """
 		Welcome back, %s.\s""" + HELP_PROMPT;
+	private static final String PROMPT_HEADER = "LOGGED IN";
 
 	private static final List<Function<Client, Command>> COMMAND_LIST = List.of(
 		HelpCommand::new,
@@ -23,6 +24,6 @@ public class LoginState extends BaseState {
 	}
 
 	public LoginState(Client app) {
-		super(app, BaseState.initCommands(COMMAND_LIST, app), generateWelcomeMsg(app));
+		super(app, BaseState.initCommands(COMMAND_LIST, app), generateWelcomeMsg(app), PROMPT_HEADER);
 	}
 }

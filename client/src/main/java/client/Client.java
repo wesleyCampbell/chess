@@ -3,17 +3,21 @@ package client;
 import appstate.*;
 import command.*;
 
+import model.AuthData;
+
 public class Client {
 	private static final String EXIT_MSG = "Exiting program...";
 
 	private BaseState appState;
 	private boolean running;
-	private String username;
+
+	private AuthData userData;
 	
 	public Client() {
 		appState = new PreLoginState(this);	
 		this.running = true;
-		this.username = null;
+
+		this.userData = null;
 	}
 
 	public void run() {
@@ -39,11 +43,14 @@ public class Client {
 		appState.displayWelcomeScreen();
 	}
 
-	public void setUsername(String username) {
-		this.username = username;
+	public void setUserData(String username, String authToken) {
+		this.userData = new AuthData(authToken, username);
 	}
 
 	public String getUsername() {
-		return this.username;
+		if (this.userData != null) {
+			return this.userData.username();
+		} 
+		return "";
 	}
 }

@@ -2,6 +2,7 @@ package appstate;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Function;
 
@@ -20,23 +21,24 @@ public abstract class BaseState implements AppState {
 	protected static final String HELP_MSG = """
 		List of available commands: """;
 
-	protected static final String PROMPT_MSG = """
-		Enter Command Here:\s""";
+	protected static final String PROMPT_MSG = "[%s] >>> ";
 
 	protected static final String HELP_PROMPT = """
 		Enter `help` for list of available commands. """;
 
 	protected static final String INVALID_CMD_MSG = """
-		\tInvalid command `%s`. """ + HELP_PROMPT;
+		\tInvalid command `%s`.\s""" + HELP_PROMPT;
 
 	protected Client app;
 	protected HashMap<String, Command> commands;
 	protected final String welcome_msg;
+	protected final String prompt_msg;
 
-	protected BaseState(Client app, HashMap<String, Command> commands, String welcome_msg) {
+	protected BaseState(Client app, HashMap<String, Command> commands, String welcome_msg, String prompt_header) {
 		this.app = app;
 		this.commands = commands;
 		this.welcome_msg = welcome_msg;
+		this.prompt_msg = String.format(PROMPT_MSG, prompt_header);
 	}
 
 	public void clearScreen() {
@@ -63,29 +65,44 @@ public abstract class BaseState implements AppState {
 		HashMap<String, Command> commands = new HashMap<>();
 		for (Function<Client, Command> func : cmdList) {
 			Command cmd = func.apply(app);
-			if (commands.get(cmd.getCommandStr()) == null) {
-				commands.put(cmd.getCommandStr(), cmd);
+			String cmdStr = cmd.getCommandStr();
+			if (commands.get(cmdStr) == null) {
+				commands.put(cmdStr, cmd);
 			} else {
-				throw new RuntimeException("No two commands can share same command");
+				String msg = String.format("No two commands can share the same command: `%s`", cmdStr);
+				throw new RuntimeException(msg);
 			}
 		}
 
 		return commands;
 	}
 
-	public String commandPrompt() {
-		System.out.print(PROMPT_MSG);
-		String cmd = this.getUserInput();
+	public List<String> getUserCommand() {
+		List<String> cmd = new ArrayList<>();
 
-		// If the command doesn't exist, display a helper message
-		Command command = this.commands.get(cmd);
-		if (command == null) {
-			System.out.println(String.format(INVALID_CMD_MSG, cmd));
-		} else {
-			command.executeCommand();
+		String input = this.getUserInput();
+
+		for (String value : input.split(" ")) {
+			cmd.add(value);
 		}
 
 		return cmd;
+	}
+
+	public String commandPrompt() {
+		System.out.print(this.prompt_msg);
+		// String cmd = this.getUserInput();
+		List<String> cmd = this.getUserCommand();
+
+		// If the command doesn't exist, display a helper message
+		Command command = this.commands.get(cmd.get(0));
+		if (command == null) {
+			System.out.println(String.format(INVALID_CMD_MSG, cmd.get(0)));
+		} else {
+			command.executeCommand(cmd.subList(1, cmd.size()));
+		}
+
+		return cmd.toString();
 	}
 
 	/**
