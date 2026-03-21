@@ -19,9 +19,19 @@ public abstract class CommandBase implements Command {
 		StringBuilder b = new StringBuilder();
 		b.append(String.format(USAGE_STR, commandStr));
 		for (String parameter : parameters) {
-			b.append("<");
+			char[] delimeter = new char[2];
+			if (parameter.charAt(0) == '[') {
+				delimeter[0] = '[';
+				delimeter[1] = ']';
+			} else {
+				delimeter[0] = '<';
+				delimeter[1] = '>';
+			}
+
+			b.append(delimeter[0]);
 			b.append(parameter);
-			b.append("> ");
+			b.append(delimeter[1]);
+			b.append(" ");
 		}
 
 		this.usageStr = b.toString();

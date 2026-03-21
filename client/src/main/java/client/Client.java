@@ -47,6 +47,10 @@ public class Client {
 		this.userData = new AuthData(authToken, username);
 	}
 
+	public void clearUserData() {
+		this.userData = null;
+	}
+
 	public String getUsername() {
 		if (this.userData != null) {
 			return this.userData.username();

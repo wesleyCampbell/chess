@@ -82,7 +82,7 @@ public abstract class BaseState implements AppState {
 
 		String input = this.getUserInput();
 
-		for (String value : input.split(" ")) {
+		for (String value : input.trim().split("\\s+")) {
 			cmd.add(value);
 		}
 

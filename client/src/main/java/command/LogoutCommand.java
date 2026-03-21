@@ -2,15 +2,16 @@ package command;
 
 import java.util.List;
 
+import appstate.PreLoginState;
 import client.Client;
 
-public class ExitCommand extends CommandBase {
-	private static final String COMMAND_STR = "quit";
+public class LogoutCommand extends CommandBase {
+	private static final String COMMAND_STR = "logout";
 	private static final String DESC_STR = """
-		Exit the application.""";
+		Logout from your user session.""";
 	private static final String[] PARAMS = {};
 
-	public ExitCommand(Client app) {
+	public LogoutCommand(Client app) {
 		super(COMMAND_STR, DESC_STR, PARAMS, app);
 	}
 
@@ -19,7 +20,12 @@ public class ExitCommand extends CommandBase {
 			this.printUsage();
 			return false;
 		}
-		app.exit();
+
+		System.out.println("Logging out...");
+
+		this.app.clearUserData();
+		this.app.changeAppState(new PreLoginState(app));
+
 		return true;
 	}
 }

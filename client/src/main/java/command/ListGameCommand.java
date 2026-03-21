@@ -4,13 +4,13 @@ import java.util.List;
 
 import client.Client;
 
-public class ExitCommand extends CommandBase {
-	private static final String COMMAND_STR = "quit";
+public class ListGameCommand extends CommandBase {
+	private static final String COMMAND_STR = "list-games";
 	private static final String DESC_STR = """
-		Exit the application.""";
+		List all games in the database.""";
 	private static final String[] PARAMS = {};
 
-	public ExitCommand(Client app) {
+	public ListGameCommand(Client app) {
 		super(COMMAND_STR, DESC_STR, PARAMS, app);
 	}
 
@@ -19,7 +19,10 @@ public class ExitCommand extends CommandBase {
 			this.printUsage();
 			return false;
 		}
-		app.exit();
+		
+		System.out.println("Listing all games");
+
 		return true;
 	}
 }
+

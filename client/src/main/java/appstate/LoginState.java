@@ -15,7 +15,11 @@ public class LoginState extends BaseState {
 
 	private static final List<Function<Client, Command>> COMMAND_LIST = List.of(
 		HelpCommand::new,
-		ExitCommand::new
+		LogoutCommand::new,
+		CreateGameCommand::new,
+		ListGameCommand::new,
+		JoinGameCommand::new,
+		ObserveGameCommand::new
 	);
 
 	private static String generateWelcomeMsg(Client app) {
