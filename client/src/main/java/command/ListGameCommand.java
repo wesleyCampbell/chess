@@ -46,6 +46,7 @@ public class ListGameCommand extends CommandBase {
 		}
 		
 		this.printGameTable(games);
+		this.app.updateGamesCache(games);
 
 		return true;
 	}

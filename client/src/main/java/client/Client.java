@@ -1,9 +1,12 @@
 package client;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import appstate.*;
 import command.*;
 
-import model.AuthData;
+import model.*;
 
 public class Client {
 	private static final String EXIT_MSG = "Exiting program...";
@@ -14,6 +17,8 @@ public class Client {
 	private AuthData userData;
 
 	private ServerFacade server;
+
+	private List<GameData> gamesCache;
 	
 	public Client() {
 		appState = new PreLoginState(this);	
@@ -22,6 +27,8 @@ public class Client {
 		this.userData = null;
 
 		this.server = new ServerFacade();
+
+		this.gamesCache = new ArrayList<>();
 	}
 
 	public void run() {
@@ -71,5 +78,13 @@ public class Client {
 
 	public ServerFacade getServer() {
 		return this.server;
+	}
+
+	public List<GameData> getGamesCache() {
+		return this.gamesCache;
+	}
+
+	public void updateGamesCache(List<GameData> newCache) {
+		this.gamesCache = newCache;
 	}
 }
