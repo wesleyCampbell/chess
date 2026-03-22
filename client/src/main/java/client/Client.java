@@ -2,8 +2,12 @@ package client;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 
 import appstate.*;
+import client.exception.AuthenticationException;
+import client.exception.DataAccessException;
 import command.*;
 
 import model.*;
@@ -86,5 +90,16 @@ public class Client {
 
 	public void updateGamesCache(List<GameData> newCache) {
 		this.gamesCache = newCache;
+	}
+
+	public List<GameData> generateGamesCache() throws DataAccessException {
+		// Get the games from the server
+		List<GameData> games = new ArrayList<>(this.server.listGames(this.getAuthToken()));
+
+		// Sort the games based on their gameID
+		games.sort(Comparator.comparingInt(GameData::getGameID));
+
+		this.updateGamesCache(games);
+		return games;
 	}
 }

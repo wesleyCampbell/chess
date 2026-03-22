@@ -34,9 +34,7 @@ public class ListGameCommand extends CommandBase {
 		ArrayList<GameData> games;
 		try {
 			// get the games
-			games = new ArrayList<>(this.app.getServer().listGames(this.app.getAuthToken()));
-			// sort the games by gameID
-			games.sort(Comparator.comparingInt(GameData::getGameID));
+			games = new ArrayList<>(this.app.generateGamesCache());
 		} catch (AuthenticationException ex) {
 			System.out.println(NOT_AUTH_MSG);
 			return false;

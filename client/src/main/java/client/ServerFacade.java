@@ -21,6 +21,7 @@ import util.Debugger;
 import client.exception.*;
 
 import command.ListGameCommand.ListGameResult;
+import command.JoinGameCommand.JoinGameRequest;
 
 public class ServerFacade {
 
@@ -76,12 +77,14 @@ public class ServerFacade {
 
 	private <T> T readHttpResponse(HttpResponse<String> response, Class<T> type) throws DataAccessException {
 		int httpCode = response.statusCode();
+		Debugger.debug(String.format("HTTP CODE: %d", httpCode), 2);
 		switch (httpCode) {
 			case HTTP_CODE_OK:
 				break;
 			case HTTP_CODE_UNAUTH:
 				throw new AuthenticationException("Not authenticated");
 			case HTTP_CODE_TAKEN:
+				Debugger.debug("Throwing already taken exception!", 3);
 				throw new AlreadyTakenException("Username already taken");
 			case HTTP_CODE_NOT_FOUND:
 			case HTTP_CODE_BAD_REQUEST:  // fall-through
@@ -152,9 +155,14 @@ public class ServerFacade {
 		return games.games();
 	}
 
-	// public boolean joinGame(String authToken, String gameID, TeamColor teamColor) {
-	//
-	// }
+	public void joinGame(String authToken, String gameID, TeamColor teamColor) throws DataAccessException {
+		String urlStr = SERVER_ADDR + GAME_END_PNT;
+		String body = gson.toJson(new JoinGameRequest(gameID, teamColor));	
+
+		HttpResponse<String> response = this.sendHttpRequest(urlStr, PUT, body, authToken);
+
+		this.readHttpResponse(response, null);
+	}
 	//
 	// public GameData getGame(String authToken, String gameID) {
 	//
