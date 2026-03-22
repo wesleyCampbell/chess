@@ -1,5 +1,7 @@
 package client;
 
+import java.util.Collection;
+
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -13,12 +15,12 @@ import java.util.Locale;
 
 import com.google.gson.Gson;
 
-import java.util.Collection;
-
 import chess.ChessGame.TeamColor;
 import model.*;
-
+import util.Debugger;
 import client.exception.*;
+
+import command.ListGameCommand.ListGameResult;
 
 public class ServerFacade {
 
@@ -138,11 +140,18 @@ public class ServerFacade {
 
 		return game.gameID();
 	}
-	//
-	// public Collection<GameData> listGames(String authToken) {
-	//
-	// }
-	//
+	
+	public Collection<GameData> listGames(String authToken) throws DataAccessException {
+		String urlStr = SERVER_ADDR + GAME_END_PNT;
+		String body = "";
+
+		HttpResponse<String> response = this.sendHttpRequest(urlStr, GET, body, authToken);
+
+		ListGameResult games = this.readHttpResponse(response, ListGameResult.class);
+
+		return games.games();
+	}
+
 	// public boolean joinGame(String authToken, String gameID, TeamColor teamColor) {
 	//
 	// }
