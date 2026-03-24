@@ -25,12 +25,8 @@ import command.JoinGameCommand.JoinGameRequest;
 
 public class ServerFacade {
 
-	private static final HttpClient httpClient = HttpClient.newHttpClient();
-	private static final Gson gson = new Gson();
-
-	private static final String SERVER_DOMAIN = "localhost";
-	private static final int SERVER_PORT = 8080;
-	private static final String SERVER_ADDR = String.format("http://%s:%d", SERVER_DOMAIN, SERVER_PORT);
+	private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
+	private static final Gson GSON = new Gson();
 
 	private static final int HTTP_CODE_OK = 200;
 	private static final int HTTP_CODE_BAD_REQUEST = 400;
@@ -48,6 +44,16 @@ public class ServerFacade {
 	private static final String GAME_END_PNT = "/game";
 	private static final String SESSION_END_PNT = "/session";
 
+	private final String serverDomain;
+	private final int port;
+	private final String serverAddr;
+
+	public ServerFacade(String serverAddr, int port) {
+		this.serverDomain = serverAddr;
+		this.port = port;
+		this.serverAddr = String.format("http://%s:%d", serverDomain, port); 
+	}
+
 	private BodyPublisher requestBodyPublisher(String body) throws IOException {
 		if (body == null) {
 			return BodyPublishers.noBody();
@@ -63,7 +69,7 @@ public class ServerFacade {
 				.header("Authorization", authToken)
 				.build();
 
-			return httpClient.send(request, BodyHandlers.ofString());
+			return HTTP_CLIENT.send(request, BodyHandlers.ofString());
 		} catch (IOException ex) {
 			throw new DataAccessException("Internal Error");
 		} catch (InterruptedException ex) {
@@ -90,16 +96,18 @@ public class ServerFacade {
 				throw new ConnectionException("Server connection error");
 		}
 
-		if (type == null) return null;
+		if (type == null) {
+			return null;
+		}
 
-		T body = gson.fromJson(response.body(), type);
+		T body = GSON.fromJson(response.body(), type);
 		return body;
 	}
 
 	public AuthData register(String username, String password, String email) throws DataAccessException {
-		String urlStr = SERVER_ADDR + USER_END_PNT;
+		String urlStr = this.serverAddr + USER_END_PNT;
 
-		String userData = gson.toJson(new UserData(username, password, email));
+		String userData = GSON.toJson(new UserData(username, password, email));
 
 		// Make the HTTP request
 		HttpResponse<String> response = this.sendHttpRequest(urlStr, POST, userData);
@@ -110,8 +118,8 @@ public class ServerFacade {
 	}
 
 	public AuthData login(String username, String password) throws DataAccessException {
-		String urlStr = SERVER_ADDR + SESSION_END_PNT;
-		String userData = gson.toJson(new UserData(username, password, ""));
+		String urlStr = this.serverAddr + SESSION_END_PNT;
+		String userData = GSON.toJson(new UserData(username, password, ""));
 
 		HttpResponse<String> response = this.sendHttpRequest(urlStr, POST, userData);
 
@@ -122,8 +130,8 @@ public class ServerFacade {
 	}
 	
 	public void logout(String authToken) throws DataAccessException {
-		String urlStr = SERVER_ADDR + SESSION_END_PNT;
-		String body = gson.toJson("");
+		String urlStr = this.serverAddr + SESSION_END_PNT;
+		String body = GSON.toJson("");
 
 		HttpResponse<String> response = this.sendHttpRequest(urlStr, DELETE, body, authToken);
 
@@ -131,8 +139,8 @@ public class ServerFacade {
 	}
 	
 	public String createGame(String authToken, String gameName) throws DataAccessException {
-		String urlStr = SERVER_ADDR + GAME_END_PNT;
-		String gameData = gson.toJson(new GameData(null, null, null, gameName, null));
+		String urlStr = this.serverAddr + GAME_END_PNT;
+		String gameData = GSON.toJson(new GameData(null, null, null, gameName, null));
 
 		HttpResponse<String> response = this.sendHttpRequest(urlStr, POST, gameData, authToken);
 		GameData game = this.readHttpResponse(response, GameData.class);
@@ -141,7 +149,7 @@ public class ServerFacade {
 	}
 	
 	public Collection<GameData> listGames(String authToken) throws DataAccessException {
-		String urlStr = SERVER_ADDR + GAME_END_PNT;
+		String urlStr = this.serverAddr + GAME_END_PNT;
 		String body = "";
 
 		HttpResponse<String> response = this.sendHttpRequest(urlStr, GET, body, authToken);
@@ -152,15 +160,11 @@ public class ServerFacade {
 	}
 
 	public void joinGame(String authToken, String gameID, TeamColor teamColor) throws DataAccessException {
-		String urlStr = SERVER_ADDR + GAME_END_PNT;
-		String body = gson.toJson(new JoinGameRequest(gameID, teamColor));	
+		String urlStr = this.serverAddr + GAME_END_PNT;
+		String body = GSON.toJson(new JoinGameRequest(gameID, teamColor));	
 
 		HttpResponse<String> response = this.sendHttpRequest(urlStr, PUT, body, authToken);
 
 		this.readHttpResponse(response, null);
 	}
-	//
-	// public GameData getGame(String authToken, String gameID) {
-	//
-	// }
 }

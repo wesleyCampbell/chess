@@ -42,13 +42,13 @@ public class Client {
 
 	private List<GameData> gamesCache;
 	
-	public Client() {
+	public Client(String serverDomain, int serverPort) {
 		appState = new PreLoginState(this);	
 		this.running = true;
 
 		this.userData = null;
 
-		this.server = new ServerFacade();
+		this.server = new ServerFacade(serverDomain, serverPort);
 
 		this.gamesCache = null;
 	}
@@ -134,8 +134,12 @@ public class Client {
 	 */
 	private void printColHeaders(int start, int end) {
 		int inc;
-		if (start > end) inc = -1;
-		else inc = 1;
+		if (start > end) {
+			inc = -1;
+		}
+		else {
+			inc = 1;
+		}
 
 		StringBuilder row = new StringBuilder();
 		row.append(COL_BOARD_BORDER);
@@ -144,7 +148,7 @@ public class Client {
 
 		for (int i = start; i != end + inc; i += inc) {
 			row.append(" ");
-			row.append(ChessBoard.colValues.get(i));
+			row.append(ChessBoard.COL_VALUES.get(i));
 			row.append(" ");
 		}
 
@@ -220,7 +224,9 @@ public class Client {
 					pieceColorIndex = 0;
 					break;
 			}
-		} else pieceColorIndex = 0;
+		} else {
+			pieceColorIndex = 0;
+		}
 
 		// black pieces look better haha
 		pieceColorIndex = 1;
@@ -248,7 +254,9 @@ public class Client {
 					square.append(EMPTY);
 					break;
 			}
-		} else square.append(EMPTY);
+		} else {
+			square.append(EMPTY);
+		}
 
 		square.append(RESET_BG_COLOR);
 		square.append(RESET_TEXT_COLOR);

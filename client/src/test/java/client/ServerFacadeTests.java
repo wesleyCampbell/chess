@@ -18,6 +18,7 @@ import util.Debugger;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ServerFacadeTests {
+	private static final String SERVER_ADDR = "localhost";
 
     private static Server server;
 	private static ServerFacade facade;
@@ -37,9 +38,9 @@ public class ServerFacadeTests {
     @BeforeAll
     public static void init() {
         server = new Server();
-        var port = server.run(8080);
+        var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
-		facade = new ServerFacade();
+		facade = new ServerFacade(SERVER_ADDR, port);
 
 		clearData = Assertions.assertDoesNotThrow(() -> new ClearDataService(
 					new SQLAuthDAO(), new SQLGameDAO(), new SQLUserDAO()));
