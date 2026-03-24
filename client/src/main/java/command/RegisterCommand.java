@@ -40,13 +40,13 @@ public class RegisterCommand extends CommandBase {
 		try {
 			authData = this.app.getServer().register(username, password, email);
 		} catch(ConnectionException ex) {
-			System.out.println("Server is offline... please try again later.");
+			System.out.println("\n\tServer is offline... please try again later.\n");
 			return false;
 		} catch(AlreadyTakenException ex) {
-			System.out.println("Username is already taken.... please try a new one.");
+			System.out.println("\n\tUsername is already taken.... please try a new one.\n");
 			return false;
 		} catch (DataAccessException ex) {
-			System.out.println("Internal Server error... Please try again later.");
+			System.out.println("\n\tInternal Server error... Please try again later.\n");
 			return false;
 		}
 

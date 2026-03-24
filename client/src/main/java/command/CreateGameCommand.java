@@ -1,5 +1,7 @@
 package command;
 
+import static ui.EscapeSequences.*;
+
 import java.util.List;
 
 import client.Client;
@@ -18,6 +20,15 @@ public class CreateGameCommand extends CommandBase {
 		super(COMMAND_STR, DESC_STR, PARAMS, app);
 	}
 
+	private String formatNameDisplay(String gameName) {
+		StringBuilder b = new StringBuilder();
+		b.append(SET_TEXT_COLOR_YELLOW)
+			.append(gameName)
+			.append(RESET_TEXT_COLOR);
+
+		return b.toString();
+	}
+
 	public boolean executeCommand(List<String> parameters) {
 		if (parameters.size() != PARAMS.length) {
 			this.printUsage();
@@ -25,8 +36,9 @@ public class CreateGameCommand extends CommandBase {
 		}
 
 		String gameName = parameters.get(0);
+		String gameNameDisplay = this.formatNameDisplay(gameName);
 
-		System.out.println(String.format("Creating game %s...", gameName));
+		System.out.println(String.format("\n\tCreating game %s...\n", gameNameDisplay));
 
 		String gameID;
 		try {
@@ -39,7 +51,7 @@ public class CreateGameCommand extends CommandBase {
 			return false;
 		}
 
-		System.out.println(String.format("Game %s successfully created!", gameName));
+		System.out.println(String.format("\tGame %s successfully created!\n", gameNameDisplay));
 
 		return true;
 	}

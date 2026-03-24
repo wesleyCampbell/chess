@@ -2,14 +2,21 @@ package command;
 
 import client.Client;
 
+import static ui.EscapeSequences.*;
+
 public abstract class CommandBase implements Command {
-	private static final String USAGE_STR = "\tUsage: %s ";
+	private static final String USAGE_STR = new StringBuilder()
+		.append("\tUsage: ")
+		.append(SET_TEXT_COLOR_WHITE)
+		.append("%s ")
+		.append(RESET_TEXT_COLOR)
+		.toString();
 
 	protected static final String SERVER_ERROR_MSG = """
-		Internal server error. Please try again later.""";
+		\tInternal server error. Please try again later.\n""";
 
 	protected static final String NOT_AUTH_MSG = """
-		Not authorized to access this command!""";
+		\tNot authorized to access this command!\n""";
 	
 	protected String commandStr;
 	protected Client app;
@@ -21,6 +28,11 @@ public abstract class CommandBase implements Command {
 		this.description = description;
 		this.app = app;
 
+
+		this.usageStr = this.formatUsageStr(parameters);
+	}
+
+	private String formatUsageStr(String[] parameters) {
 		StringBuilder b = new StringBuilder();
 		b.append(String.format(USAGE_STR, commandStr));
 		for (String parameter : parameters) {
@@ -39,7 +51,7 @@ public abstract class CommandBase implements Command {
 			b.append(" ");
 		}
 
-		this.usageStr = b.toString();
+		return b.toString();
 	}
 
 	public String getCommandStr() {
@@ -51,6 +63,8 @@ public abstract class CommandBase implements Command {
 	}
 
 	public void printUsage() {
+		System.out.println("");
 		System.out.println(this.usageStr);
+		System.out.println("");
 	}
 }

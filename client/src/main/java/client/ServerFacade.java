@@ -77,14 +77,12 @@ public class ServerFacade {
 
 	private <T> T readHttpResponse(HttpResponse<String> response, Class<T> type) throws DataAccessException {
 		int httpCode = response.statusCode();
-		Debugger.debug(String.format("HTTP CODE: %d", httpCode), 2);
 		switch (httpCode) {
 			case HTTP_CODE_OK:
 				break;
 			case HTTP_CODE_UNAUTH:
 				throw new AuthenticationException("Not authenticated");
 			case HTTP_CODE_TAKEN:
-				Debugger.debug("Throwing already taken exception!", 3);
 				throw new AlreadyTakenException("Username already taken");
 			case HTTP_CODE_NOT_FOUND:
 			case HTTP_CODE_BAD_REQUEST:  // fall-through
@@ -138,8 +136,6 @@ public class ServerFacade {
 
 		HttpResponse<String> response = this.sendHttpRequest(urlStr, POST, gameData, authToken);
 		GameData game = this.readHttpResponse(response, GameData.class);
-
-		System.out.println(game);
 
 		return game.gameID();
 	}

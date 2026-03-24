@@ -23,7 +23,7 @@ public class LogoutCommand extends CommandBase {
 			return false;
 		}
 
-		System.out.println("Logging out...");
+		System.out.println("\n\tLogging out...\n");
 
 		try {
 			this.app.getServer().logout(this.app.getAuthToken());

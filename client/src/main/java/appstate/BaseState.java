@@ -19,28 +19,52 @@ import client.Client;
 
 public abstract class BaseState implements AppState {
 	protected static final String HELP_MSG = """
-		List of available commands: """;
+		  List of available commands: """;
 
-	protected static final String PROMPT_MSG = "[%s] >>> ";
+	protected static final String PROMPT_BG_COLOR = SET_BG_COLOR_DARK_GREY;
 
-	protected static final String HELP_PROMPT = """
-		Enter `help` for list of available commands. """;
+	protected static final String PROMPT_MSG = new StringBuilder()
+		.append(PROMPT_BG_COLOR)
+		.append("%s")
+		.append("[%s]")
+		.append(RESET_BG_COLOR)
+		.append(RESET_TEXT_COLOR)
+		.append(" >>> ")
+		.toString();
 
-	protected static final String INVALID_CMD_MSG = """
-		\tInvalid command `%s`.\s""" + HELP_PROMPT;
+
+	protected static final String HELP_PROMPT = new StringBuilder()
+		.append("Enter `")
+		.append(SET_TEXT_COLOR_WHITE)
+		.append("help")
+		.append(RESET_TEXT_COLOR)
+		.append("` for a list of available commands. ")
+		.toString();
+
+	protected static final String INVALID_CMD_MSG = new StringBuilder()
+		.append("\n\tInvalid command `")
+		.append(SET_TEXT_COLOR_WHITE)
+		.append("%s")
+		.append(RESET_TEXT_COLOR)
+		.append("`. ")
+		.append(HELP_PROMPT)
+		.append("\n")
+		.toString();
 
 	protected static final String ERROR_MSG = "Command failed!";
+
+	protected static final String WELCOME_BORDER = "=-".repeat(40);
 
 	protected Client app;
 	protected HashMap<String, Command> commands;
 	protected final String welcome_msg;
 	protected final String prompt_msg;
 
-	protected BaseState(Client app, HashMap<String, Command> commands, String welcome_msg, String prompt_header) {
+	protected BaseState(Client app, HashMap<String, Command> commands, String welcome_msg, String prompt_header, String prompt_color) {
 		this.app = app;
 		this.commands = commands;
 		this.welcome_msg = welcome_msg;
-		this.prompt_msg = String.format(PROMPT_MSG, prompt_header);
+		this.prompt_msg = String.format(PROMPT_MSG, prompt_color, prompt_header);
 	}
 
 	public void clearScreen() {
@@ -49,17 +73,22 @@ public abstract class BaseState implements AppState {
 	}
 
 	public void displayWelcomeScreen() {
-		System.out.println("\n" + this.welcome_msg + "\n");
-		System.out.println(HELP_PROMPT + "\n");
+		System.out.println(WELCOME_BORDER);
+		System.out.println("\n\t" + this.welcome_msg + "\n");
+		System.out.println(WELCOME_BORDER + "\n");
 	}
 
 	public void printCommandHelp() {
+		System.out.println("");
 		System.out.println(HELP_MSG);
 		for (String val : this.commands.keySet()) {
 			Command cmd = this.commands.get(val);
 			
-			System.out.println(String.format("    %s: %s", cmd.getCommandStr(), cmd.getDescription()));
+			System.out.println(String.format("%s    %s:%s %s",
+						SET_TEXT_COLOR_WHITE, cmd.getCommandStr(), 
+						RESET_TEXT_COLOR, cmd.getDescription()));
 		}
+		System.out.println("");
 	}
 
 	protected static HashMap<String, Command> initCommands(List<Function<Client, Command>> cmdList, Client app) {

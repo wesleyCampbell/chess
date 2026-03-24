@@ -34,7 +34,7 @@ public class LoginCommand extends CommandBase {
 		String username = parameters.get(0);
 		String password = parameters.get(1);
 
-		System.out.println(String.format("Logging in as %s with password %s", username, password));
+		System.out.println(String.format("\n\tLogging in as user %s...", username));
 
 		AuthData authData;
 		try {
@@ -46,6 +46,8 @@ public class LoginCommand extends CommandBase {
 			System.out.println(SERVER_ERROR_MSG);
 			return false;
 		}
+
+		System.out.print("\n\n");
 
 		this.app.setUserData(username, authData.authToken());
 		this.app.changeAppState(new LoginState(app));

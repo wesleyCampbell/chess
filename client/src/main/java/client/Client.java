@@ -22,7 +22,7 @@ import model.*;
 import util.Debugger;
 
 public class Client {
-	private static final String EXIT_MSG = "Exiting program...";
+	private static final String EXIT_MSG = "\n\tGoodbye! Exiting program...\n";
 
 	private static final String COL_BOARD_BORDER = SET_BG_COLOR_DARK_GREY;
 	private static final String COL_BORDER_TEXT = SET_TEXT_COLOR_LIGHT_GREY;
@@ -50,7 +50,7 @@ public class Client {
 
 		this.server = new ServerFacade();
 
-		this.gamesCache = new ArrayList<>();
+		this.gamesCache = null;
 	}
 
 	public void run() {
@@ -102,7 +102,11 @@ public class Client {
 		return this.server;
 	}
 
-	public List<GameData> getGamesCache() {
+	public List<GameData> getGamesCache() throws DataAccessException {
+		if (this.gamesCache == null) {
+			return this.generateGamesCache();
+		}
+
 		return this.gamesCache;
 	}
 
@@ -271,17 +275,20 @@ public class Client {
 			inc = 1;
 		}
 
+
 		System.out.print(SET_TEXT_BOLD);
 
-		printColHeaders(start, end);
+		System.out.print("\t");
+		printColHeaders(end, start);
 
 		TeamColor curColor = TeamColor.WHITE;
 
 		for (int row = start; row != end + inc; row += inc) {
 			// The board boarder with row value
+			System.out.print("\t");
 			printBorderSquare(Integer.toString(row));
 
-			for (int col = start; col != end + inc; col += inc) {
+			for (int col = end; col != start - inc; col -= inc) {
 				ChessPiece piece = board.getPiece(new ChessPosition(row, col));							
 				if (piece == null) {
 					this.printBoardSquare(curColor, null, null);
@@ -300,7 +307,8 @@ public class Client {
 			System.out.println("");
 		}
 
-		printColHeaders(start, end);
+		System.out.print("\t");
+		printColHeaders(end, start);
 
 		System.out.print(RESET_TEXT_BOLD_FAINT);
 	}

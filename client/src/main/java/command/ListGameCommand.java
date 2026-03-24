@@ -29,7 +29,7 @@ public class ListGameCommand extends CommandBase {
 			return false;
 		}
 		
-		System.out.println("Games: ");
+		System.out.println("\n\tGames: \n");
 
 		ArrayList<GameData> games;
 		try {
@@ -44,6 +44,7 @@ public class ListGameCommand extends CommandBase {
 		}
 		
 		this.printGameTable(games);
+		System.out.println("");
 		this.app.updateGamesCache(games);
 
 		return true;
