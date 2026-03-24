@@ -10,7 +10,8 @@ import service.JoinGameService.JoinGameResult;
 
 import service.ListGameService;
 import service.ListGameService.ListGameRequest;
-import service.ListGameService.GameDataAPI;
+// import service.ListGameService.GameData;
+import model.GameData;
 import service.ListGameService.ListGameResult;
 
 import dataaccess.DataAccessException;
@@ -130,13 +131,13 @@ public class GamesHandler extends Handler {
 	 * @param result
 	 */
 	private ListGameResult formatGames(ListGameResult result) {
-		Collection<GameDataAPI> newGames = new HashSet<>();
+		Collection<GameData> newGames = new HashSet<>();
 
 		if (result.games() == null) {
 			return result;
 		}
 
-		for (GameDataAPI game : result.games()) {
+		for (GameData game : result.games()) {
 			String blackUsername = game.blackUsername();
 			String whiteUsername = game.whiteUsername();
 
@@ -147,9 +148,9 @@ public class GamesHandler extends Handler {
 				whiteUsername = null;
 			}
 
-			GameDataAPI newGame;
+			GameData newGame;
 			if (whiteUsername == null || blackUsername == null) {
-				newGame = new GameDataAPI(game.gameID(), whiteUsername, blackUsername, game.gameName());
+				newGame = new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game());
 			} else {
 				newGame = game;
 			}
