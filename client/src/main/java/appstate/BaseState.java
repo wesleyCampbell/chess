@@ -57,14 +57,14 @@ public abstract class BaseState implements AppState {
 
 	protected Client app;
 	protected HashMap<String, Command> commands;
-	protected final String welcome_msg;
-	protected final String prompt_msg;
+	protected final String welcomeMsg;
+	protected final String promptMsg;
 
-	protected BaseState(Client app, HashMap<String, Command> commands, String welcome_msg, String prompt_header, String prompt_color) {
+	protected BaseState(Client app, HashMap<String, Command> commands, String welcomeMsg, String promptHeader, String promptColor) {
 		this.app = app;
 		this.commands = commands;
-		this.welcome_msg = welcome_msg;
-		this.prompt_msg = String.format(PROMPT_MSG, prompt_color, prompt_header);
+		this.welcomeMsg = welcomeMsg;
+		this.promptMsg = String.format(PROMPT_MSG, promptColor, promptHeader);
 	}
 
 	public void clearScreen() {
@@ -74,7 +74,7 @@ public abstract class BaseState implements AppState {
 
 	public void displayWelcomeScreen() {
 		System.out.println(WELCOME_BORDER);
-		System.out.println("\n\t" + this.welcome_msg + "\n");
+		System.out.println("\n\t" + this.welcomeMsg + "\n");
 		System.out.println(WELCOME_BORDER + "\n");
 	}
 
@@ -120,7 +120,7 @@ public abstract class BaseState implements AppState {
 	}
 
 	public String commandPrompt() {
-		System.out.print(this.prompt_msg);
+		System.out.print(this.promptMsg);
 		// String cmd = this.getUserInput();
 		List<String> cmd = this.getUserCommand();
 

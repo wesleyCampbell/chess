@@ -25,7 +25,7 @@ public class ChessBoard implements Iterable<ChessBoard.IndexedPiece>{
 
 	public static record IndexedPiece(ChessPosition position, ChessPiece piece) {}
 
-	public static final Map<Integer, Character> colValues = Map.of(
+	public static final Map<Integer, Character> COL_VALUES = Map.of(
 			1, 'a',
 			2, 'b',
 			3, 'c',
