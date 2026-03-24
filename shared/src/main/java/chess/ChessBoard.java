@@ -4,11 +4,10 @@ import chess.ChessPiece.PieceType;
 import chess.ChessGame.TeamColor;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.lang.Iterable;
 import java.lang.reflect.Type;
 import java.util.NoSuchElementException;
-
-import com.google.gson.*;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -25,7 +24,17 @@ public class ChessBoard implements Iterable<ChessBoard.IndexedPiece>{
 	private static final int STANDARD_COL_NUM = 8;
 
 	public static record IndexedPiece(ChessPosition position, ChessPiece piece) {}
-	
+
+	public static final Map<Integer, Character> colValues = Map.of(
+			1, 'a',
+			2, 'b',
+			3, 'c',
+			4, 'd',
+			5, 'e',
+			6, 'f',
+			7, 'g',
+			8, 'h'
+		);
 
 	//
 	// ======================== MEMBER ATTRIBUTES =======================

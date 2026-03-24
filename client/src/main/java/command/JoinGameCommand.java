@@ -58,9 +58,6 @@ public class JoinGameCommand extends CommandBase {
 			} catch (AuthenticationException ex) {
 				System.out.println(NOT_AUTH_MSG);
 				return false;
-			} catch (AlreadyTakenException ex) {
-				System.out.println(String.format(ALREADY_TAKEN_MSG, teamColor));
-				return false;
 			} catch (DataAccessException ex) {
 				System.out.println(SERVER_ERROR_MSG);
 				return false;
@@ -84,6 +81,9 @@ public class JoinGameCommand extends CommandBase {
 			this.app.getServer().joinGame(this.app.getAuthToken(), game.gameID(), teamColor);
 		} catch (AuthenticationException ex) {
 			System.out.println(NOT_AUTH_MSG);
+			return false;
+		} catch (AlreadyTakenException ex) {
+			System.out.println(String.format(ALREADY_TAKEN_MSG, teamColor));
 			return false;
 		} catch (DataAccessException ex) {
 			System.out.println(SERVER_ERROR_MSG);

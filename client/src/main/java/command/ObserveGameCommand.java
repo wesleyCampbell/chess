@@ -2,6 +2,8 @@ package command;
 
 import java.util.List;
 
+import chess.ChessBoard;
+import chess.ChessGame.TeamColor;
 import client.Client;
 
 public class ObserveGameCommand extends CommandBase {
@@ -26,6 +28,14 @@ public class ObserveGameCommand extends CommandBase {
 
 		System.out.println(String.format(
 					"Observing game %s...", gameID));
+
+		ChessBoard testBoard = new ChessBoard();
+		testBoard.resetBoard();
+
+		this.app.printBoard(testBoard, TeamColor.WHITE);
+
+		System.out.println("");
+
 		return true;
 	}
 }
