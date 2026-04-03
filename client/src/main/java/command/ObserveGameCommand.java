@@ -4,6 +4,8 @@ import java.util.List;
 
 import static ui.EscapeSequences.*;
 
+import appstate.*;
+
 import java.util.ArrayList;
 
 import chess.ChessBoard;
@@ -101,13 +103,17 @@ public class ObserveGameCommand extends CommandBase {
 
 		GameData game = games.get(gameIndex);
 
+		// Transition to the observeGameState
+		this.app.changeAppState(new ObserveGameState(this.app, game, TeamColor.WHITE));
+		this.app.setActiveGame(game, TeamColor.WHITE);
+
 		String whiteUsername = game.whiteUsername() == null ? "<Empty>" : game.whiteUsername();
 		String blackUsername = game.blackUsername() == null ? "<Empty>" : game.blackUsername();
 
 		System.out.println(String.format(GAME_MSG, game.gameName(), whiteUsername, blackUsername));
 
 		System.out.println(String.format("\tIt is %s's turn.\n", game.game().getTeamTurn()));
-		this.app.printBoard(game.game().getBoard(), TeamColor.WHITE);
+		this.app.printBoard(game.game(), TeamColor.WHITE);
 		System.out.println("");
 
 		return true;

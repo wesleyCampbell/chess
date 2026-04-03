@@ -1,5 +1,7 @@
 package command;
 
+import java.util.List;
+
 import client.Client;
 
 import static ui.EscapeSequences.*;
@@ -66,5 +68,13 @@ public abstract class CommandBase implements Command {
 		System.out.println("");
 		System.out.println(this.usageStr);
 		System.out.println("");
+	}
+
+	protected boolean verifyParameters(List<String> parameters, int paramNum) {
+		if (parameters.size() != paramNum) {
+			this.printUsage();
+			return false;
+		} 
+		return true;
 	}
 }

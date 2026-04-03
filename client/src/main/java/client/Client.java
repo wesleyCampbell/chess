@@ -9,11 +9,11 @@ import java.util.Collection;
 import java.util.Comparator;
 
 import appstate.*;
-import chess.ChessBoard;
-import chess.ChessPiece;
-import chess.ChessPosition;
+
+import chess.*;
 import chess.ChessGame.TeamColor;
 import chess.ChessPiece.PieceType;
+
 import client.exception.AuthenticationException;
 import client.exception.DataAccessException;
 import command.*;
@@ -24,15 +24,6 @@ import util.Debugger;
 public class Client {
 	private static final String EXIT_MSG = "\n\tGoodbye! Exiting program...\n";
 
-	private static final String COL_BOARD_BORDER = SET_BG_COLOR_DARK_GREY;
-	private static final String COL_BORDER_TEXT = SET_TEXT_COLOR_LIGHT_GREY;
-
-	private static final String COL_WHITE_SQUARE = SET_BG_COLOR_OFF_WHITE;
-	private static final String COL_BLACK_SQUARE = SET_BG_COLOR_DARK_GREEN;
-
-	private static final String COL_WHITE_PIECE = SET_TEXT_COLOR_WHITE;
-	private static final String COL_BLACK_PIECE = SET_TEXT_COLOR_BLACK;
-
 	private BaseState appState;
 	private boolean running;
 
@@ -41,6 +32,10 @@ public class Client {
 	private ServerFacade server;
 
 	private List<GameData> gamesCache;
+
+	public static record ActiveGame(GameData game, TeamColor team) {};
+	private ActiveGame activeGame;
+	private GameBoardPrinter boardPrinter;
 	
 	public Client(String serverDomain, int serverPort) {
 		appState = new PreLoginState(this);	
@@ -51,6 +46,9 @@ public class Client {
 		this.server = new ServerFacade(serverDomain, serverPort);
 
 		this.gamesCache = null;
+		this.activeGame = null;
+
+		this.boardPrinter = new GameBoardPrinter();
 	}
 
 	public void run() {
@@ -125,199 +123,57 @@ public class Client {
 		return games;
 	}
 
-	/**
-	 * Helper function to print the column headers on a chessboard
-	 * in the terminal
-	 *
-	 * @param start The index to start at
-	 * @param end The index to end at
-	 */
-	private void printColHeaders(int start, int end) {
-		int inc;
-		if (start > end) {
-			inc = -1;
-		}
-		else {
-			inc = 1;
-		}
-
-		StringBuilder row = new StringBuilder();
-		row.append(COL_BOARD_BORDER);
-		row.append(COL_BORDER_TEXT);
-		row.append(EMPTY);
-
-		for (int i = start; i != end + inc; i += inc) {
-			row.append(" ");
-			row.append(ChessBoard.COL_VALUES.get(i));
-			row.append(" ");
-		}
-
-		row.append(EMPTY);
-
-		row.append(RESET_BG_COLOR);
-		row.append(RESET_TEXT_COLOR);
-		
-		System.out.println(row.toString());
+	public ActiveGame getActiveGame() {
+		return this.activeGame;
 	}
 
-	private TeamColor toggleTeamColor(TeamColor color) {
-		switch (color) {
-			case WHITE:
-				return TeamColor.BLACK;
-			case BLACK:
-				return TeamColor.WHITE;
-			default:
-				return null;
-		}
+	public void setActiveGame(GameData game, TeamColor team) {
+		this.activeGame = new ActiveGame(game, team);
 	}
 
-	/**
-	 * Helper function for printBoard().
-	 * Prints a border square.
-	 *
-	 * @param value The string value to put
-	 */
-	private void printBorderSquare(String value) {
-		StringBuilder square = new StringBuilder();
-		square.append(COL_BOARD_BORDER);
-		square.append(COL_BORDER_TEXT);
-		square.append(" ");
-		square.append(value);
-		square.append(" ");
-		square.append(RESET_BG_COLOR);
-		square.append(RESET_TEXT_COLOR);
-		System.out.print(square.toString());
-	}
-
-	/**
-	 * Helper function to printBoard()
-	 *
-	 * based on a team color will print that pieces background color
-	 *
-	 * @param boardColor The color of the square
-	 * @param pieceType The character to print
-	 * @parm pieceColor The color of the piece (if applicable);
-	 */
-	private void printBoardSquare(TeamColor boardColor, PieceType pieceType, TeamColor pieceColor) {
-		StringBuilder square = new StringBuilder();
-		switch (boardColor) {
-			case WHITE:
-				square.append(COL_WHITE_SQUARE);
-				break;
-			case BLACK:
-				square.append(COL_BLACK_SQUARE);
-				break;
-		}
-
-		int pieceColorIndex;
-		if (pieceColor != null) {
-			switch (pieceColor) {
-				case WHITE:
-					square.append(COL_WHITE_PIECE);
-					pieceColorIndex = 0;
-					break;
-				case BLACK:
-					square.append(COL_BLACK_PIECE);
-					pieceColorIndex = 1;
-					break;
-				default:
-					pieceColorIndex = 0;
-					break;
-			}
-		} else {
-			pieceColorIndex = 0;
-		}
-
-		// black pieces look better haha
-		pieceColorIndex = 1;
-		if (pieceType != null) {
-			switch (pieceType) {
-				case PAWN:
-					square.append(PAWNS[pieceColorIndex]);
-					break;
-				case KNIGHT:
-					square.append(KNIGHTS[pieceColorIndex]);
-					break;
-				case BISHOP:
-					square.append(BISHOPS[pieceColorIndex]);
-					break;
-				case ROOK:
-					square.append(ROOKS[pieceColorIndex]);
-					break;
-				case QUEEN:
-					square.append(QUEENS[pieceColorIndex]);
-					break;
-				case KING:
-					square.append(KINGS[pieceColorIndex]);
-					break;
-				default:
-					square.append(EMPTY);
-					break;
-			}
-		} else {
-			square.append(EMPTY);
-		}
-
-		square.append(RESET_BG_COLOR);
-		square.append(RESET_TEXT_COLOR);
-
-		System.out.print(square.toString());
+	public void resetActiveGame() {
+		this.activeGame = null;
 	}
 
 	/**
 	 * Prints a chess board onto the terminal screen.
-	 * Quick and dirty to meet deadlines.
+	 *
+	 * @param game The active game data struct
+	 */
+	public void printBoard(ActiveGame game) {
+		this.printBoard(game.game().game(), game.team());
+	}
+
+	/**
+	 * Prints a chess board onto the terminal screen.
 	 *
 	 * @param board The chess board to print
-	 * @param orientation The team to put on the bottom of the screen
+	 * @param orientation The orientation to print the game in
 	 */
-	public void printBoard(ChessBoard board, TeamColor orientation) {
-		int start, end, inc;
-		if (orientation == TeamColor.WHITE) {
-			start = 8;
-			end = 1;
-			inc = -1;
-		} else {
-			start = 1;
-			end = 8;
-			inc = 1;
-		}
+	public void printBoard(ChessGame game, TeamColor orientation) {
+		this.boardPrinter.printBoard(game, orientation, null);	
+	}
 
+	/**
+	 * Prints a chess board onto the terminal screen highlighting the valid
+	 * moves from a given chess square
+	 *
+	 * @param board The chess board to print
+	 * @param orientation The orientation to print the game in
+	 * @param square The square to calculate and display the moves from
+	 */
+	public void printBoardValidMoves(ChessGame game, TeamColor orientation, ChessPosition square) {
+		this.boardPrinter.printBoard(game, orientation, square);
+	}
 
-		System.out.print(SET_TEXT_BOLD);
-
-		System.out.print("\t");
-		printColHeaders(end, start);
-
-		TeamColor curColor = TeamColor.WHITE;
-
-		for (int row = start; row != end + inc; row += inc) {
-			// The board boarder with row value
-			System.out.print("\t");
-			printBorderSquare(Integer.toString(row));
-
-			for (int col = end; col != start - inc; col -= inc) {
-				ChessPiece piece = board.getPiece(new ChessPosition(row, col));							
-				if (piece == null) {
-					this.printBoardSquare(curColor, null, null);
-				} else {
-					this.printBoardSquare(curColor, piece.getPieceType(), piece.getTeamColor());
-				}
-
-				curColor = this.toggleTeamColor(curColor);
-			}
-
-			// The board boarder with row value
-			printBorderSquare(Integer.toString(row));
-
-			curColor = this.toggleTeamColor(curColor);
-
-			System.out.println("");
-		}
-
-		System.out.print("\t");
-		printColHeaders(end, start);
-
-		System.out.print(RESET_TEXT_BOLD_FAINT);
+	/**
+	 * Prints a chess board onto the terminal screen highlighting the valid
+	 * moves from a given chess square
+	 *
+	 * @param game The game to print
+	 * @param square The square to calculate and display the moves from
+	 */
+	public void printBoardValidMoves(ActiveGame game, ChessPosition square) {
+		this.printBoardValidMoves(game.game().game(), game.team(), square);
 	}
 }

@@ -36,6 +36,20 @@ public class ChessBoard implements Iterable<ChessBoard.IndexedPiece>{
 			8, 'h'
 		);
 
+	public static Character parseRowHeader(int value) {
+		return COL_VALUES.get(value);
+	}
+
+	public static Integer parseRowHeader(Character value) {
+		for (Map.Entry<Integer, Character> header : COL_VALUES.entrySet()) {
+			if (header.getValue() == value) {
+				return header.getKey();
+			}
+		}
+
+		return null;
+	}
+
 	//
 	// ======================== MEMBER ATTRIBUTES =======================
 	//
