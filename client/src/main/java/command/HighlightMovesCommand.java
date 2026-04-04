@@ -13,7 +13,7 @@ import model.*;
 import util.Debugger;
 
 public class HighlightMovesCommand extends CommandBase {
-	private static final String COMMAND_STR = "highlight-moves";
+	private static final String COMMAND_STR = "highlight";
 	private static final String DESC_STR = """
 		Show all valid moves of a piece on a given chess square.""";
 	private static final String[] PARAMETERS = {

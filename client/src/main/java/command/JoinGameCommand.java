@@ -153,7 +153,7 @@ public class JoinGameCommand extends CommandBase {
 		this.app.printBoard(game.game(), teamColor);
 
 		this.app.setActiveGame(game, teamColor);
-		this.app.changeAppState(new ObserveGameState(this.app, game, teamColor));
+		this.app.changeAppState(new GameplayState(this.app, game, teamColor));
 
 		return true;
 	}
