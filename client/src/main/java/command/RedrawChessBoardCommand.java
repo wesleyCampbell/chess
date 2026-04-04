@@ -23,8 +23,6 @@ public class RedrawChessBoardCommand extends CommandBase {
 			return false;
 		}
 
-		System.out.println("Redrawing the chess board, baby");
-
 		ActiveGame game = this.app.getActiveGame();
 
 		if (game == null) {

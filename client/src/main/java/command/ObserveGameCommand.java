@@ -82,7 +82,7 @@ public class ObserveGameCommand extends CommandBase {
 			return false;
 		}
 
-		System.out.println(String.format(OBSERVE_GAME_MSG, gameIndex));
+		System.out.println(String.format(OBSERVE_GAME_MSG, gameIndex + 1));
 
 		// fetch the games cache
 		ArrayList<GameData> games;
