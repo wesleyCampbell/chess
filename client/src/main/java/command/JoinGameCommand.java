@@ -11,6 +11,8 @@ import client.exception.*;
 import model.GameData;
 import command.exception.*;
 
+import appstate.*;
+
 public class JoinGameCommand extends CommandBase {
 	public static record JoinGameRequest(String gameID, TeamColor playerColor) {}
 
@@ -147,6 +149,11 @@ public class JoinGameCommand extends CommandBase {
 		}
 
 		System.out.println(String.format(JOINED_GAME_MSG, game.gameName()));
+
+		this.app.printBoard(game.game(), teamColor);
+
+		this.app.setActiveGame(game, teamColor);
+		this.app.changeAppState(new ObserveGameState(this.app, game, teamColor));
 
 		return true;
 	}

@@ -1,6 +1,7 @@
 package client;
 
 import model.*;
+import util.Debugger;
 
 import static ui.EscapeSequences.*;
 
@@ -18,12 +19,13 @@ public class GameBoardPrinter {
 
 	private static final String COL_WHITE_SQUARE = SET_BG_COLOR_OFF_WHITE;
 	private static final String COL_BLACK_SQUARE = SET_BG_COLOR_DARK_GREEN;
+	private static final String COL_WHITE_SQUARE_HIGHLIGHT = SET_BG_COLOR_LIGHT_RED;
+	private static final String COL_BLACK_SQUARE_HIGHLIGHT = SET_BG_COLOR_DARK_RED;
 
 	private static final String COL_WHITE_PIECE = SET_TEXT_COLOR_WHITE;
 	private static final String COL_BLACK_PIECE = SET_TEXT_COLOR_BLACK;
 
-	private static final String MOVE_SQUARE_END_HIGHLIGHT_BG_COLOR = SET_BG_COLOR_GREEN;
-	private static final String MOVE_SQUARE_START_HIGHLIGHT_BG_COLOR = SET_BG_COLOR_YELLOW;
+	private static final String MOVE_PIECE_SQUARE_HIGHLIGHT = SET_BG_COLOR_LAVENDER;
 
 	/**
 	 * Helper function for printBoard().
@@ -99,15 +101,27 @@ public class GameBoardPrinter {
 	 * @parm pieceColor The color of the piece (if applicable);
 	 * @param highLightColor If not null, represents a colored background.
 	 */
-	private void printBoardSquare(TeamColor boardColor, PieceType pieceType, TeamColor pieceColor, String highlightColor) {
+	private void printBoardSquare(TeamColor boardColor, PieceType pieceType, TeamColor pieceColor, boolean isHighlighted, String highlightColor) {
 		StringBuilder square = new StringBuilder();
 		switch (boardColor) {
 			case WHITE:
-				square.append(COL_WHITE_SQUARE);
+				if (!isHighlighted) {
+					square.append(COL_WHITE_SQUARE);
+				} else {
+					square.append(COL_WHITE_SQUARE_HIGHLIGHT);
+				}
 				break;
 			case BLACK:
-				square.append(COL_BLACK_SQUARE);
+				if (!isHighlighted) {
+					square.append(COL_BLACK_SQUARE);
+				} else {
+					square.append(COL_BLACK_SQUARE_HIGHLIGHT);
+				}
 				break;
+		}
+
+		if (highlightColor != null) {
+			square.append(highlightColor);
 		}
 
 		int pieceColorIndex;
@@ -159,9 +173,6 @@ public class GameBoardPrinter {
 			square.append(EMPTY);
 		}
 
-		if (highlightColor != null) {
-			square.append(highlightColor);
-		}
 		square.append(RESET_BG_COLOR);
 		square.append(RESET_TEXT_COLOR);
 
@@ -232,18 +243,17 @@ public class GameBoardPrinter {
 				ChessPosition curPos = new ChessPosition(row, col);
 				ChessPiece piece = board.getPiece(curPos);							
 
-				String highlightColor = null;	
-				if (moveSquares.contains(curPos)) {
-					highlightColor = MOVE_SQUARE_END_HIGHLIGHT_BG_COLOR;
-				} else if (curPos.equals(square)) {
-					highlightColor = MOVE_SQUARE_START_HIGHLIGHT_BG_COLOR;	
+				boolean isHighlighted = moveSquares.contains(curPos);
+				String highlightColor = null;
+				if (curPos.equals(square)) {
+					highlightColor = MOVE_PIECE_SQUARE_HIGHLIGHT;
 				}
 
-
 				if (piece == null) {
-					this.printBoardSquare(curColor, null, null, highlightColor);
+					this.printBoardSquare(curColor, null, null, isHighlighted, highlightColor);
 				} else {
-					this.printBoardSquare(curColor, piece.getPieceType(), piece.getTeamColor(), highlightColor);
+					this.printBoardSquare(curColor, piece.getPieceType(), 
+							piece.getTeamColor(), isHighlighted,  highlightColor);
 				}
 
 				curColor = this.toggleTeamColor(curColor);

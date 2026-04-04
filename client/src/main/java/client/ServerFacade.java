@@ -14,7 +14,9 @@ import java.net.URI;
 import java.util.Locale;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
+import chess.*;
 import chess.ChessGame.TeamColor;
 import model.*;
 import util.Debugger;
@@ -26,7 +28,10 @@ import command.JoinGameCommand.JoinGameRequest;
 public class ServerFacade {
 
 	private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
-	private static final Gson GSON = new Gson();
+	private static final Gson GSON = new GsonBuilder()
+		.registerTypeAdapter(ChessGame.class, new ChessGame.ChessGameDeserializer())
+		.registerTypeAdapter(ChessPiece.class, new ChessPiece.ChessPieceDeserializer())
+		.create();
 
 	private static final int HTTP_CODE_OK = 200;
 	private static final int HTTP_CODE_BAD_REQUEST = 400;

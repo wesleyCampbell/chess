@@ -17,6 +17,7 @@ import chess.movecalculator.PawnMoveCalculator;
 import chess.movecalculator.QueenMoveCalculator;
 import chess.movecalculator.RookMoveCalculator;
 import chess.pieces.*;
+import util.Debugger;
 
 /**
  * Represents a single chess piece
@@ -39,6 +40,7 @@ public class ChessPiece {
 			TeamColor color = ctx.deserialize(obj.get("color"), TeamColor.class);
 
 			ChessPiece piece = makeNewPiece(color, type);
+
 
 			return piece;
 		}

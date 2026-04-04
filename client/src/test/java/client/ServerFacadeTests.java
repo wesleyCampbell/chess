@@ -58,7 +58,6 @@ public class ServerFacadeTests {
 	@Test
 	@Order(1)
 	public void registerPosTest() {
-		Debugger.debug("This is first");
 		AuthData data = Assertions.assertDoesNotThrow(() -> facade.register(
 					username1, password1, "email"));
 
@@ -73,7 +72,6 @@ public class ServerFacadeTests {
 	@Test
 	@Order(2)
 	public void registerNegTest() {
-		Debugger.debug("This is second");
 		Assertions.assertThrows(
 				client.exception.DataAccessException.class,
 				() -> facade.register(username1, password1, "email"));
@@ -86,8 +84,6 @@ public class ServerFacadeTests {
 	@Test
 	@Order(3)
 	public void logoutPosTest() {
-		Debugger.debug("This is third");
-		Debugger.debug(String.format("authToken1: %s", authToken1), 1);
 		Assertions.assertDoesNotThrow(
 				() -> facade.logout(authToken1));
 		Assertions.assertDoesNotThrow(
@@ -97,7 +93,6 @@ public class ServerFacadeTests {
 	@Test
 	@Order(4)
 	public void logoutNegTests() {
-		Debugger.debug("This is fourth");
 		Assertions.assertThrows(
 				client.exception.AuthenticationException.class,
 				() -> facade.logout(authToken1));
@@ -137,7 +132,6 @@ public class ServerFacadeTests {
 	@Test
 	@Order(7)
 	public void createGamePosTest() {
-		Debugger.debug(String.format("authToken1: %s", authToken1), 1);
 		String game1 = Assertions.assertDoesNotThrow(
 				() -> facade.createGame(authToken1, "game1"));
 		gameNames.add(game1);
@@ -166,8 +160,6 @@ public class ServerFacadeTests {
 			dbGameNames.add(game.gameID());
 		}
 
-		Debugger.debug(String.format("gameNames: %s", gameNames));
-		Debugger.debug(String.format("dbGameNames: %s", dbGameNames));
 
 		Assertions.assertTrue(dbGameNames.containsAll(gameNames));
 		Assertions.assertTrue(gameNames.containsAll(dbGameNames));

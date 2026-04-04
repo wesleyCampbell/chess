@@ -10,6 +10,7 @@ import client.Client.ActiveGame;
 import chess.*;
 
 import model.*;
+import util.Debugger;
 
 public class HighlightMovesCommand extends CommandBase {
 	private static final String COMMAND_STR = "highlight-moves";
@@ -18,6 +19,9 @@ public class HighlightMovesCommand extends CommandBase {
 	private static final String[] PARAMETERS = {
 		"square"
 	};
+
+	private static final String INVALID_SQUARE_MSG = """
+		\tThe square '%s' is invalid. Please try again.\n""";
 
 	public HighlightMovesCommand(Client app) {
 		super(COMMAND_STR, DESC_STR, PARAMETERS, app);
@@ -31,6 +35,7 @@ public class HighlightMovesCommand extends CommandBase {
 		Character colChar = squareStr.charAt(0);
 		Character rowChar = squareStr.charAt(1);
 
+
 		// parse the column
 		Integer col = ChessBoard.parseRowHeader(colChar);
 		if (col == null) {
@@ -39,13 +44,15 @@ public class HighlightMovesCommand extends CommandBase {
 
 		// parse the row
 		int row;
-		try {
-			row = Integer.valueOf(rowChar);
-		} catch (NumberFormatException ex) {
-			return null;
+		row = Character.getNumericValue(rowChar);
+
+		// If the row char is invalid
+		if (row <= 0 || row > 8) {
+			return null;	
 		}
 
-		return new ChessPosition(col, row);
+
+		return new ChessPosition(row, col);
 	}
 
 	public boolean executeCommand(List<String> parameters) {
@@ -56,7 +63,12 @@ public class HighlightMovesCommand extends CommandBase {
 		String squareStr = parameters.get(0);
 		ChessPosition square = this.parseSquareStr(squareStr);
 
-		System.out.println("Imma print these valid moves out");
+		if (square == null) {
+			System.out.println(String.format(
+				INVALID_SQUARE_MSG, squareStr
+						));
+			return false;
+		}
 
 		ActiveGame game = this.app.getActiveGame();
 		if (game == null) {
