@@ -130,9 +130,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 		Debugger.debug(String.format("username is %s", username), 3);
 
 		String teamColor;
-		if (username == gameData.whiteUsername()) {
+		if (username.equals(gameData.whiteUsername())) {
 			teamColor = TeamColor.WHITE.toString();
-		} else if (username == gameData.blackUsername()) {
+		} else if (username.equals(gameData.blackUsername())) {
 			teamColor = TeamColor.BLACK.toString();
 		} else {
 			teamColor = "observer";
