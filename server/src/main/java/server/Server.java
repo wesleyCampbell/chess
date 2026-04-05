@@ -1,7 +1,7 @@
 package server;
 
 import io.javalin.*;
-
+import server.websocket.WebSocketHandler;
 import dataaccess.*;
 import dataaccess.memorydao.*;
 import dataaccess.sqldao.*;
@@ -27,6 +27,8 @@ public class Server {
 	private final GamesHandler gamesHandler;
 	private final LoginCtlHandler loginCtlHandler;
 	private final UserAccountHandler accountHandler;
+
+	private final WebSocketHandler wsHandler;
 
 	//
 	// ======================== CONSTRUCTORS ========================
@@ -87,6 +89,15 @@ public class Server {
 
 		// PUT endpoints
 		javalin.put("/game", this.gamesHandler::joinGameRequest);
+
+		// WebSocket handling
+		wsHandler = new WebSocketHandler();
+
+		javalin.ws("/ws", ws -> {
+			ws.onConnect(wsHandler);
+			ws.onMessage(wsHandler);
+			ws.onClose(wsHandler);
+		});
     }
 
     public int run(int desiredPort) {
