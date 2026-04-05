@@ -91,7 +91,7 @@ public class Server {
 		javalin.put("/game", this.gamesHandler::joinGameRequest);
 
 		// WebSocket handling
-		wsHandler = new WebSocketHandler();
+		wsHandler = new WebSocketHandler(authDAO, userDAO, gameDAO);
 
 		javalin.ws("/ws", ws -> {
 			ws.onConnect(wsHandler);
