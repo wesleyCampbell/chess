@@ -204,7 +204,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 		// Tell all connected players to redraw their screen
 		moveNotification = new RedrawBoardMessage();
 		this.connections.broadcast(gameID, session, moveNotification);
-
 	}
 
 	private void leave(WsMessageContext ctx) throws IOException {

@@ -11,14 +11,52 @@ import java.util.HashSet;
 import java.util.Map;
 
 public class ConnectionsManager {
-	public final ConcurrentHashMap<Integer, ConcurrentHashMap<Session, Session>> connections = new ConcurrentHashMap<>();
+	public class Connection {
+		private ConcurrentHashMap<Session, Session> sessions;
+		private boolean active;
+		
+		public Connection() {
+			this.sessions = new ConcurrentHashMap<>();
+			this.active = true;
+		}
+
+		public boolean isActive() {
+			return this.active;
+		}
+
+		public void setInactive() {
+			this.active = false;
+		}
+
+		public void addSession(Session session) {
+			this.sessions.put(session, session);
+		}
+
+		public Session getSession(Session session) {
+			return this.sessions.get(session);
+		}
+
+		public void removeSession(Session session) {
+			this.sessions.remove(session);
+		}
+
+		public ConcurrentHashMap<Session, Session> getSessions() {
+			return this.sessions;
+		}
+
+		public boolean isEmpty() {
+			return this.sessions.isEmpty();
+		}	
+	}
+
+	public final ConcurrentHashMap<Integer, Connection> connections = new ConcurrentHashMap<>();
 
 	public boolean connExists(int gameID) {
 		return connections.containsKey(gameID);
 	}
 
 	public void createConn(int gameID) {
-		this.connections.put(gameID, new ConcurrentHashMap<Session, Session>());
+		this.connections.put(gameID, new Connection()); 
 	}
 
 	public void deleteConn(int gameID) {
@@ -26,7 +64,7 @@ public class ConnectionsManager {
 	}
 
 	public Map<Session, Session> getConn(int gameID) {
-		return this.connections.get(gameID);
+		return this.connections.get(gameID).getSessions();
 	}
 
 	public void add(int gameID, Session session) {
@@ -34,12 +72,12 @@ public class ConnectionsManager {
 			this.createConn(gameID);
 		}
 
-		this.connections.get(gameID).put(session, session);
+		this.connections.get(gameID).addSession(session);
 	}
 
 	public void remove(int gameID, Session session) {
 		if (this.connExists(gameID)) {
-			this.connections.get(gameID).remove(session);
+			this.connections.get(gameID).removeSession(session);
 
 			if (this.connections.get(gameID).isEmpty()) {
 				this.deleteConn(gameID);
@@ -49,11 +87,15 @@ public class ConnectionsManager {
 
 	public void broadcast(int gameID, Session excludeSession, ServerMessage message) throws IOException {
 		if (this.connExists(gameID)) {
-			for (Session s : this.connections.get(gameID).values()) {
+			for (Session s : this.connections.get(gameID).getSessions().values()) {
 				if (s.isOpen() && !s.equals(excludeSession)) {
 					s.getRemote().sendString(message.toJson());
 				}
 			}
 		}
+	}
+
+	public boolean isGameActive(int gameID) {
+		return this.connections.get(gameID).isActive();
 	}
 }
