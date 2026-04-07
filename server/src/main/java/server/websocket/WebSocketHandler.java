@@ -12,16 +12,13 @@ import org.eclipse.jetty.websocket.api.Session;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import chess.ChessGame;
-import chess.ChessPiece;
+import chess.*;
 import chess.ChessGame.TeamColor;
+
 import dataaccess.*;
-import websocket.commands.UserGameCommand;
-import websocket.messages.GameNoExistError;
-import websocket.messages.PlayerJoinNotification;
-import websocket.messages.PlayerLeaveNotification;
-import websocket.messages.ServerMessage;
-import websocket.messages.ServerMessage.ServerMessageType;
+
+import websocket.commands.*;
+import websocket.messages.*;
 
 /**
  * A class that will translate web socket requests into ones the server can understand
@@ -30,6 +27,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 	private final ConnectionsManager connections = new ConnectionsManager();
 
 	private final static String GAME_NO_EXIST_MSG = new GameNoExistError().toJson();
+	private final static String NO_AUTH_MSG = new NoAuthError().toJson();
+	private final static String INT_ERROR_MSG = new IntServerError().toJson();
+	private final static String INVALID_MOVE_MSG = new InvalidMoveError().toJson();
 
 	private AuthDAO authDAO;
 	private GameDAO gameDAO;
@@ -78,7 +78,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 		try {
 			switch (cmd.getCommandType()) {
 				case CONNECT -> connect(ctx);
-				case MAKE_MOVE -> makeMove();
+				case MAKE_MOVE -> makeMove(ctx);
 				case LEAVE -> leave(ctx);
 				case RESIGN -> resign();
 			}
@@ -110,7 +110,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 		AuthData authData;
 		try {
 			authData = this.authDAO.getAuth(authToken);
-		} catch (DataAccessException|AuthenticationException ex) {
+		} catch (AuthenticationException ex) {
+			session.getRemote().sendString(NO_AUTH_MSG);
+			return;
+		} catch (DataAccessException ex) {
+			session.getRemote().sendString(INT_ERROR_MSG);
 			ex.printStackTrace();
 			return;
 		}
@@ -145,8 +149,62 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 		this.connections.broadcast(gameID, session, notification);
 	}
 
-	private void makeMove() {
+	private void makeMove(WsMessageContext ctx) throws IOException {
 		Debugger.debug("Making move");
+
+		// Extract relevant info from the context
+		MakeMoveCommand cmd = GSON.fromJson(ctx.message(), MakeMoveCommand.class);
+		String authToken = cmd.getAuthToken();
+		int gameID = cmd.getGameID();
+		ChessMove move = cmd.getMove();
+
+		Session session = ctx.session;
+		// Get the auth data for the username
+		AuthData authData;
+		try {
+			authData = this.authDAO.getAuth(authToken);
+		} catch (AuthenticationException ex) {
+			session.getRemote().sendString(NO_AUTH_MSG);
+			return;
+		} catch (DataAccessException ex) {
+			session.getRemote().sendString(INT_ERROR_MSG);
+			ex.printStackTrace();
+			return;
+		}
+
+		// Get the game data and verify that it exists
+		GameData gameData;
+		try {
+			gameData = this.gameDAO.getGame(String.valueOf(gameID));
+		} catch (DataAccessException ex) {
+			session.getRemote().sendString(GAME_NO_EXIST_MSG);
+			return;
+		}
+
+		// Make the move
+		try {
+			gameData.game().makeMove(move);
+		} catch (InvalidMoveException ex) {
+			session.getRemote().sendString(INVALID_MOVE_MSG);
+			return;
+		}
+
+		// Update the game in the database
+		try {
+			this.gameDAO.updateGame(Integer.toString(gameID), gameData);
+		} catch (DataAccessException ex) {
+			session.getRemote().sendString(INT_ERROR_MSG);
+			return;
+		}
+
+		// Send out notifications to all connected players
+		String username = authData.username();
+		ServerMessage moveNotification = new PlayerMoveNotification(username, move); 
+		this.connections.broadcast(gameID, session, moveNotification);
+		// Tell all connected players to redraw their screen
+		moveNotification = new RedrawBoardMessage();
+		this.connections.broadcast(gameID, session, moveNotification);
+
 	}
 
 	private void leave(WsMessageContext ctx) throws IOException {
