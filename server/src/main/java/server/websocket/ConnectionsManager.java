@@ -98,4 +98,8 @@ public class ConnectionsManager {
 	public boolean isGameActive(int gameID) {
 		return this.connections.get(gameID).isActive();
 	}
+
+	public void setGameInactive(int gameID) {
+		this.connections.get(gameID).setInactive();
+	}
 }

@@ -238,8 +238,34 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 		this.connections.broadcast(gameID, session, notification);
 	}
 
-	private void resign() {
+	private void resign(WsMessageContext ctx) throws IOException {
 		Debugger.debug("resigning from game");
+
+		// Extract necessary info from the context object
+		UserGameCommand cmd = GSON.fromJson(ctx.message(), UserGameCommand.class);
+		int gameID = cmd.getGameID();
+		String authToken = cmd.getAuthToken();
+		Session session = ctx.session;
+		
+		// Verify authData
+		AuthData auth;
+		try {
+			auth = this.authDAO.getAuth(authToken);
+		} catch (DataAccessException ex) {
+			session.getRemote().sendString(INT_ERROR_MSG);
+			return;
+		} catch (AuthenticationException ex) {
+			session.getRemote().sendString(NO_AUTH_MSG);
+			return;
+		}
+
+		String username = auth.username();
+
+		this.connections.setGameInactive(gameID);
+
+		ServerMessage notification = new PlayerResignNotification(username);
+
+		this.connections.broadcast(gameID, session, notification);
 	}
 
 }
