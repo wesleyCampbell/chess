@@ -16,13 +16,22 @@ import chess.ChessPiece.PieceType;
 
 import client.exception.AuthenticationException;
 import client.exception.DataAccessException;
+import client.websocket.*;
+
+import websocket.messages.*;
+import websocket.commands.*;
+
 import command.*;
+
+import com.google.gson.Gson;
 
 import model.*;
 import util.Debugger;
 
-public class Client {
+public class Client implements NotificationHandler {
 	private static final String EXIT_MSG = "\n\tGoodbye! Exiting program...\n";
+
+	private static final Gson GSON = new Gson();
 
 	private BaseState appState;
 	private boolean running;
@@ -175,5 +184,37 @@ public class Client {
 	 */
 	public void printBoardValidMoves(ActiveGame game, ChessPosition square) {
 		this.printBoardValidMoves(game.game().game(), game.team(), square);
+	}
+
+	public void manageMsg(ServerMessage msg, String origMsg) {
+		switch (msg.getServerMessageType()) {
+			LOAD_GAME -> printActiveGame();
+			ERROR -> printServerError(origMsg);
+			NOTIFICATION -> printServerNotification(origMsg);
+		}
+	}
+
+	public void printActiveGame() {
+		if (this.activeGame != null) {
+			this.printBoard(this.activeGame);
+		}
+	} 
+
+	public void printServerError(String errorStr) {
+		Error err = GSON.fromJson(errorStr, Error.class);
+
+		StringBuilder out = new StringBuilder();
+
+		out.append(SET_TEXT_COLOR_RED);
+		out.append(err.getMsg());
+		out.append(RESET_TEXT_COLOR);
+
+		System.out.println(out.toString());
+	}
+
+	public void printServerNotification(String notificationStr) {
+		Notification notification = GSON.fromJson(notificationStr, Notification.class);
+
+		System.out.println(notification.getMsg());
 	}
 }

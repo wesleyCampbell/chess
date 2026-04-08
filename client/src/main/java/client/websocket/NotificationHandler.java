@@ -3,5 +3,5 @@ package client.websocket;
 import websocket.messages.ServerMessage;
 
 public interface NotificationHandler {
-	public void notify(ServerMessage notification);
+	public void manageMsg(ServerMessage notification, String origMsg);
 }	

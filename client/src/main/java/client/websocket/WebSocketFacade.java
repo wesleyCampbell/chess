@@ -5,6 +5,7 @@ import exception.ResponseException;
 
 import jakarta.websocket.*;
 
+import websocket.messages.*;
 import websocket.commands.*;
 
 import java.io.IOException;
@@ -26,16 +27,17 @@ public class WebSocketFacade extends Endpoint {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);
 
-			// Notification handling
+			// Server Message handling
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    Notification notification = new Gson().fromJson(message, Notification.class);
-                    notificationHandler.notify(notification);
+                    ServerMessage msg = new Gson().fromJson(message, ServerMessage.class);
+                    notificationHandler.manageMsg(msg, message);
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+			System.out.print("ERROR in WebSocketFacade initialization: ");
+			System.out.println(
         }
 	}
 
