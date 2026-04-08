@@ -14,7 +14,7 @@ import java.net.URISyntaxException;
 
 public class WebSocketFacade extends Endpoint {
 	private Session session;
-	private NotificationHandler notificationhandler;
+	private NotificationHandler notificationHandler;
 
 	public WebSocketFacade(String url, NotificationHandler notificationHandler) {
         try {
@@ -37,7 +37,6 @@ public class WebSocketFacade extends Endpoint {
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
 			System.out.print("ERROR in WebSocketFacade initialization: ");
-			System.out.println(
         }
 	}
 
