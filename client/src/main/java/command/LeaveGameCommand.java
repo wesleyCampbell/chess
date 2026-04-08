@@ -27,6 +27,15 @@ public class LeaveGameCommand extends CommandBase {
 			return false;
 		}
 
+		// Exit the websocket session
+		try {
+			int gameID = Integer.parseInt(this.app.getActiveGame().game().gameID());
+			this.app.getWebSocket().leave(this.app.getAuthToken(), gameID);
+		} catch (IOException ex) {
+			System.out.println(SERVER_ERROR_MSG);
+			return false;
+		}
+
 		System.out.println(LEAVE_MSG);
 
 		this.app.resetActiveGame();

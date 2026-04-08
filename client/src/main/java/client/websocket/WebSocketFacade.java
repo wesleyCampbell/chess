@@ -64,7 +64,9 @@ public class WebSocketFacade extends Endpoint {
 		this.sendCommand(cmd);
 	}
 
-	public void leave() {
+	public void leave(String authToken, int gameID) throws IOException {
+		UserGameCommand cmd = new LeaveCommand(authToken, gameID);
+		this.sendCommand(cmd);
 	}	
 	
 }
