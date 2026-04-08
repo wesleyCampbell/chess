@@ -146,6 +146,22 @@ public class Client implements NotificationHandler {
 		this.activeGame = new ActiveGame(game, team);
 	}
 
+	public void updateActiveGame() throws DataAccessException {
+		// if the game is null, just return
+		if (this.activeGame == null) {
+			return;
+		}
+
+		List<GameData> allGames = this.getGamesCache();
+
+		for (GameData game : allGames) {
+			// Look for the game that matches the current game
+			if (game.gameID() == Integer.parseInt(this.activeGame.game().gameID())) {
+				this.activeGame = new ActiveGame(game, this.activeGame.team());	
+			}
+		}
+	}
+
 	public void resetActiveGame() {
 		this.activeGame = null;
 	}
@@ -201,6 +217,10 @@ public class Client implements NotificationHandler {
 	}
 
 	public void printActiveGame() {
+		try {
+			this.updateActiveGame();
+		} catch (DataAccessException ex) {}
+
 		if (this.activeGame != null) {
 			this.printBoard(this.activeGame);
 		}
