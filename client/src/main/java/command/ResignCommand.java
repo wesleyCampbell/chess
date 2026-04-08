@@ -59,7 +59,8 @@ public class ResignCommand extends CommandBase {
 
 		// If the user does want to resign, send the request to the websocket.
 		try {
-			this.app.getWebSocket().resign(this.app.getAuthToken());
+			int gameID = Integer.parseInt(this.app.getActiveGame().game().gameID());
+			this.app.getWebSocket().resign(this.app.getAuthToken(), gameID);
 		} catch (IOException ex) {
 			System.out.println(SERVER_ERROR_MSG);
 			return;
@@ -71,4 +72,3 @@ public class ResignCommand extends CommandBase {
 		return true;
 	}
 }
-

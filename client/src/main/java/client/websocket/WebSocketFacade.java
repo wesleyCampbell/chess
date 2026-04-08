@@ -44,19 +44,24 @@ public class WebSocketFacade extends Endpoint {
 	public void onOpen(Session session, EndpointConfig endpointConfig) {
 	}
 
+	private void sendCommand(UserGameCommand cmd) {
+		this.session.getBasicRemote().sendText(cmd.toJson());
+	}
+
 	/************* WEBSOCKET ENDPOINTS **********************/
 
 	public void connect(String authToken, int gameID) throws IOException {
 		UserGameCommand cmd = new ConnectCommand(authToken, gameID);
-		this.session.getBasicRemote().sendText(cmd.toJson());
+		this.sendCommand(cmd);
 	}
 
 	public void makeMove() {
 
 	}
 
-	public void resign(String authToken) {
-
+	public void resign(String authToken, int gameID) throws IOException {
+		UserGameCommand cmd = new ResignCommand(authToken, gameID);	
+		this.sendCommand(cmd);
 	}
 
 	public void leave() {
