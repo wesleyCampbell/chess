@@ -55,7 +55,7 @@ public class WebSocketFacade extends Endpoint {
 
 	}
 
-	public void resign() {
+	public void resign(String authToken) {
 
 	}
 

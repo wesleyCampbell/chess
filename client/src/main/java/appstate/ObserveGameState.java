@@ -13,6 +13,7 @@ import model.*;
 import static ui.EscapeSequences.*;
 
 import client.Client;
+import client.Client.ActiveGame;
 
 public class ObserveGameState extends BaseState {
 	private static final String WELCOME_MSG = """
@@ -38,6 +39,10 @@ public class ObserveGameState extends BaseState {
 		super(app, BaseState.initCommands(COMMAND_LIST, app), generateWelcomeMsg(gameData), PROMPT_HEADER, PROMPT_COLOR);
 		this.game = gameData.game();
 		this.orientation = orientation;
+	}
+
+	public ObserveGameState(Client app, ActiveGame game) {
+		this(app, game.game(), game.team());
 	}
 
 	public ChessGame getGame() {
