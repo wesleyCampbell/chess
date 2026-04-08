@@ -8,6 +8,8 @@ import jakarta.websocket.*;
 import websocket.messages.*;
 import websocket.commands.*;
 
+import chess.ChessMove;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -55,8 +57,9 @@ public class WebSocketFacade extends Endpoint {
 		this.sendCommand(cmd);
 	}
 
-	public void makeMove() {
-
+	public void makeMove(String authToken, int gameID, ChessMove move) throws IOException{
+		UserGameCommand cmd = new MakeMoveCommand(authToken, gameID, move);
+		this.sendCommand(cmd);
 	}
 
 	public void resign(String authToken, int gameID) throws IOException {
