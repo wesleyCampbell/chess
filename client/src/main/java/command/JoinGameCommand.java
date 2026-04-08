@@ -136,7 +136,11 @@ public class JoinGameCommand extends CommandBase {
 		System.out.println(String.format(JOINING_GAME_MSG, game.gameName(), teamColor));
 
 		try {
+			String authToken = this.app.getAuthToken();
+			String gameID = game.gameID();
+
 			this.app.getServer().joinGame(this.app.getAuthToken(), game.gameID(), teamColor);
+			this.ws.getWebSocket().connect(authToken, Integer.parseInt(gameID));
 		} catch (AuthenticationException ex) {
 			System.out.println(NOT_AUTH_MSG);
 			return false;

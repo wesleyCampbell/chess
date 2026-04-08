@@ -39,6 +39,7 @@ public class Client implements NotificationHandler {
 	private AuthData userData;
 
 	private ServerFacade server;
+	private WebSocketFacade ws;
 
 	private List<GameData> gamesCache;
 
@@ -53,6 +54,7 @@ public class Client implements NotificationHandler {
 		this.userData = null;
 
 		this.server = new ServerFacade(serverDomain, serverPort);
+		this.ws = new WebSocketFacade(serverDomain, serverPort, this);
 
 		this.gamesCache = null;
 		this.activeGame = null;
@@ -107,6 +109,10 @@ public class Client implements NotificationHandler {
 
 	public ServerFacade getServer() {
 		return this.server;
+	}
+
+	public WebSocketFacade getWebSocket() {
+		return this.ws;
 	}
 
 	public List<GameData> getGamesCache() throws DataAccessException {

@@ -63,6 +63,8 @@ public class ObserveGameCommand extends CommandBase {
 		.append(" player: %s")
 		.toString();
 
+	private static final String INT_ERROR_MSG = "\tInternal server error. Please try again.\n";
+
 	public ObserveGameCommand(Client app) {
 		super(COMMAND_STR, DESC_STR, PARAMS, app);
 	}
@@ -102,6 +104,15 @@ public class ObserveGameCommand extends CommandBase {
 		}
 
 		GameData game = games.get(gameIndex);
+		
+		// Connect to the web socket 
+		try {
+			int gameID = Integer.parseInt(game.gameID());
+			this.app.getWebSocket().connect(this.app.getAuthToken(), gameID);
+		} catch (IOException ex) {
+			System.out.println(INT_ERROR_MSG);
+			return;
+		}
 
 		// Transition to the observeGameState
 		this.app.changeAppState(new ObserveGameState(this.app, game, TeamColor.WHITE));

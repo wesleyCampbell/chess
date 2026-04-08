@@ -16,11 +16,11 @@ public class WebSocketFacade extends Endpoint {
 	private Session session;
 	private NotificationHandler notificationHandler;
 
-	public WebSocketFacade(String url, NotificationHandler notificationHandler) {
+	public WebSocketFacade(String serverDomain, int serverPort, NotificationHandler notificationHandler) {
         try {
 			// Process the URL and convert it to a web socket one
-            url = url.replace("http", "ws");
-            URI socketURI = new URI(url + "/ws");
+			String url = String.format("ws://%s:%d/ws", serverDomain, serverPort);
+            URI socketURI = new URI(url);
             this.notificationHandler = notificationHandler;
 
 			// Set up the web socket connection
@@ -46,14 +46,9 @@ public class WebSocketFacade extends Endpoint {
 
 	/************* WEBSOCKET ENDPOINTS **********************/
 
-	public void connect(String authToken, int gameID) {
-		try {
-			UserGameCommand cmd = new ConnectCommand(authToken, gameID);
-			this.session.getBasicRemote().sendText(cmd.toJson());
-		} catch (IOException ex) {
-			System.out.println("ERROR:");
-			return;
-		}
+	public void connect(String authToken, int gameID) throws IOException {
+		UserGameCommand cmd = new ConnectCommand(authToken, gameID);
+		this.session.getBasicRemote().sendText(cmd.toJson());
 	}
 
 	public void makeMove() {
