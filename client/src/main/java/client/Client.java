@@ -19,7 +19,8 @@ import client.exception.DataAccessException;
 import client.websocket.*;
 
 import websocket.messages.*;
-import websocket.messages.Error;
+import websocket.messages.notification.*;
+import websocket.messages.error.Error;
 import websocket.commands.*;
 
 import command.*;
