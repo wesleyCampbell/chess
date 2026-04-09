@@ -59,15 +59,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
 	@Override
 	public void handleConnect(WsConnectContext ctx) {
-		Debugger.debug("Websocket connected...");
 		ctx.enableAutomaticPings();
 	}
 
 	@Override
 	public void handleMessage(WsMessageContext ctx) {
-		Debugger.debug("Message recieved", 1);
 		UserGameCommand cmd = GSON.fromJson(ctx.message(), UserGameCommand.class);
-		Debugger.debug(String.format("Message: %s", cmd.getCommandType()), 1);
 
 		Session session = ctx.session;
 
@@ -92,7 +89,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
 	@Override
 	public void handleClose(WsCloseContext ctx) {
-		Debugger.debug("Websocket closing...");
 	}
 
 	// 
@@ -100,7 +96,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 	//
 
 	private void connect(WsMessageContext ctx) throws IOException {
-		Debugger.debug("Connecting to gameSocket...");
 
 		// Extract relevant info from context
 		UserGameCommand cmd = GSON.fromJson(ctx.message(), UserGameCommand.class);
@@ -108,7 +103,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 		int gameID = cmd.getGameID();
 		Session session = ctx.session;
 		
-		Debugger.debug("Getting auth data", 3);
 		// Get the auth data for the username
 		AuthData authData;
 		try {
@@ -122,7 +116,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 			return;
 		}
 		// Get the game data and verify that it exists
-		Debugger.debug("Getting gameData", 3);
 		GameData gameData;
 		try {
 			gameData = this.gameDAO.getGame(String.valueOf(gameID));
@@ -134,7 +127,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 		this.connections.add(gameID, session);
 
 		String username = authData.username();
-		Debugger.debug(String.format("username is %s", username), 3);
 
 		String teamColor;
 		if (username.equals(gameData.whiteUsername())) {
@@ -145,7 +137,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 			teamColor = "observer";
 		}
 
-		Debugger.debug(String.format("team color is %s", teamColor), 3);
 
 		ServerMessage notification = new PlayerJoinNotification(username, teamColor); 
 
@@ -153,7 +144,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 	}
 
 	private void makeMove(WsMessageContext ctx) throws IOException {
-		Debugger.debug("Making move");
 
 		// Extract relevant info from the context
 		MakeMoveCommand cmd = GSON.fromJson(ctx.message(), MakeMoveCommand.class);
@@ -161,7 +151,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 		int gameID = cmd.getGameID();
 		ChessMove move = cmd.getMove();
 
-		Debugger.debug(String.format("move: %s", move.toString()), 2);
 
 		Session session = ctx.session;
 		// Get the auth data for the username
@@ -189,7 +178,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 		// Verify that it is the player's turn who is trying to make the move
 		String username = authData.username();
 		TeamColor activeTeam = gameData.game().getTeamTurn();
-		Debugger.debug(String.format("It is currently '%s' turn", activeTeam), 1);
 
 		String activeUser;
 		switch (activeTeam) {
@@ -204,7 +192,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 				return;
 		}
 
-		Debugger.debug(String.format("active: %s | attempted: %s", activeUser, username), 2);
 
 		// make sure that the activeUser matches the username
 		if (!activeUser.equals(username)) {
@@ -252,7 +239,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 				gameOver = true;
 				break;
 			} else if (game.isInCheck(color)) {
-				Debugger.debug(String.format("Player %s is in check!", color), 2);
 				msg = new CheckNotification(username);
 				break;
 			} else if (game.isInStalemate(color)) {
@@ -264,7 +250,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 		}
 
 		if (msg != null) {
-			Debugger.debug("Sending message...", 2);
 			this.connections.broadcastAll(gameID, msg);
 		}
 
@@ -282,25 +267,21 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 		String authToken = cmd.getAuthToken();
 		Session session = ctx.session;
 
-		Debugger.debug("leaving gameSocket");
 		this.connections.remove(gameID, session);
 
 		AuthData auth;
 		try {
 			auth = this.authDAO.getAuth(authToken);
 		} catch (DataAccessException ex) {
-			Debugger.debug("dataaccess exception...");
 			ex.printStackTrace();
 			return;
 		} catch (AuthenticationException ex) {
-			Debugger.debug("auth exception");
 			ex.printStackTrace();
 			return;
 		}
 
 		String username = auth.username();
 
-		Debugger.debug(String.format("authData: %s", auth), 1);
 
 		ServerMessage notification = new PlayerLeaveNotification(username);
 
@@ -308,7 +289,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 	}
 
 	private void resign(WsMessageContext ctx) throws IOException {
-		Debugger.debug("resigning from game");
 
 		// Extract necessary info from the context object
 		UserGameCommand cmd = GSON.fromJson(ctx.message(), UserGameCommand.class);

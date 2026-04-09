@@ -226,6 +226,7 @@ public class GameBoardPrinter {
 		// calculate the valid moves
 		Set<ChessPosition> moveSquares = this.calculateMoveSquares(game, square);
 
+
 		System.out.print(SET_TEXT_BOLD);
 
 		System.out.print("\t");

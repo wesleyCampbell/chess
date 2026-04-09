@@ -7,7 +7,7 @@ import chess.*;
 import chess.ChessPiece.PieceType;
 import chess.ChessGame.TeamColor;
 import chess.moveengine.*;
-
+import util.Debugger;
 import util.Pair;
 
 public class EmPassantMove extends SpecialMove {
@@ -36,6 +36,7 @@ public class EmPassantMove extends SpecialMove {
 		ChessPiece pawn = board.getPiece(pos);
 		HashSet<ChessMove> emPassantMoves = new HashSet<>();
 
+
 		if (pawn == null || pawn.getPieceType() != PieceType.PAWN) {
 			return emPassantMoves;
 		}
@@ -48,6 +49,7 @@ public class EmPassantMove extends SpecialMove {
 			}
 
 			Pair<ChessPiece, ChessMove> lastMovedPiece = db.getLastMovedPiece();
+
 
 			// STEP 1: verify that the piece is a pawn
 
@@ -67,6 +69,7 @@ public class EmPassantMove extends SpecialMove {
 				continue;
 			}
 
+
 			// STEP 3: Check to see if the last moved pawn is the requisite distance to perform em passant
 			ChessPosition distance = new ChessPosition(pos);
 			distance.subtract(lastMovedPiece.getSecond().getEndPosition());
@@ -75,6 +78,7 @@ public class EmPassantMove extends SpecialMove {
 			if (!distance.absValueCopy().equals(SPECIAL_MOVE_RULE_EM_PASSANT_PAWN_OFFSET)) {
 				continue;
 			}
+
 
 			// STEP 4: Make the em passant rule as all conditions are met
 			ChessPosition pawnEndPos = new ChessPosition(lastMove.getEndPosition());

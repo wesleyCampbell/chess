@@ -315,15 +315,12 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 			// Or if the piece can block the move
 			HashSet<ChessPosition> movesTargetingKing = ChessMove.extractStartPositions(this.getMovesTargetingSquare(teamColor, kingPos));
 
-			Debugger.debug(board.toString());
 
 			for (ChessMove defenseMove : this.chessTeamData.get(teamColor).getMoveSet()) {
 				if (this.moveRevealsCheck(board, defenseMove)) {
 					continue;
 				}
 
-				Debugger.debug(String.format("defenseMove: %s", defenseMove), 1);
-				Debugger.debug(String.format("piece: %s", board.getPiece(defenseMove.getStartPosition())), 2);
 
 				return false;
 			}
