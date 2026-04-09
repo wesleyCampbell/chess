@@ -32,10 +32,6 @@ public class ConnectionsManager {
 			this.sessions.put(session, session);
 		}
 
-		public Session getSession(Session session) {
-			return this.sessions.get(session);
-		}
-
 		public void removeSession(Session session) {
 			this.sessions.remove(session);
 		}
@@ -65,10 +61,6 @@ public class ConnectionsManager {
 
 	public void deleteConn(int gameID) {
 		this.connections.remove(gameID);
-	}
-
-	public Map<Session, Session> getConn(int gameID) {
-		return this.connections.get(gameID).getSessions();
 	}
 
 	public void closeAllSessions(Session session) {

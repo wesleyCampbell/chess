@@ -30,10 +30,7 @@ public class LoginCommand extends CommandBase {
 		if (!this.verifyParameters(parameters, PARAMETERS.length)) {
 			return false;
 		}
-		//if (parameters.size() != PARAMETERS.length) {
-		//		this.printUsage();
-		//		return false;
-		//}
+
 		String username = parameters.get(0);
 		String password = parameters.get(1);
 

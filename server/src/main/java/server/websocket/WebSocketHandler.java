@@ -255,7 +255,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 				gameOver = true;
 				break;
 			}
-
 		}
 
 		if (msg != null) {
@@ -333,7 +332,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 	}
 
 	private void resign(WsMessageContext ctx) throws IOException {
-
 		// Extract necessary info from the context object
 		UserGameCommand cmd = GSON.fromJson(ctx.message(), UserGameCommand.class);
 		int gameID = cmd.getGameID();
@@ -386,6 +384,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
 		// Will turn this back on after TEST_OVER
 		// ServerMessage gameOverMsg = new GameOverMessage();
+
 		// this.connections.broadcastAll(gameID, gameOverMsg);
 	}
 }
