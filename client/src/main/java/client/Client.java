@@ -40,6 +40,15 @@ public class Client implements NotificationHandler {
 	private static final String NOTIFICATION_HEADER_BG_COLOR = SET_BG_COLOR_CYAN;
 	private static final String NOTIFICATION_HEADER_TEXT_COLOR = SET_TEXT_COLOR_WHITE;
 
+	private static final String GAME_TURN_MSG = new StringBuilder()
+		.append("\tIt is currently ")
+		.append(SET_BG_COLOR_WHITE)
+		.append(SET_TEXT_COLOR_DARK_GREY)
+		.append("%s")
+		.append(RESET_TEXT_COLOR)
+		.append(RESET_BG_COLOR)
+		.append("'s turn.\n")
+		.toString();
 
 	private static final Gson GSON = new Gson();
 
@@ -233,6 +242,7 @@ public class Client implements NotificationHandler {
 
 		if (this.activeGame != null) {
 			System.out.println(ERASE_LINE);
+			System.out.println(String.format(GAME_TURN_MSG, this.activeGame.game().game().getTeamTurn()));
 			this.printBoard(this.activeGame);
 			if (printCmdHeader) {
 				this.appState.printPrompt();
