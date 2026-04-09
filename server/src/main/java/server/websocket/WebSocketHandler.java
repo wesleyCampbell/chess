@@ -239,8 +239,40 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 		this.connections.broadcast(gameID, session, moveNotification);
 		// Tell all connected players to redraw their screen
 		moveNotification = new RedrawBoardMessage();
-		this.connections.broadcast(gameID, session, moveNotification);
-		session.getRemote().sendString(moveNotification.toJson());
+		this.connections.broadcastAll(gameID, moveNotification);
+
+		// check to see if there is a player in check/checkmate/stalemate
+		ChessGame game = gameData.game();
+		ServerMessage msg = null;
+		boolean gameOver = false;
+
+		for (ChessGame.TeamColor color : TeamColor.values()) {
+			if (game.isInCheckmate(color)) {
+				msg = new CheckmateNotification(username);
+				gameOver = true;
+				break;
+			} else if (game.isInCheck(color)) {
+				Debugger.debug(String.format("Player %s is in check!", color), 2);
+				msg = new CheckNotification(username);
+				break;
+			} else if (game.isInStalemate(color)) {
+				msg = new StalemateNotification(username);
+				gameOver = true;
+				break;
+			}
+
+		}
+
+		if (msg != null) {
+			Debugger.debug("Sending message...", 2);
+			this.connections.broadcastAll(gameID, msg);
+		}
+
+		if (gameOver) {
+			ServerMessage gameOverMsg = new GameOverMessage();
+			this.connections.broadcastAll(gameID, gameOverMsg);
+			this.connections.setGameInactive(gameID);
+		}
 	}
 
 	private void leave(WsMessageContext ctx) throws IOException {
@@ -321,6 +353,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 		ServerMessage notification = new PlayerResignNotification(username);
 
 		this.connections.broadcast(gameID, session, notification);
-	}
 
+		ServerMessage gameOverMsg = new GameOverMessage();
+
+		this.connections.broadcastAll(gameID, gameOverMsg);
+	}
 }

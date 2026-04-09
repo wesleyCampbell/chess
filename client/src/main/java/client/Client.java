@@ -50,6 +50,9 @@ public class Client implements NotificationHandler {
 		.append("'s turn.\n")
 		.toString();
 
+	private static final String GAME_OVER_MSG = """
+		\n\tThe game has now ended. Players are no longer able to make moves.""";
+
 	private static final Gson GSON = new Gson();
 
 	private BaseState appState;
@@ -232,6 +235,7 @@ public class Client implements NotificationHandler {
 			case LOAD_GAME -> printActiveGame();
 			case ERROR -> printServerError(origMsg);
 			case NOTIFICATION -> printServerNotification(origMsg);
+			case GAME_OVER -> inactivateGame();
 		}
 	}
 
@@ -306,5 +310,11 @@ public class Client implements NotificationHandler {
 
 		this.appState.printPrompt();
 
+	}
+
+	public void inactivateGame() {
+		System.out.println(ERASE_LINE);
+		System.out.println(GAME_OVER_MSG);
+		this.appState.printPrompt();
 	}
 }

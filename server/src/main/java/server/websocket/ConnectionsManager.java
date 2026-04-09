@@ -95,6 +95,16 @@ public class ConnectionsManager {
 		}
 	}
 
+	public void broadcastAll(int gameID, ServerMessage message) throws IOException {
+		if (this.connExists(gameID)) {
+			for (Session s : this.connections.get(gameID).getSessions().values()) {
+				if (s.isOpen()) {
+					s.getRemote().sendString(message.toJson());
+				}
+			}
+		}
+	}
+
 	public boolean isGameActive(int gameID) {
 		return this.connections.get(gameID).isActive();
 	}

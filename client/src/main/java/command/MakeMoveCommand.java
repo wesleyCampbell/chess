@@ -21,7 +21,7 @@ public class MakeMoveCommand extends CommandBase {
 		"move",
 	};
 
-	private static final String INVALID_MOVE_MSG = "\n\tError: Invalid move!";
+	private static final String INVALID_MOVE_MSG = "\n\tError: Invalid move!\n";
 
 	public MakeMoveCommand(Client app) {
 		super(COMMAND_STR, DESC_STR, PARAMS, app);
@@ -50,8 +50,8 @@ public class MakeMoveCommand extends CommandBase {
 
 	private ChessMove parseMove(String moveStr) {
 		// For now, only a very simple move syntax is allowed
-		if (moveStr.length() != 4 || moveStr.length() != 5) {
-
+		if (moveStr.length() != 4 && moveStr.length() != 5) {
+			return null;
 		}
 
 		String startPosStr = moveStr.substring(0, 2);

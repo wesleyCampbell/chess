@@ -6,6 +6,7 @@ import chess.ChessPiece.PieceType;
 import chess.moveengine.specialmoves.CastlingMove;
 import chess.moveengine.specialmoves.EmPassantMove;
 import chess.moveengine.specialmoves.SpecialMove;
+import util.Debugger;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -311,7 +312,21 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 			}
 
 			// Check to see if the king can have a piece capture the attacking piece.
+			// Or if the piece can block the move
 			HashSet<ChessPosition> movesTargetingKing = ChessMove.extractStartPositions(this.getMovesTargetingSquare(teamColor, kingPos));
+
+			Debugger.debug(board.toString());
+
+			for (ChessMove defenseMove : this.chessTeamData.get(teamColor).getMoveSet()) {
+				if (this.moveRevealsCheck(board, defenseMove)) {
+					continue;
+				}
+
+				Debugger.debug(String.format("defenseMove: %s", defenseMove), 1);
+				Debugger.debug(String.format("piece: %s", board.getPiece(defenseMove.getStartPosition())), 2);
+
+				return false;
+			}
 
 			for (ChessMove defenseMove : this.chessTeamData.get(teamColor).getAttackMoveSet()) {
 				// If there is a piece that can kill the attacking team
@@ -324,6 +339,7 @@ public class StandardChessMoveEngine implements ChessMoveEngine {
 					return false;
 				}
 			}
+
 		}
 
 		return true;
