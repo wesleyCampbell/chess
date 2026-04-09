@@ -14,7 +14,7 @@ import java.util.List;
 import java.io.IOException;
 
 public class MakeMoveCommand extends CommandBase {
-	private static final String COMMAND_STR = "make-move";
+	private static final String COMMAND_STR = "move";
 	private static final String DESC_STR = """
 		Make a chess move.""";
 	private static final String[] PARAMS = {
