@@ -96,20 +96,10 @@ public class MakeMoveCommand extends CommandBase {
 		try {
 			int gameID = Integer.parseInt(game.game().gameID());
 			this.app.getWebSocket().makeMove(this.app.getAuthToken(), gameID, move);
-			// we update the local game just to allow it to render in real time
-			game.game().game().makeMove(move);
 		} catch (IOException ex) {
 			System.out.println(SERVER_ERROR_MSG);
 			return false;
-		} catch (InvalidMoveException ex) {
-			// nothing really needs to happen here as the server handles invalid move handling
-			System.out.println(INVALID_MOVE_MSG);
-			return false;
 		}
-
-		
-		// Draw the new chess board	
-		this.app.printBoard(game);
 
 		return true;
 	}

@@ -31,6 +31,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 	private final static String INT_ERROR_MSG = new IntServerError().toJson();
 	private final static String INVALID_MOVE_MSG = new InvalidMoveError().toJson();
 	private final static String GAME_CLOSED_MSG = new GameClosedError().toJson();
+	private final static String NOT_TURN_MSG = new NotYourTurnError().toJson();
 
 	private AuthDAO authDAO;
 	private GameDAO gameDAO;
@@ -65,7 +66,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 	public void handleMessage(WsMessageContext ctx) {
 		Debugger.debug("Message recieved", 1);
 		UserGameCommand cmd = GSON.fromJson(ctx.message(), UserGameCommand.class);
-		Debugger.debug(String.format("Message: %s", cmd), 1);
+		Debugger.debug(String.format("Message: %s", cmd.getCommandType()), 1);
 
 		Session session = ctx.session;
 
@@ -184,6 +185,32 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 			return;
 		}
 
+		// Verify that it is the player's turn who is trying to make the move
+		String username = authData.username();
+		TeamColor activeTeam = gameData.game().getTeamTurn();
+		Debugger.debug(String.format("It is currently '%s' turn", activeTeam), 1);
+
+		String activeUser;
+		switch (activeTeam) {
+			case WHITE:
+				activeUser = gameData.whiteUsername();
+				break;
+			case BLACK:
+				activeUser = gameData.blackUsername();
+				break;
+			default:
+				session.getRemote().sendString(INT_ERROR_MSG);
+				return;
+		}
+
+		Debugger.debug(String.format("active: %s | attempted: %s", activeUser, username), 2);
+
+		// make sure that the activeUser matches the username
+		if (!activeUser.equals(username)) {
+			session.getRemote().sendString(NOT_TURN_MSG);
+			return;
+		}
+
 		// Verify that the game hasn't ended allready
 		if (!this.connections.isGameActive(gameID)) {
 			session.getRemote().sendString(GAME_CLOSED_MSG);
@@ -207,12 +234,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 		}
 
 		// Send out notifications to all connected players
-		String username = authData.username();
 		ServerMessage moveNotification = new PlayerMoveNotification(username, move); 
 		this.connections.broadcast(gameID, session, moveNotification);
 		// Tell all connected players to redraw their screen
 		moveNotification = new RedrawBoardMessage();
 		this.connections.broadcast(gameID, session, moveNotification);
+		session.getRemote().sendString(moveNotification.toJson());
 	}
 
 	private void leave(WsMessageContext ctx) throws IOException {

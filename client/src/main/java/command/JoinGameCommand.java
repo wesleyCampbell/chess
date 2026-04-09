@@ -155,10 +155,10 @@ public class JoinGameCommand extends CommandBase {
 
 		System.out.println(String.format(JOINED_GAME_MSG, game.gameName()));
 
-		this.app.printBoard(game.game(), teamColor);
-
 		this.app.setActiveGame(game, teamColor);
 		this.app.changeAppState(new GameplayState(this.app, game, teamColor));
+
+		this.app.printActiveGame(false);
 
 		return true;
 	}
