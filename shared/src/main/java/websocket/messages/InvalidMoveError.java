@@ -5,7 +5,7 @@ import chess.ChessMove;
 import com.google.gson.Gson;
 
 public class InvalidMoveError extends ServerMessage {
-	private final static ServerMessageType MSG_TYPE = ServerMessageType.NOTIFICATION;
+	private final static ServerMessageType MSG_TYPE = ServerMessageType.ERROR;
 
 	private final static String MSG = "Error: Invalid move!";
 

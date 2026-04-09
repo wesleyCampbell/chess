@@ -158,6 +158,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 		int gameID = cmd.getGameID();
 		ChessMove move = cmd.getMove();
 
+		Debugger.debug(String.format("move: %s", move.toString()), 2);
+
 		Session session = ctx.session;
 		// Get the auth data for the username
 		AuthData authData;
