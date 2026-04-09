@@ -30,6 +30,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 	private final static String NO_AUTH_MSG = new NoAuthError().toJson();
 	private final static String INT_ERROR_MSG = new IntServerError().toJson();
 	private final static String INVALID_MOVE_MSG = new InvalidMoveError().toJson();
+	private final static String GAME_CLOSED_MSG = new GameClosedError().toJson();
 
 	private AuthDAO authDAO;
 	private GameDAO gameDAO;
@@ -80,7 +81,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 				case CONNECT -> connect(ctx);
 				case MAKE_MOVE -> makeMove(ctx);
 				case LEAVE -> leave(ctx);
-				case RESIGN -> resign();
+				case RESIGN -> resign(ctx);
 			}
 		} catch (IOException ex) {
 			ex.printStackTrace();
@@ -183,6 +184,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 			return;
 		}
 
+		// Verify that the game hasn't ended allready
+		if (!this.connections.isGameActive(gameID)) {
+			session.getRemote().sendString(GAME_CLOSED_MSG);
+			return;
+		}
+
 		// Make the move
 		try {
 			gameData.game().makeMove(move);
@@ -206,7 +213,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 		// Tell all connected players to redraw their screen
 		moveNotification = new RedrawBoardMessage();
 		this.connections.broadcast(gameID, session, moveNotification);
-
 	}
 
 	private void leave(WsMessageContext ctx) throws IOException {
@@ -241,8 +247,34 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 		this.connections.broadcast(gameID, session, notification);
 	}
 
-	private void resign() {
+	private void resign(WsMessageContext ctx) throws IOException {
 		Debugger.debug("resigning from game");
+
+		// Extract necessary info from the context object
+		UserGameCommand cmd = GSON.fromJson(ctx.message(), UserGameCommand.class);
+		int gameID = cmd.getGameID();
+		String authToken = cmd.getAuthToken();
+		Session session = ctx.session;
+		
+		// Verify authData
+		AuthData auth;
+		try {
+			auth = this.authDAO.getAuth(authToken);
+		} catch (DataAccessException ex) {
+			session.getRemote().sendString(INT_ERROR_MSG);
+			return;
+		} catch (AuthenticationException ex) {
+			session.getRemote().sendString(NO_AUTH_MSG);
+			return;
+		}
+
+		String username = auth.username();
+
+		this.connections.setGameInactive(gameID);
+
+		ServerMessage notification = new PlayerResignNotification(username);
+
+		this.connections.broadcast(gameID, session, notification);
 	}
 
 }
