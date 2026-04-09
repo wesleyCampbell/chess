@@ -40,6 +40,10 @@ public class ConnectionsManager {
 			this.sessions.remove(session);
 		}
 
+		public boolean contains(Session session) {
+			return this.sessions.contains(session);
+		}
+
 		public ConcurrentHashMap<Session, Session> getSessions() {
 			return this.sessions;
 		}
@@ -65,6 +69,14 @@ public class ConnectionsManager {
 
 	public Map<Session, Session> getConn(int gameID) {
 		return this.connections.get(gameID).getSessions();
+	}
+
+	public void closeAllSessions(Session session) {
+		for (int gameID : this.connections.keySet()) {
+			if (this.connections.get(gameID).contains(session)) {
+				this.remove(gameID, session);
+			}
+		}
 	}
 
 	public void add(int gameID, Session session) {

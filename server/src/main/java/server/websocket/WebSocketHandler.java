@@ -69,13 +69,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 		Session session = ctx.session;
 
 		String authToken = cmd.getAuthToken();
-
-		if (!this.isAuthenticated(authToken)) {
-			// ctx.closeSession();
-			return;
-		}
 		
 		try {
+			if (!this.isAuthenticated(authToken)) {
+				session.getRemote().sendString(NO_AUTH_MSG);
+				return;
+			}
 			switch (cmd.getCommandType()) {
 				case CONNECT -> connect(ctx);
 				case MAKE_MOVE -> makeMove(ctx);
@@ -89,6 +88,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
 	@Override
 	public void handleClose(WsCloseContext ctx) {
+		this.connections.closeAllSessions(ctx.session);
 	}
 
 	// 
@@ -99,9 +99,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
 		// Extract relevant info from context
 		UserGameCommand cmd = GSON.fromJson(ctx.message(), UserGameCommand.class);
+
+
 		String authToken = cmd.getAuthToken();
 		int gameID = cmd.getGameID();
 		Session session = ctx.session;
+
 		
 		// Get the auth data for the username
 		AuthData authData;
@@ -141,10 +144,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 		ServerMessage notification = new PlayerJoinNotification(username, teamColor); 
 
 		this.connections.broadcast(gameID, session, notification);
+
+		notification = new RedrawBoardMessage(gameData.game());
+
+		session.getRemote().sendString(notification.toJson());
 	}
 
 	private void makeMove(WsMessageContext ctx) throws IOException {
-
 		// Extract relevant info from the context
 		MakeMoveCommand cmd = GSON.fromJson(ctx.message(), MakeMoveCommand.class);
 		String authToken = cmd.getAuthToken();
@@ -221,12 +227,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 			return;
 		}
 
+		// Tell all connected players to redraw their screen
+		this.connections.broadcastAll(gameID, new RedrawBoardMessage());
 		// Send out notifications to all connected players
 		ServerMessage moveNotification = new PlayerMoveNotification(username, move); 
 		this.connections.broadcast(gameID, session, moveNotification);
-		// Tell all connected players to redraw their screen
-		moveNotification = new RedrawBoardMessage();
-		this.connections.broadcastAll(gameID, moveNotification);
 
 		// check to see if there is a player in check/checkmate/stalemate
 		ChessGame game = gameData.game();
@@ -254,8 +259,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 		}
 
 		if (gameOver) {
-			ServerMessage gameOverMsg = new GameOverMessage();
-			this.connections.broadcastAll(gameID, gameOverMsg);
+			// ServerMessage gameOverMsg = new GameOverMessage();
+			// this.connections.broadcastAll(gameID, gameOverMsg);
 			this.connections.setGameInactive(gameID);
 		}
 	}
@@ -282,7 +287,41 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
 		String username = auth.username();
 
+		// open up the game for another user to join, if the player is actively playing
+		GameData gameData;
+		try {
+			gameData = this.gameDAO.getGame(Integer.toString(gameID));
+		} catch (DataAccessException ex) {
+			session.getRemote().sendString(INT_ERROR_MSG);
+			return;
+		}
 
+		GameData newGameData = null;
+		if (gameData.whiteUsername().equals(username)) {
+			newGameData = new GameData(
+					gameData.gameID(),
+					"",
+					gameData.blackUsername(),
+					gameData.gameName(),
+					gameData.game());
+
+		} else if (gameData.blackUsername().equals(username)) {
+			newGameData = new GameData(
+					gameData.gameID(),
+					gameData.whiteUsername(),
+					"",
+					gameData.gameName(),
+					gameData.game());
+		}
+
+		if (newGameData != null) {
+			try {
+				this.gameDAO.updateGame(gameData.gameID(), newGameData);
+			} catch (DataAccessException ex) {
+				session.getRemote().sendString(INT_ERROR_MSG);
+			}
+		}
+		
 		ServerMessage notification = new PlayerLeaveNotification(username);
 
 		this.connections.broadcast(gameID, session, notification);
@@ -317,6 +356,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 			return;
 		}
 
+		// Make sure that the game isn't already over
+		if (!this.connections.isGameActive(gameID)) {
+			session.getRemote().sendString(GAME_CLOSED_MSG);
+			return;
+		}
+
 		// verify that the player resigning is actually playing in the game
 		String username = auth.username();
 		String blackUsername = gameData.blackUsername();
@@ -332,10 +377,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
 		ServerMessage notification = new PlayerResignNotification(username);
 
-		this.connections.broadcast(gameID, session, notification);
+		this.connections.broadcastAll(gameID, notification);
 
-		ServerMessage gameOverMsg = new GameOverMessage();
-
-		this.connections.broadcastAll(gameID, gameOverMsg);
+		// Will turn this back on after TEST_OVER
+		// ServerMessage gameOverMsg = new GameOverMessage();
+		// this.connections.broadcastAll(gameID, gameOverMsg);
 	}
 }

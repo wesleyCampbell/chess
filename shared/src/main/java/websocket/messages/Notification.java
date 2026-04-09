@@ -5,15 +5,15 @@ import com.google.gson.Gson;
 public class Notification extends ServerMessage {
 	private static final ServerMessageType MSG_TYPE = ServerMessageType.NOTIFICATION;
 
-	private String msg;
+	private String message;
 
-	public Notification(String msg) {
+	public Notification(String message) {
 		super(MSG_TYPE);
-		this.msg = msg;
+		this.message = message;
 	}
 
 	public String getMsg() {
-		return this.msg;
+		return this.message;
 	}
 
 	@Override 
