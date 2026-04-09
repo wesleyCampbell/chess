@@ -32,6 +32,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 	private final static String INVALID_MOVE_MSG = new InvalidMoveError().toJson();
 	private final static String GAME_CLOSED_MSG = new GameClosedError().toJson();
 	private final static String NOT_TURN_MSG = new NotYourTurnError().toJson();
+	private final static String NOT_PLAYING_ERROR = new NotPlayingError().toJson();
 
 	private AuthDAO authDAO;
 	private GameDAO gameDAO;
@@ -295,7 +296,25 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 			return;
 		}
 
+		// get the game data
+		GameData gameData;
+		try {
+			gameData = this.gameDAO.getGame(Integer.toString(gameID));
+		} catch (DataAccessException ex) {
+			session.getRemote().sendString(INT_ERROR_MSG);
+			return;
+		}
+
+		// verify that the player resigning is actually playing in the game
 		String username = auth.username();
+		String blackUsername = gameData.blackUsername();
+		String whiteUsername = gameData.whiteUsername();
+
+		if (!username.equals(blackUsername) ||
+				!username.equals(whiteUsername)) {
+			session.getRemote().sendString(NOT_PLAYING_ERROR);
+			return;
+		}
 
 		this.connections.setGameInactive(gameID);
 
