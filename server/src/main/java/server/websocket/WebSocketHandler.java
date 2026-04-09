@@ -93,9 +93,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 		this.connections.closeAllSessions(ctx.session);
 	}
 
-	// 
 	// ENDPOINTS
-	//
 
 	private void connect(WsMessageContext ctx) throws IOException {
 
