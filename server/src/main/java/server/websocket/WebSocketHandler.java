@@ -310,7 +310,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 		String blackUsername = gameData.blackUsername();
 		String whiteUsername = gameData.whiteUsername();
 
-		if (!username.equals(blackUsername) ||
+		if (!username.equals(blackUsername) && 
 				!username.equals(whiteUsername)) {
 			session.getRemote().sendString(NOT_PLAYING_ERROR);
 			return;
