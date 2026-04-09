@@ -137,6 +137,10 @@ public abstract class BaseState implements AppState {
 		return cmd.toString();
 	}
 
+	public void printPrompt() {
+		System.out.print(this.promptMsg);
+	}
+
 	/**
 	 * Reads user input from the console.
 	 *

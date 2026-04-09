@@ -2,7 +2,7 @@ package websocket.messages;
 
 import com.google.gson.Gson;
 
-public class PlayerResignNotification extends ServerMessage {
+public class PlayerResignNotification extends Notification {
 	private static final String MSG_TEMPLATE = """
 		Player %s has resigned!""";
 

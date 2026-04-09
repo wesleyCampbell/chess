@@ -2,7 +2,7 @@ package websocket.messages;
 
 import com.google.gson.Gson;
 
-public class IntServerError extends ServerMessage {
+public class IntServerError extends Error {
 	private static final String MSG = "Error: Internal server error.";
 
 	public IntServerError() {

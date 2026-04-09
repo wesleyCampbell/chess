@@ -19,6 +19,7 @@ import client.exception.DataAccessException;
 import client.websocket.*;
 
 import websocket.messages.*;
+import websocket.messages.Error;
 import websocket.commands.*;
 
 import command.*;
@@ -30,6 +31,15 @@ import util.Debugger;
 
 public class Client implements NotificationHandler {
 	private static final String EXIT_MSG = "\n\tGoodbye! Exiting program...\n";
+
+	private static final String ERROR_TEXT_COLOR = SET_TEXT_COLOR_RED + SET_TEXT_BOLD;
+	private static final String ERROR_HEADER_BG_COLOR = SET_BG_COLOR_RED;
+	private static final String ERROR_HEADER_TEXT_COLOR = SET_TEXT_COLOR_WHITE;
+
+	private static final String NOTIFICATION_TEXT_COLOR = SET_TEXT_COLOR_CYAN;
+	private static final String NOTIFICATION_HEADER_BG_COLOR = SET_BG_COLOR_CYAN;
+	private static final String NOTIFICATION_HEADER_TEXT_COLOR = SET_TEXT_COLOR_WHITE;
+
 
 	private static final Gson GSON = new Gson();
 
@@ -152,11 +162,11 @@ public class Client implements NotificationHandler {
 			return;
 		}
 
-		List<GameData> allGames = this.getGamesCache();
+		List<GameData> allGames = this.generateGamesCache();
 
 		for (GameData game : allGames) {
 			// Look for the game that matches the current game
-			if (game.gameID() == Integer.parseInt(this.activeGame.game().gameID())) {
+			if (game.gameID().equals(this.activeGame.game().gameID())) {
 				this.activeGame = new ActiveGame(game, this.activeGame.team());	
 			}
 		}
@@ -210,20 +220,28 @@ public class Client implements NotificationHandler {
 
 	public void manageMsg(ServerMessage msg, String origMsg) {
 		switch (msg.getServerMessageType()) {
-			LOAD_GAME -> printActiveGame();
-			ERROR -> printServerError(origMsg);
-			NOTIFICATION -> printServerNotification(origMsg);
+			case LOAD_GAME -> printActiveGame();
+			case ERROR -> printServerError(origMsg);
+			case NOTIFICATION -> printServerNotification(origMsg);
 		}
 	}
 
-	public void printActiveGame() {
+	public void printActiveGame(boolean printCmdHeader) {
 		try {
 			this.updateActiveGame();
 		} catch (DataAccessException ex) {}
 
 		if (this.activeGame != null) {
+			System.out.println(ERASE_LINE);
 			this.printBoard(this.activeGame);
+			if (printCmdHeader) {
+				this.appState.printPrompt();
+			}
 		}
+	}
+
+	public void printActiveGame() {
+		this.printActiveGame(true);
 	} 
 
 	public void printServerError(String errorStr) {
@@ -231,16 +249,52 @@ public class Client implements NotificationHandler {
 
 		StringBuilder out = new StringBuilder();
 
-		out.append(SET_TEXT_COLOR_RED);
+		out.append("\n\t");
+
+		out.append(ERROR_HEADER_BG_COLOR);
+		out.append(ERROR_HEADER_TEXT_COLOR);
+		out.append("[ERROR]");
+		out.append(RESET_BG_COLOR);
+
+		out.append(": ");
+
+		out.append(ERROR_TEXT_COLOR);
 		out.append(err.getMsg());
+
+		// reset text to default coloring
 		out.append(RESET_TEXT_COLOR);
+		out.append(RESET_TEXT_BOLD_FAINT);
 
 		System.out.println(out.toString());
+
+		this.appState.printPrompt();
 	}
 
 	public void printServerNotification(String notificationStr) {
 		Notification notification = GSON.fromJson(notificationStr, Notification.class);
 
-		System.out.println(notification.getMsg());
+		StringBuilder output = new StringBuilder();
+
+		output.append("\n\t");
+
+		// colors
+		output.append(NOTIFICATION_HEADER_BG_COLOR);
+		output.append(NOTIFICATION_HEADER_TEXT_COLOR);
+
+		output.append("[NOTIFICATION]");
+		output.append(RESET_BG_COLOR);
+
+		output.append(": ");
+
+		output.append(NOTIFICATION_TEXT_COLOR);
+
+		output.append(notification.getMsg());
+
+		output.append(RESET_TEXT_COLOR);
+
+		System.out.println(output.toString());
+
+		this.appState.printPrompt();
+
 	}
 }

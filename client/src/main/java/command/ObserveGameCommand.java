@@ -7,6 +7,7 @@ import static ui.EscapeSequences.*;
 import appstate.*;
 
 import java.util.ArrayList;
+import java.io.IOException;
 
 import chess.ChessBoard;
 import chess.ChessGame.TeamColor;
@@ -111,7 +112,7 @@ public class ObserveGameCommand extends CommandBase {
 			this.app.getWebSocket().connect(this.app.getAuthToken(), gameID);
 		} catch (IOException ex) {
 			System.out.println(INT_ERROR_MSG);
-			return;
+			return false;
 		}
 
 		// Transition to the observeGameState

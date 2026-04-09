@@ -1,7 +1,6 @@
 package client.websocket;
 
 import com.google.gson.Gson;
-import exception.ResponseException;
 
 import jakarta.websocket.*;
 
@@ -46,7 +45,7 @@ public class WebSocketFacade extends Endpoint {
 	public void onOpen(Session session, EndpointConfig endpointConfig) {
 	}
 
-	private void sendCommand(UserGameCommand cmd) {
+	private void sendCommand(UserGameCommand cmd) throws IOException {
 		this.session.getBasicRemote().sendText(cmd.toJson());
 	}
 

@@ -4,7 +4,7 @@ import chess.*;
 
 import com.google.gson.Gson;
 
-public class PlayerMoveNotification extends ServerMessage {
+public class PlayerMoveNotification extends Notification {
 	private static final String MSG_TEMPLATE = """
 		Player %s played %s.""";
 

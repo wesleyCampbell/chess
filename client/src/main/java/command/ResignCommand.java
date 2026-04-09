@@ -8,6 +8,8 @@ import client.exception.*;
 import java.util.List;
 import java.util.Map;
 
+import java.io.IOException;
+
 public class ResignCommand extends CommandBase {
 	private static final String COMMAND_STR = "resign";
 	private static final String DESC_STR = """
@@ -32,13 +34,11 @@ public class ResignCommand extends CommandBase {
 	}
 
 	public boolean executeCommand(List<String> parameters) {
-		System.out.println("Resigning from the game...");
-		
-		if (!this.verifyParameters(parameters, PARAMS.length) {
+		if (!this.verifyParameters(parameters, PARAMS.length)) {
 			return false;
 		}
 
-		boolean resign;
+		Boolean resign;
 		while (true) {
 			System.out.print(VERIFY_MSG);
 			// poll user input 
@@ -54,7 +54,7 @@ public class ResignCommand extends CommandBase {
 
 		// If the user does not want to resign, do nothing
 		if (!resign) {
-			return;
+			return false;
 		}
 
 		// If the user does want to resign, send the request to the websocket.
@@ -63,7 +63,7 @@ public class ResignCommand extends CommandBase {
 			this.app.getWebSocket().resign(this.app.getAuthToken(), gameID);
 		} catch (IOException ex) {
 			System.out.println(SERVER_ERROR_MSG);
-			return;
+			return false;
 		}
 
 		// now switch to an observe game state.
