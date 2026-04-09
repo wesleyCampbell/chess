@@ -1,6 +1,8 @@
-package command;
+package command.global;
 
 import java.util.List;
+
+import command.*;
 
 import client.Client;
 

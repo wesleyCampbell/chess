@@ -23,6 +23,7 @@ import websocket.messages.Error;
 import websocket.commands.*;
 
 import command.*;
+import command.global.*;
 
 import com.google.gson.Gson;
 

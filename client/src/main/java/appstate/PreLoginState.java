@@ -10,6 +10,7 @@ import java.util.List;
 import client.Client;
 
 import command.*;
+import command.global.*;
 
 public class PreLoginState extends BaseState {
 	private static final String WELCOME_MSG = """

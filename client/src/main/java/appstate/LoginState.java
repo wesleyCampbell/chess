@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import command.*;
+import command.global.*;
 
 import static ui.EscapeSequences.*;
 

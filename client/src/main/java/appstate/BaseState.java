@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.Console;
 
 import command.*;
+import command.global.*;
 
 import static ui.EscapeSequences.*;
 
