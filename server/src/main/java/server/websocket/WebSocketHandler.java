@@ -198,7 +198,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 				return;
 		}
 
-
 		// make sure that the activeUser matches the username
 		if (!activeUser.equals(username)) {
 			session.getRemote().sendString(NOT_TURN_MSG);
@@ -234,9 +233,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 		this.connections.broadcast(gameID, session, moveNotification);
 
 		// check to see if there is a player in check/checkmate/stalemate
+		checkMateStalemateCheck(gameData, username, session);
+	}
+
+	private void checkMateStalemateCheck(GameData gameData, String username, Session session) throws IOException {
 		ChessGame game = gameData.game();
 		ServerMessage msg = null;
 		boolean gameOver = false;
+		int gameID = Integer.parseInt(gameData.gameID());
 
 		for (ChessGame.TeamColor color : TeamColor.values()) {
 			if (game.isInCheckmate(color)) {
@@ -263,6 +267,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 			// this.connections.broadcastAll(gameID, gameOverMsg);
 			this.connections.setGameInactive(gameID);
 		}
+
 	}
 
 	private void leave(WsMessageContext ctx) throws IOException {
