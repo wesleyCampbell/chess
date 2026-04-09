@@ -51,6 +51,10 @@ public class CreateGameCommand extends CommandBase {
 			return false;
 		}
 
+		try {
+			this.app.generateGamesCache();
+		} catch (Exception ex) {}
+
 		System.out.println(String.format("\tGame %s successfully created!\n", gameNameDisplay));
 
 		return true;

@@ -2,6 +2,7 @@ package command;
 
 import static ui.EscapeSequences.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -136,14 +137,18 @@ public class JoinGameCommand extends CommandBase {
 		System.out.println(String.format(JOINING_GAME_MSG, game.gameName(), teamColor));
 
 		try {
+			String authToken = this.app.getAuthToken();
+			String gameID = game.gameID();
+
 			this.app.getServer().joinGame(this.app.getAuthToken(), game.gameID(), teamColor);
+			this.app.getWebSocket().connect(authToken, Integer.parseInt(gameID));
 		} catch (AuthenticationException ex) {
 			System.out.println(NOT_AUTH_MSG);
 			return false;
 		} catch (AlreadyTakenException ex) {
 			System.out.println(String.format(ALREADY_TAKEN_MSG, teamColor));
 			return false;
-		} catch (DataAccessException ex) {
+		} catch (DataAccessException | IOException ex) {
 			System.out.println(SERVER_ERROR_MSG);
 			return false;
 		}

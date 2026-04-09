@@ -16,13 +16,41 @@ import chess.ChessPiece.PieceType;
 
 import client.exception.AuthenticationException;
 import client.exception.DataAccessException;
+import client.websocket.*;
+
+import websocket.messages.*;
+import websocket.messages.Error;
+import websocket.commands.*;
+
 import command.*;
+
+import com.google.gson.Gson;
 
 import model.*;
 import util.Debugger;
 
-public class Client {
+public class Client implements NotificationHandler {
 	private static final String EXIT_MSG = "\n\tGoodbye! Exiting program...\n";
+
+	private static final String ERROR_TEXT_COLOR = SET_TEXT_COLOR_RED + SET_TEXT_BOLD;
+	private static final String ERROR_HEADER_BG_COLOR = SET_BG_COLOR_RED;
+	private static final String ERROR_HEADER_TEXT_COLOR = SET_TEXT_COLOR_WHITE;
+
+	private static final String NOTIFICATION_TEXT_COLOR = SET_TEXT_COLOR_CYAN;
+	private static final String NOTIFICATION_HEADER_BG_COLOR = SET_BG_COLOR_CYAN;
+	private static final String NOTIFICATION_HEADER_TEXT_COLOR = SET_TEXT_COLOR_WHITE;
+
+	private static final String GAME_TURN_MSG = new StringBuilder()
+		.append("\tIt is currently ")
+		.append(SET_BG_COLOR_WHITE)
+		.append(SET_TEXT_COLOR_DARK_GREY)
+		.append("%s")
+		.append(RESET_TEXT_COLOR)
+		.append(RESET_BG_COLOR)
+		.append("'s turn.\n")
+		.toString();
+
+	private static final Gson GSON = new Gson();
 
 	private BaseState appState;
 	private boolean running;
@@ -30,6 +58,7 @@ public class Client {
 	private AuthData userData;
 
 	private ServerFacade server;
+	private WebSocketFacade ws;
 
 	private List<GameData> gamesCache;
 
@@ -44,6 +73,7 @@ public class Client {
 		this.userData = null;
 
 		this.server = new ServerFacade(serverDomain, serverPort);
+		this.ws = new WebSocketFacade(serverDomain, serverPort, this);
 
 		this.gamesCache = null;
 		this.activeGame = null;
@@ -100,6 +130,10 @@ public class Client {
 		return this.server;
 	}
 
+	public WebSocketFacade getWebSocket() {
+		return this.ws;
+	}
+
 	public List<GameData> getGamesCache() throws DataAccessException {
 		if (this.gamesCache == null) {
 			return this.generateGamesCache();
@@ -129,6 +163,22 @@ public class Client {
 
 	public void setActiveGame(GameData game, TeamColor team) {
 		this.activeGame = new ActiveGame(game, team);
+	}
+
+	public void updateActiveGame() throws DataAccessException {
+		// if the game is null, just return
+		if (this.activeGame == null) {
+			return;
+		}
+
+		List<GameData> allGames = this.generateGamesCache();
+
+		for (GameData game : allGames) {
+			// Look for the game that matches the current game
+			if (game.gameID().equals(this.activeGame.game().gameID())) {
+				this.activeGame = new ActiveGame(game, this.activeGame.team());	
+			}
+		}
 	}
 
 	public void resetActiveGame() {
@@ -175,5 +225,86 @@ public class Client {
 	 */
 	public void printBoardValidMoves(ActiveGame game, ChessPosition square) {
 		this.printBoardValidMoves(game.game().game(), game.team(), square);
+	}
+
+	public void manageMsg(ServerMessage msg, String origMsg) {
+		switch (msg.getServerMessageType()) {
+			case LOAD_GAME -> printActiveGame();
+			case ERROR -> printServerError(origMsg);
+			case NOTIFICATION -> printServerNotification(origMsg);
+		}
+	}
+
+	public void printActiveGame(boolean printCmdHeader) {
+		try {
+			this.updateActiveGame();
+		} catch (DataAccessException ex) {}
+
+		if (this.activeGame != null) {
+			System.out.println(ERASE_LINE);
+			System.out.println(String.format(GAME_TURN_MSG, this.activeGame.game().game().getTeamTurn()));
+			this.printBoard(this.activeGame);
+			if (printCmdHeader) {
+				this.appState.printPrompt();
+			}
+		}
+	}
+
+	public void printActiveGame() {
+		this.printActiveGame(true);
+	} 
+
+	public void printServerError(String errorStr) {
+		Error err = GSON.fromJson(errorStr, Error.class);
+
+		StringBuilder out = new StringBuilder();
+
+		out.append("\n\t");
+
+		out.append(ERROR_HEADER_BG_COLOR);
+		out.append(ERROR_HEADER_TEXT_COLOR);
+		out.append("[ERROR]");
+		out.append(RESET_BG_COLOR);
+
+		out.append(": ");
+
+		out.append(ERROR_TEXT_COLOR);
+		out.append(err.getMsg());
+
+		// reset text to default coloring
+		out.append(RESET_TEXT_COLOR);
+		out.append(RESET_TEXT_BOLD_FAINT);
+
+		System.out.println(out.toString());
+
+		this.appState.printPrompt();
+	}
+
+	public void printServerNotification(String notificationStr) {
+		Notification notification = GSON.fromJson(notificationStr, Notification.class);
+
+		StringBuilder output = new StringBuilder();
+
+		output.append("\n\t");
+
+		// colors
+		output.append(NOTIFICATION_HEADER_BG_COLOR);
+		output.append(NOTIFICATION_HEADER_TEXT_COLOR);
+
+		output.append("[NOTIFICATION]");
+		output.append(RESET_BG_COLOR);
+
+		output.append(": ");
+
+		output.append(NOTIFICATION_TEXT_COLOR);
+
+		output.append(notification.getMsg());
+
+		output.append(RESET_TEXT_COLOR);
+
+		System.out.println(output.toString());
+
+		this.appState.printPrompt();
+
 	}
 }

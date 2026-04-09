@@ -23,7 +23,9 @@ public class GameplayState extends BaseState {
 		HelpCommand::new,
 		LeaveGameCommand::new,
 		HighlightMovesCommand::new,
-		RedrawChessBoardCommand::new
+		RedrawChessBoardCommand::new,
+		MakeMoveCommand::new,
+		ResignCommand::new
 			);
 
 	private ChessGame game;

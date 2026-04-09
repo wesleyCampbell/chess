@@ -32,9 +32,8 @@ public class HighlightMovesCommand extends CommandBase {
 			return null;
 		}
 
-		Character colChar = squareStr.charAt(0);
+		Character colChar = Character.toLowerCase(squareStr.charAt(0));
 		Character rowChar = squareStr.charAt(1);
-
 
 		// parse the column
 		Integer col = ChessBoard.parseRowHeader(colChar);

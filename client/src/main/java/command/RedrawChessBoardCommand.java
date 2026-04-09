@@ -23,17 +23,7 @@ public class RedrawChessBoardCommand extends CommandBase {
 			return false;
 		}
 
-		ActiveGame game = this.app.getActiveGame();
-
-		if (game == null) {
-			System.out.println("Game null. ");
-			return false;
-		}
-
-		// TODO: This probably needs to dynamically refresh. I don't yet
-		// know how the web socket will change this, though
-
-		this.app.printBoard(game);	
+		this.app.printActiveGame(false);
 
 		return false;
 	}

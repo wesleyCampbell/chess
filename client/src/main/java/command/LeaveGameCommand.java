@@ -1,6 +1,7 @@
 package command;
 
 import java.util.List;
+import java.io.IOException;
 
 import appstate.*;
 
@@ -24,6 +25,15 @@ public class LeaveGameCommand extends CommandBase {
 
 	public boolean executeCommand(List<String> parameters) {
 		if (!this.verifyParameters(parameters, PARAMETERS.length)) {
+			return false;
+		}
+
+		// Exit the websocket session
+		try {
+			int gameID = Integer.parseInt(this.app.getActiveGame().game().gameID());
+			this.app.getWebSocket().leave(this.app.getAuthToken(), gameID);
+		} catch (IOException ex) {
+			System.out.println(SERVER_ERROR_MSG);
 			return false;
 		}
 
