@@ -19,6 +19,8 @@ import dataaccess.*;
 
 import websocket.commands.*;
 import websocket.messages.*;
+import websocket.messages.error.*;
+import websocket.messages.notification.*;
 
 /**
  * A class that will translate web socket requests into ones the server can understand

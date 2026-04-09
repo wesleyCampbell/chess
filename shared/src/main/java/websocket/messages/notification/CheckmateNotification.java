@@ -1,4 +1,4 @@
-package websocket.messages;
+package websocket.messages.notification;
 
 public class CheckmateNotification extends Notification {
 	private static final String MSG_TEMPLATE = """

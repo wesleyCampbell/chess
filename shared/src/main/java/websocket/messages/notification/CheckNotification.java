@@ -1,14 +1,14 @@
-package websocket.messages;
+package websocket.messages.notification;
 
-public class StalemateNotification extends Notification {
+public class CheckNotification extends Notification {
 	private static final String MSG_TEMPLATE = """
-		Player %s is in stalemate! Game over.""";
+		Player %s is in check!""";
 
 	private static String formatMsg(String username) {
 		return String.format(MSG_TEMPLATE, username);
 	}
 
-	public StalemateNotification(String username) {
+	public CheckNotification(String username) {
 		super(formatMsg(username));
-	}
+	} 
 }
