@@ -233,7 +233,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 		this.connections.broadcast(gameID, session, moveNotification);
 
 		// check to see if there is a player in check/checkmate/stalemate
-		checkMateStalemateCheck(gameData, username, session);
+		String otherUsername;
+		if (gameData.whiteUsername().equals(username)) {
+			otherUsername = gameData.blackUsername();
+		} else {
+			otherUsername = gameData.whiteUsername();
+		}
+		checkMateStalemateCheck(gameData, otherUsername, session);
 	}
 
 	private void checkMateStalemateCheck(GameData gameData, String username, Session session) throws IOException {
@@ -266,7 +272,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 			// this.connections.broadcastAll(gameID, gameOverMsg);
 			this.connections.setGameInactive(gameID);
 		}
-
 	}
 
 	private void leave(WsMessageContext ctx) throws IOException {

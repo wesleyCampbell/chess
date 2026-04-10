@@ -49,6 +49,10 @@ public class WebSocketFacade extends Endpoint {
 		this.session.getBasicRemote().sendText(cmd.toJson());
 	}
 
+	public void closeSession() throws IOException {
+		this.session.close();
+	}
+
 	/************* WEBSOCKET ENDPOINTS **********************/
 
 	public void connect(String authToken, int gameID) throws IOException {
@@ -70,5 +74,4 @@ public class WebSocketFacade extends Endpoint {
 		UserGameCommand cmd = new LeaveCommand(authToken, gameID);
 		this.sendCommand(cmd);
 	}	
-	
 }

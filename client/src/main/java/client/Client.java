@@ -4,6 +4,7 @@ import java.util.List;
 
 import static ui.EscapeSequences.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -91,6 +92,12 @@ public class Client implements NotificationHandler {
 		appState.displayWelcomeScreen();
 		while (this.running) {
 			appState.commandPrompt();
+		}
+
+		try {
+			this.ws.closeSession();
+		} catch (IOException ex) {
+			System.exit(1);
 		}
 
 		System.out.println(EXIT_MSG);
